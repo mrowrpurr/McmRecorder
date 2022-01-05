@@ -1,0 +1,69 @@
+<?xml version='1.0'?>
+<PapyrusProject xmlns="PapyrusProject.xsd" 
+    Flags="TESV_Papyrus_Flags.flg" 
+    Game="sse"
+    Anonymize="true" 
+    Output="Scripts" 
+    Optimize="false" 
+    Release="false" 
+    Zip="false"
+    Package="false"
+    Final="false">
+    <Variables>
+        <!-- Set the name of your mod: -->
+        <Variable Name="ModName" Value="CHANGE THE MOD NAME HERE" />
+        <!-- The folder where you store all of your mods -->
+        <Variable Name="ModsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Mods" />
+        <!-- Optional folder with additional source code for imports -->
+        <Variable Name="ImportsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Imports" />
+    </Variables>
+    <Imports>
+        <!-- To require SKSE dynamically, extract its Scripts/ directory into a new mod folder -->
+        <Import>@ModsFolder\SKSE64\Scripts\Source</Import>
+        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\VR is Virtual Reality\mods\SkyUI\scripts\Source</Import>
+
+        <!-- These mods come with source directories by default with required .psc files -->
+        <Import>@ImportsFolder\PapyrusUtil\Scripts\Source</Import>
+        <Import>@ImportsFolder\JContainers\Scripts\Source</Import>
+        <!-- <Import>@ModsFolder\PapyrusExtender\source\scripts</Import> -->
+        <!-- <Import>@ModsFolder\LibFire\Scripts\Source</Import> -->
+        <!-- <Import>@ModsFolder\iWantWidgets\Source\Scripts</Import> -->
+        <!-- <Import>@ModsFolder\iWantStatusBars\Source\Scripts</Import> -->
+        <!-- <Import>@ModsFolder\FISSES\scripts\source</Import> -->
+
+        <!-- These mods DO NOT come with loose .psc files or are not "mods" and need to be setup manually  -->
+        <!-- <Import>@ImportsFolder\SkyUI_5.1_SDK\Scripts\Source</Import> -->
+        <!-- <Import>@ImportsFolder\ConsoleUtil</Import> -->
+        <!-- <Import>@ImportsFolder\UIExtensions\scripts\source</Import> -->
+
+        <!-- Change this to be your default Skyrim install directory's Scripts\Source path  -->
+        <Import>C:\Steam\steamapps\common\Skyrim Special Edition - Modding\Data\Scripts\Source</Import>
+    </Imports>
+    <Folders>
+        <!-- Relative path to folder containing .psc Papyrus source code files for this project -->
+        <Folder>./Scripts/Source</Folder>
+    </Folders>
+    <!-- The following section is for .bsa archives. You can enable it by setting Package="true" in the PapyrusProject -->
+    <Packages Output=".">
+        <Package Name="@ModName" RootDir=".">
+            <Match In="Scripts">*.pex</Match>
+            <!-- <Match In="interface\translations">*.txt</Match> -->
+        </Package>
+        <!-- If you have any texture files, uncomment the following to create a Textures .bsa archive with texture files -->
+        <!-- <Package Name="@ModName - Textures" RootDir=".">
+            <Include>*.dds</Include>
+        </Package> -->
+    </Packages>
+    <!-- The following section is for .zip archive. You can enable it by setting Zip="true" in the PapyrusProject -->
+    <ZipFiles Output="Build">
+        <ZipFile Name="@ModName" RootDir="." Compression="deflate">
+            <Include>@ModName.esp</Include>
+            <Include NoRecurse="true">*.bsa</Include>
+            <Match In="Scripts\Source">*.psc</Match>
+        </ZipFile>
+    </ZipFiles>
+    <!-- This will remove any *.bsa files in this directory *after* the build, if there are any. Set UseInBuild="false" to disable. -->
+    <!-- <PostBuildEvent Description="Post-Build Remove BSA Files" UseInBuild="true">
+        <Command>del *.bsa</Command>
+    </PostBuildEvent> -->
+</PapyrusProject>
