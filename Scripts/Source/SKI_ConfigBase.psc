@@ -903,6 +903,9 @@ function OpenConfig()
 endFunction
 
 Bool function ShowMessage(String a_message, Bool a_withCancel, String a_acceptLabel, String a_cancelLabel)
+	if McmRecorder.IsPlayingRecording()
+		return true ; Automatically accept every dialog without actually showing it :)
+	endIf
 
 	if _waitForMessage
 		self.Error("Called ShowMessage() while another message was already open")

@@ -35,6 +35,18 @@ string function JdbPathToModConfigurationOptionsForPage(string modName, string p
     return ".mcmRecorder.mcmOptions." + JdbPathPart(modName) + "." + JdbPathPart(pageName)
 endFunction
 
+string function JdbPathToIsPlayingRecording() global
+    return ".mcmRecorder.isPlayingRecording"
+endFunction
+
+string function JdbPathToPlayingRecordingModName() global
+    return ".mcmRecorder.playingRecording.modName"
+endFunction
+
+string function JdbPathToPlayingRecordingModPageName() global
+    return ".mcmRecorder.playingRecording.pageName"
+endFunction
+
 string function JdbPathPart(string part) global
     string[] parts = StringUtil.Split(part, ".")
     string sanitized = ""
@@ -145,8 +157,32 @@ SKI_ConfigBase function GetMcmInstance(string modName) global
     return recorder.skiConfigManager._modConfigs[index]
 endFunction
 
+function SetIsPlayingRecording(bool running = true) global
+    JDB.solveIntSetter(JdbPathToIsPlayingRecording(), running as int, createMissingKeys = true)
+endFunction
+
+bool function IsPlayingRecording() global
+    return JDB.solveInt(JdbPathToIsPlayingRecording())
+endFunction
+
 bool function IsRecording() global
     return GetCurrentRecordingName()
+endFunction
+
+string function GetCurrentPlayingRecordingModName() global
+    return JDB.solveStr(JdbPathToPlayingRecordingModName())
+endFunction
+
+function SetCurrentPlayingRecordingModName(string modName) global
+    JDB.solveStrSetter(JdbPathToPlayingRecordingModName(), modName , createMissingKeys = true)
+endFunction
+
+string function GetCurrentPlayingRecordingModPageName() global
+    return JDB.solveStr(JdbPathToPlayingRecordingModPageName())
+endFunction
+
+function SetCurrentPlayingRecordingModPageName(string pagename) global
+    JDB.solveStrSetter(JdbPathToPlayingRecordingModPageName(), pageName , createMissingKeys = true)
 endFunction
 
 function Save(string recordingName, string modName) global
@@ -218,6 +254,9 @@ function RecordAction(string modName, string pageName, int optionId = -1, string
 endFunction
 
 function PlayRecording(string recordingName) global
+    SetCurrentPlayingRecordingModName("")
+    SetCurrentPlayingRecordingModPageName("")
+    SetIsPlayingRecording(true)
     string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
     int fileIndex = 0
     while fileIndex < stepFiles.Length
@@ -231,11 +270,22 @@ function PlayRecording(string recordingName) global
         fileIndex += 1
     endWhile
     Debug.MessageBox(recordingName + " has finished playing.")
+    SetIsPlayingRecording(false)
 endFunction
 
 function PlayAction(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
+
+    SKI_ConfigBase mcm = GetMcmInstance(modName)
+
+    ; if GetCurrentPlayingRecordingModName() != modName || GetCurrentPlayingRecordingModPageName() != pageName
+    mcm.OnPageReset(pageName)
+    ; endIf
+
+    ; SetCurrentPlayingRecordingModName(modName)
+    ; SetCurrentPlayingRecordingModPageName(pageName)
+
     string optionType = JMap.getStr(actionInfo, "type")
     float fltValue = JMap.getFlt(actionInfo, "value")
     string strValue = JMap.getStr(actionInfo, "value")
@@ -244,7 +294,6 @@ function PlayAction(int actionInfo) global
     int optionId = JMap.getInt(actionInfo, "optionId")
     string stateName = JMap.getStr(actionInfo, "state")
 
-    SKI_ConfigBase mcm = GetMcmInstance(modName)
     ; Debug.MessageBox("PlayAction " + modName + " " + pageName + " " + optionId + " " + mcm)
     
     ; mcm.SetPage(pageName, 0) ; TODO store / get page indicies
@@ -260,9 +309,9 @@ function PlayAction(int actionInfo) global
             mcm.OnKeyMapChangeST(fltValue as int, "", "")
         elseIf optionType == "color"
             mcm.OnColorAcceptST(fltValue as int)
-        elseIf optionType == "input"
+        elseIf optionType == "text"
             mcm.OnInputAcceptST(strValue)
-        elseIf optionType == "" || optionType == "text"
+        elseIf optionType == "" || optionType == "toggle"
             mcm.OnSelectST()
         endIf
         mcm.GotoState(previousState)
@@ -275,7 +324,8 @@ function PlayAction(int actionInfo) global
             mcm.OnOptionKeyMapChange(optionId, fltValue as int, "", "")
         elseIf optionType == "color"
             mcm.OnOptionColorAccept(optionId, fltValue as int)
-        elseIf optionType == "input"
+        elseIf optionType == "text"
+            Debug.MessageBox("Calling OnOptionInputAccept " + optionId + " " + strValue + " " + mcm)
             mcm.OnOptionInputAccept(optionId, strValue)
         elseIf optionType == "" || optionType == "text"
             mcm.OnOptionSelect(optionId)
