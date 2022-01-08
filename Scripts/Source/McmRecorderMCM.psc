@@ -4,12 +4,12 @@ McmRecorder Recorder
 
 int oid_Record
 int oid_Stop
+int[] oids_Recordings
+string[] recordings
 
 event OnConfigInit()
     ModName = "MCM Recorder"
     Recorder = (self as Quest) as McmRecorder
-    Pages = new string[1]
-    Pages[0] = "Settings"
 endEvent
 
 event OnPageReset(string page)
@@ -20,9 +20,23 @@ event OnPageReset(string page)
         oid_Record = AddInputOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
         AddTextOption("You will be prompted to provide a name for your recording", "", OPTION_FLAG_DISABLED)
     endIf
-    
-    SetCursorFillMode(TOP_TO_BOTTOM)
+    ListRecordings()
 endEvent
+
+function ListRecordings()
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    recordings = McmRecorder.GetRecordingNames()
+    if recordings.Length
+        AddEmptyOption()
+        AddTextOption("Choose a recording to play:", "", OPTION_FLAG_NONE)
+        oids_Recordings = Utility.CreateIntArray(recordings.Length)
+        int i = 0
+        while i < recordings.Length
+            oids_Recordings[i] = AddTextOption("", recordings[i], OPTION_FLAG_NONE)
+            i += 1
+        endWhile
+    endIf
+endFunction
 
 event OnOptionSelect(int optionId)
     if optionId == oid_Stop

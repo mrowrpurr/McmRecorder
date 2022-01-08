@@ -359,12 +359,14 @@ function SetInputText(String a_text)
 
 	String optionState = _stateOptionMap[_activeOption % 256]
 	if optionState != ""
+		; TODO stateful
 		String oldState = self.GetState()
 		self.GotoState(optionState)
 		self.OnInputAcceptST(a_text)
 		self.GotoState(oldState)
 	else
 		self.OnOptionInputAccept(_activeOption, a_text)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, strValue = a_text, recordStringValue = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -405,7 +407,7 @@ function SelectOption(Int a_index)
 		self.GotoState(oldState)
 	else
 		Int option = a_index + _currentPageNum * 256
-		McmRecorder.OnSelectOption(ModName, PageNameOrDefault, option)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, option)
 		self.OnOptionSelect(option)
 	endIf
 endFunction
@@ -667,12 +669,14 @@ function SetMenuIndex(Int a_index)
 
 	String optionState = _stateOptionMap[_activeOption % 256]
 	if optionState != ""
+		; TODO stateful
 		String oldState = self.GetState()
 		self.GotoState(optionState)
 		self.OnMenuAcceptST(a_index)
 		self.GotoState(oldState)
 	else
 		self.OnOptionMenuAccept(_activeOption, a_index)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, fltValue = a_index, recordFloatValue = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -687,12 +691,14 @@ function SetSliderValue(Float a_value)
 
 	String optionState = _stateOptionMap[_activeOption % 256]
 	if optionState != ""
+		; TODO stateful
 		String oldState = self.GetState()
 		self.GotoState(optionState)
 		self.OnSliderAcceptST(a_value)
 		self.GotoState(oldState)
 	else
 		self.OnOptionSliderAccept(_activeOption, a_value)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, fltValue = a_value, recordFloatValue = true)
 	endIf
 	_activeOption = -1
 endFunction

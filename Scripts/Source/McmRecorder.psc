@@ -2,8 +2,12 @@ scriptName McmRecorder extends Quest
 
 int property CurrentRecordingId auto
 
+string function PathToRecordings() global
+    return "Data/McmRecorder"
+endFunction
+
 string function PathToRecordingFile(string recordingName) global
-    return "Data/McmRecorder/" + recordingName + ".json"
+    return PathToRecordings() + "/" + recordingName + ".json"
 endFunction
 
 string function JdbPathToRecording(string recordingName) global
@@ -56,6 +60,16 @@ int function GetCurrentRecording() global
     return JDB.solveObj(JdbPathToRecording(GetCurrentRecordingName()))
 endFunction
 
+string[] function GetRecordingNames() global
+    string[] fileNames = MiscUtil.FilesInFolder(PathToRecordings())
+    int i = 0
+    while i < fileNames.Length
+        fileNames[i] = StringUtil.Substring(fileNames[i], 0, StringUtil.Find(fileNames[i], ".json"))
+        i += 1
+    endWhile
+    return fileNames
+endFunction
+
 bool function IsRecording() global
     return GetCurrentRecordingName()
 endFunction
@@ -105,18 +119,18 @@ int function GetModPageConfigurationOptionsForOptionType(string modName, string 
     return typeMap
 endFunction
 
-function OnSelectOption(string modName, string pageName, int optionId) global
-    if IsRecording()
-        ; Get the optionS with the name X and if there is only 1 then just say "click": "name" else specify the "index on the screen" (or type)
-        RecordAction(modName, pageName, optionId)
+function RecordAction(string modName, string pageName, int index = -1, bool recordFloatValue = false, bool recordStringValue = false, float fltValue = -1.0, string strValue = "") global
+    if IsRecording() && modName != "MCM Recorder"
+        int mcmAction = JMap.object()
+        JArray.addObj(GetCurrentRecording(), mcmAction)
+        JMap.setStr(mcmAction, "mod", modName)
+        JMap.setStr(mcmAction, "page", pageName)
+        JMap.setInt(mcmAction, "index", index)
+        if recordFloatValue
+            JMap.setFlt(mcmAction, "value", fltValue)
+        elseIf recordStringValue
+            JMap.setStr(mcmAction, "value", strValue)
+        endIf
         Save()
     endIf
-endFunction
-
-function RecordAction(string modName, string pageName, int index = -1) global
-    int mcmAction = JMap.object()
-    JArray.addObj(GetCurrentRecording(), mcmAction)
-    JMap.setStr(mcmAction, "mod", modName)
-    JMap.setStr(mcmAction, "page", pageName)
-    JMap.setInt(mcmAction, "index", index)
 endFunction
