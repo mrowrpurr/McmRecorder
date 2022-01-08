@@ -159,8 +159,11 @@ endproperty
 Bool _messageResult = false
 String _infoText
 Int _currentPageNum = 0
+String[] _textBuf
 Int _configID = -1
 SKI_ConfigManager _configManager
+Int[] _optionFlagsBuf
+String[] _strValueBuf
 String _inputStartText
 Int _activeOption = -1
 Int _state = 0
@@ -172,14 +175,8 @@ Int[] _menuParams
 Int _cursorFillMode = 1
 String[] _stateOptionMap
 Bool _waitForMessage = false
+Float[] _numValueBuf
 Int _cursorPosition = 0
-Int[] _optionFlagsBuf
-
-int[] property _optionTypeBuf auto
-int[] property _optionFlagBuf auto
-String[] property _textBuf auto
-String[] property _strValueBuf auto
-Float[] property _numValueBuf auto
 
 ;-- Functions ---------------------------------------
 
@@ -390,7 +387,6 @@ Int function AddInputOption(String a_text, String a_value, Int a_flags)
 endFunction
 
 function SelectOption(Int a_index)
-	McmRecorder.OnOptionSelect(self, a_index)
 	String optionState = _stateOptionMap[a_index]
 	if optionState != ""
 		String oldState = self.GetState()
@@ -800,8 +796,6 @@ function ClearOptionBuffers()
 		_strValueBuf[i] = ""
 		_numValueBuf[i] = 0 as Float
 		_stateOptionMap[i] = ""
-		_optionTypeBuf[i] = 0
-		_optionFlagBuf[i] = 0
 		i += 1
 	endWhile
 	_cursorPosition = 0
@@ -879,8 +873,6 @@ function OpenConfig()
 	_strValueBuf = new String[128]
 	_numValueBuf = new Float[128]
 	_stateOptionMap = new String[128]
-	_optionTypeBuf = new int[128]
-	_optionFlagBuf = new int[128]
 	self.SetPage("", -1)
 	self.OnConfigOpen()
 	ui.InvokeStringA(self.JOURNAL_MENU, self.MENU_ROOT + ".setPageNames", Pages)
@@ -1153,8 +1145,6 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 	if pos == -1
 		return -1
 	endIf
-	_optionTypeBuf[pos] = a_optionType
-	_optionFlagBuf[pos] = a_flags
 	_optionFlagsBuf[pos] = a_optionType + a_flags * 256
 	_textBuf[pos] = a_text
 	_strValueBuf[pos] = a_strValue
