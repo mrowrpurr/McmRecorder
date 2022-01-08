@@ -547,8 +547,10 @@ function SetColorValue(Int a_color)
 		self.GotoState(optionState)
 		self.OnColorAcceptST(a_color)
 		self.GotoState(oldState)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, stateName = optionState, optionType = "color", recordOptionType = true, fltValue = a_color, recordFloatValue = true)
 	else
 		self.OnOptionColorAccept(_activeOption, a_color)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, optionId = _activeOption, optionType = "color", recordOptionType = true, fltValue = a_color, recordFloatValue = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -1135,9 +1137,11 @@ function RemapKey(Int a_index, Int a_keyCode, String a_conflictControl, String a
 		self.GotoState(optionState)
 		self.OnKeyMapChangeST(a_keyCode, a_conflictControl, a_conflictName)
 		self.GotoState(oldState)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, stateName = optionState, optionType = "keymap", recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
 	else
 		Int option = a_index + _currentPageNum * 256
 		self.OnOptionKeyMapChange(option, a_keyCode, a_conflictControl, a_conflictName)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, optionId = option, optionType = "keymap", recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
 	endIf
 endFunction
 

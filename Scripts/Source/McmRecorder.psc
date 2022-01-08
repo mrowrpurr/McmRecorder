@@ -133,8 +133,8 @@ int function GetModPageConfigurationOptionsForOptionType(string modName, string 
 endFunction
 
 function RecordAction(string modName, string pageName, int optionId = -1, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string optionType = "") global
+    Debug.MessageBox("Action " + modName + " " + pageName + " " + optionId)
     if IsRecording() && modName != "MCM Recorder"
-        Debug.MessageBox("Record Action " + modName + " " + pageName + " " + optionId)
         int mcmAction = JMap.object()
         JArray.addObj(GetCurrentRecording(), mcmAction)
         JMap.setStr(mcmAction, "mod", modName)
