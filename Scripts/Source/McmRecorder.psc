@@ -161,6 +161,7 @@ function PlayRecording(string recordingName) global
         PlayAction(JArray.getObj(recordingActions, i))
         i += 1
     endWhile
+    Debug.MessageBox(recordingName + " has finished playing.")
 endFunction
 
 function PlayAction(int actionInfo) global
@@ -175,7 +176,7 @@ function PlayAction(int actionInfo) global
     SKI_ConfigBase mcm = GetMcmInstance(modName)
     ; Debug.MessageBox("PlayAction " + modName + " " + pageName + " " + optionId + " " + mcm)
     
-    mcm.SetPage(pageName, 0) ; TODO store / get page indicies
+    ; mcm.SetPage(pageName, 0) ; TODO store / get page indicies
 
     if optionType == "menu"
         mcm._activeOption = optionId
@@ -183,7 +184,8 @@ function PlayAction(int actionInfo) global
         Debug.Notification(modName + " " + optionType + " " + optionId + " " + fltValue)
     elseIf optionType == "slider"
         mcm._activeOption = optionId
-        mcm.SetSliderValue(fltValue)
+        mcm.OnOptionSliderAccept(optionId, fltValue)
+        ; Debug.MessageBox("On Slider " + optionId + " " + fltValue)
         Debug.Notification(modName + " " + optionType + " " + optionId + " " + fltValue)
     elseIf optionType == ""
         mcm._activeOption = optionId
