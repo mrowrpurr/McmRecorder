@@ -130,7 +130,7 @@ string function GetFileNameForRecordingAction(string recordingName, string modNa
 endFunction
 
 string[] function GetRecordingNames() global
-    string[] fileNames = MiscUtil.FilesInFolder(PathToRecordings())
+    string[] fileNames = MiscUtil.FoldersInFolder(PathToRecordings())
     int i = 0
     while i < fileNames.Length
         fileNames[i] = StringUtil.Substring(fileNames[i], 0, StringUtil.Find(fileNames[i], ".json"))
@@ -218,14 +218,19 @@ function RecordAction(string modName, string pageName, int optionId = -1, string
 endFunction
 
 function PlayRecording(string recordingName) global
-;     int recordingActions = JValue.readFromFile(GetPathToRecordingFile(recordingName))
-;     int actionCount = JArray.count(recordingActions)
-;     int i = 0
-;     while i < actionCount
-;         PlayAction(JArray.getObj(recordingActions, i))
-;         i += 1
-;     endWhile
-;     Debug.MessageBox(recordingName + " has finished playing.")
+    string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
+    int fileIndex = 0
+    while fileIndex < stepFiles.Length
+        int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + stepFiles[i])
+        int actionCount = JArray.count(recordingActions)
+        int i = 0
+        while i < actionCount
+            PlayAction(JArray.getObj(recordingActions, i))
+            i += 1
+        endWhile
+        fileIndex += 1
+    endWhile
+    Debug.MessageBox(recordingName + " has finished playing.")
 endFunction
 
 function PlayAction(int actionInfo) global
