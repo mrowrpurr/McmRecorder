@@ -15,16 +15,20 @@ string function PathToRecordings() global
     return "Data/McmRecorder"
 endFunction
 
-string function PathToRecordingFile(string recordingName) global
-    return PathToRecordings() + "/" + recordingName + ".json"
-endFunction
-
-string function JdbPathToRecording(string recordingName) global
-    return ".mcmRecorder.recordings." + JdbPathPart(recordingName)
+string function PathToRecordingFolder(string recordingName) global
+    return PathToRecordings() + "/" + FileSystemPathPart(recordingName)
 endFunction
 
 string function JdbPathToCurrentRecordingName() global
-    return ".mcmRecorder.currentRecordingName"
+    return ".mcmRecorder.currentRecording.recordingName"
+endFunction
+
+string function JdbPathToCurrentRecordingModName() global
+    return ".mcmRecorder.currentRecording.currentModName"
+endFunction
+
+string function JdbPathToCurrentRecordingRecordingStep() global
+    return ".mcmRecorder.currentRecording.currentModStep"
 endFunction
 
 string function JdbPathToModConfigurationOptionsForPage(string modName, string pageName) global
@@ -46,11 +50,37 @@ string function JdbPathPart(string part) global
     return sanitized
 endFunction
 
+string function FileSystemPathPart(string part) global
+    string[] parts = StringUtil.Split(part, "/")
+    string sanitized = ""
+    int i = 0
+    while i < parts.Length
+        if i == 0
+            sanitized += parts[i]
+        else
+            sanitized += "_" + parts[i]
+        endIf
+        i += 1
+    endWhile
+    parts = StringUtil.Split(sanitized, "\\")
+    sanitized = ""
+    i = 0
+    while i < parts.Length
+        if i == 0
+            sanitized += parts[i]
+        else
+            sanitized += "_" + parts[i]
+        endIf
+        i += 1
+    endWhile
+    return sanitized
+endFunction
+
 function BeginRecording(string recordingName) global
     int recordingSteps = JArray.object()
-    JDB.solveObjSetter(JdbPathToRecording(recordingName), recordingSteps, createMissingKeys = true)
-    Save(recordingName)
     SetCurrentRecordingName(recordingName)
+    SetCurrentRecordingModName("")
+    ResetCurrentRecordingSteps()
 endFunction
 
 function StopRecording() global
@@ -65,8 +95,38 @@ function SetCurrentRecordingName(string recodingName) global
     JDB.solveStrSetter(JdbPathToCurrentRecordingName(), recodingName, createMissingKeys = true)
 endFunction
 
-int function GetCurrentRecording() global
-    return JDB.solveObj(JdbPathToRecording(GetCurrentRecordingName()))
+string function GetCurrentRecordingModName() global
+    return JDB.solveStr(JdbPathToCurrentRecordingMOdName())
+endFunction
+
+function SetCurrentRecordingModName(string modName) global
+    JDB.solveStrSetter(JdbPathToCurrentRecordingModName(), modName , createMissingKeys = true)
+endFunction
+
+int function GetCurrentRecordingSteps() global
+    return JDB.solveObj(JdbPathToCurrentRecordingRecordingStep())
+endFunction
+
+function SetCurrentRecordingSteps(int stepInfo) global
+    JDB.solveObjSetter(JdbPathToCurrentRecordingRecordingStep(), stepInfo, createMissingKeys = true)
+endFunction
+
+function ResetCurrentRecordingSteps() global
+    SetCurrentRecordingSteps(JArray.object())
+endFunction
+
+string function GetFileNameForRecordingAction(string recordingName, string modName) global
+    string recordingFolder = PathToRecordingFolder(recordingName)
+    int recordingStepNumber = MiscUtil.FilesInFolder(recordingFolder).Length
+    if modName != GetCurrentRecordingModName()
+        recordingStepNumber += 1
+        SetCurrentRecordingModName(modName)
+    endIf
+    string filenameNumericPrefix = recordingStepNumber
+    while StringUtil.GetLength(filenameNumericPrefix) < 4
+        filenameNumericPrefix = "0" + filenameNumericPrefix
+    endWhile
+    return PathToRecordingFolder(recordingName) + "/" + filenameNumericPrefix + "_" + FileSystemPathPart(modName) + ".json"
 endFunction
 
 string[] function GetRecordingNames() global
@@ -89,11 +149,8 @@ bool function IsRecording() global
     return GetCurrentRecordingName()
 endFunction
 
-function Save(string recordingName = "") global
-    if ! recordingName
-        recordingName = GetCurrentRecordingName()
-    endIf
-    JValue.writeToFile(JDB.solveObj(JdbPathToRecording(recordingName)), PathToRecordingFile(recordingName))
+function Save(string recordingName, string modName) global
+    JValue.writeToFile(GetCurrentRecordingSteps(), GetFileNameForRecordingAction(recordingName, modName))
 endFunction
 
 function AddConfigurationOption(string modName, string pageName, int optionId, string optionType, string optionText, string optionStrValue, float optionFltValue) global
@@ -133,16 +190,21 @@ int function GetModPageConfigurationOptionsForOptionType(string modName, string 
 endFunction
 
 function RecordAction(string modName, string pageName, int optionId = -1, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string optionType = "") global
-    Debug.MessageBox("Action " + modName + " " + pageName + " " + optionId)
     if IsRecording() && modName != "MCM Recorder"
+        if modName != GetCurrentRecordingModName()
+            ResetCurrentRecordingSteps()
+        endIf
         int mcmAction = JMap.object()
-        JArray.addObj(GetCurrentRecording(), mcmAction)
+        JArray.addObj(GetCurrentRecordingSteps(), mcmAction)
         JMap.setStr(mcmAction, "mod", modName)
         if pageName != "SKYUI_DEFAULT_PAGE"
             JMap.setStr(mcmAction, "page", pageName)
         endIf
-        JMap.setInt(mcmAction, "optionId", optionId)
-        JMap.setStr(mcmAction, "state", stateName)
+        if stateName
+            JMap.setStr(mcmAction, "state", stateName)
+        else
+            JMap.setInt(mcmAction, "optionId", optionId)
+        endIf
         if recordOptionType
             JMap.setStr(mcmAction, "type", optionType)
         endIf
@@ -151,19 +213,19 @@ function RecordAction(string modName, string pageName, int optionId = -1, string
         elseIf recordStringValue
             JMap.setStr(mcmAction, "value", strValue)
         endIf
-        Save()
+        Save(GetCurrentRecordingName(), modName)
     endIf
 endFunction
 
 function PlayRecording(string recordingName) global
-    int recordingActions = JValue.readFromFile(PathToRecordingFile(recordingName))
-    int actionCount = JArray.count(recordingActions)
-    int i = 0
-    while i < actionCount
-        PlayAction(JArray.getObj(recordingActions, i))
-        i += 1
-    endWhile
-    Debug.MessageBox(recordingName + " has finished playing.")
+;     int recordingActions = JValue.readFromFile(GetPathToRecordingFile(recordingName))
+;     int actionCount = JArray.count(recordingActions)
+;     int i = 0
+;     while i < actionCount
+;         PlayAction(JArray.getObj(recordingActions, i))
+;         i += 1
+;     endWhile
+;     Debug.MessageBox(recordingName + " has finished playing.")
 endFunction
 
 function PlayAction(int actionInfo) global
