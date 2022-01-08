@@ -2,6 +2,38 @@ scriptName McmRecorder extends Quest
 
 int property CurrentRecordingId auto
 
+SKI_ConfigBase[] MCMs0
+SKI_ConfigBase[] MCMs1
+SKI_ConfigBase[] MCMs2
+SKI_ConfigBase[] MCMs3
+SKI_ConfigBase[] MCMs4
+SKI_ConfigBase[] MCMs5
+SKI_ConfigBase[] MCMs6
+SKI_ConfigBase[] MCMs7
+SKI_ConfigBase[] MCMs8
+SKI_ConfigBase[] MCMs9
+
+McmRecorder function GetInstance() global
+    return Game.GetFormFromFile(0x800, "McmRecorder.esp") as McmRecorder
+endFunction
+
+event OnInit()
+    ResetMcmMenuInstanceArrays()
+endEvent
+
+function ResetMcmMenuInstanceArrays()
+    MCMs0 = new SKI_ConfigBase[128]
+    MCMs1 = new SKI_ConfigBase[128]
+    MCMs2 = new SKI_ConfigBase[128]
+    MCMs3 = new SKI_ConfigBase[128]
+    MCMs4 = new SKI_ConfigBase[128]
+    MCMs5 = new SKI_ConfigBase[128]
+    MCMs6 = new SKI_ConfigBase[128]
+    MCMs7 = new SKI_ConfigBase[128]
+    MCMs8 = new SKI_ConfigBase[128]
+    MCMs9 = new SKI_ConfigBase[128]
+endFunction
+
 string function PathToRecordings() global
     return "Data/McmRecorder"
 endFunction
@@ -20,6 +52,10 @@ endFunction
 
 string function JdbPathToModConfigurationOptionsForPage(string modName, string pageName) global
     return ".mcmRecorder.mcmOptions." + JdbPathPart(modName) + "." + JdbPathPart(pageName)
+endFunction
+
+string function JdbPathToMcmInstanceIndicies() global
+    return ".mcmRecorder.mcmInstanceIndicies"
 endFunction
 
 string function JdbPathPart(string part) global
@@ -68,6 +104,22 @@ string[] function GetRecordingNames() global
         i += 1
     endWhile
     return fileNames
+endFunction
+
+int function GetMcmInstanceMap(string modName) global
+    int instanceMap = JDB.solveObj("JdbPathToMcmInstanceIndicies")
+endFunction
+
+int function GetMcmInstanceIndex(string modName) global
+
+endFunction
+
+int function GetNextMcmInstanceIndex() global
+
+endFunction
+
+function StoreMcmInstance(string modName, SKI_ConfigBase mcm) global
+
 endFunction
 
 bool function IsRecording() global
@@ -119,13 +171,18 @@ int function GetModPageConfigurationOptionsForOptionType(string modName, string 
     return typeMap
 endFunction
 
-function RecordAction(string modName, string pageName, int index = -1, bool recordFloatValue = false, bool recordStringValue = false, float fltValue = -1.0, string strValue = "") global
+function RecordAction(string modName, string pageName, int index = -1, bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string optionType = "") global
     if IsRecording() && modName != "MCM Recorder"
         int mcmAction = JMap.object()
         JArray.addObj(GetCurrentRecording(), mcmAction)
         JMap.setStr(mcmAction, "mod", modName)
-        JMap.setStr(mcmAction, "page", pageName)
+        if pageName != "SKYUI_DEFAULT_PAGE"
+            JMap.setStr(mcmAction, "page", pageName)
+        endIf
         JMap.setInt(mcmAction, "index", index)
+        if recordOptionType
+            JMap.setStr(mcmAction, "type", optionType)
+        endIf
         if recordFloatValue
             JMap.setFlt(mcmAction, "value", fltValue)
         elseIf recordStringValue
@@ -133,4 +190,19 @@ function RecordAction(string modName, string pageName, int index = -1, bool reco
         endIf
         Save()
     endIf
+endFunction
+
+function PlayRecording(string recordingName) global
+    int recordingActions = JValue.readFromFile(PathToRecordingFile(recordingName))
+    int actionCount = JArray.count(recordingActions)
+    int i = 0
+    while i < actionCount
+        PlayAction(JArray.getObj(recordingActions, i))
+        i += 1
+    endWhile
+endFunction
+
+function PlayAction(int actionInfo) global
+    ; string pageName = JMap.getStr(actionInfo, "page")
+
 endFunction

@@ -366,7 +366,7 @@ function SetInputText(String a_text)
 		self.GotoState(oldState)
 	else
 		self.OnOptionInputAccept(_activeOption, a_text)
-		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, strValue = a_text, recordStringValue = true)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, strValue = a_text, recordStringValue = true, optionType = "text", recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -676,7 +676,7 @@ function SetMenuIndex(Int a_index)
 		self.GotoState(oldState)
 	else
 		self.OnOptionMenuAccept(_activeOption, a_index)
-		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, fltValue = a_index, recordFloatValue = true)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, fltValue = a_index, recordFloatValue = true, optionType = "menu", recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -698,7 +698,7 @@ function SetSliderValue(Float a_value)
 		self.GotoState(oldState)
 	else
 		self.OnOptionSliderAccept(_activeOption, a_value)
-		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, fltValue = a_value, recordFloatValue = true)
+		McmRecorder.RecordAction(ModName, PageNameOrDefault, _activeOption, fltValue = a_value, recordFloatValue = true, optionType = "slider", recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction

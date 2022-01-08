@@ -41,6 +41,11 @@ endFunction
 event OnOptionSelect(int optionId)
     if optionId == oid_Stop
         Debug.MessageBox("STOP")
+    elseIf oids_Recordings.Find(optionId) > -1
+        if ShowMessage("Are you sure you would like to play this recording?", true, "Yes", "No")
+            int recordingIndex = oids_Recordings.Find(optionId)
+            McmRecorder.PlayRecording(recordings[recordingIndex])
+        endIf
     endIf
 endEvent
 
