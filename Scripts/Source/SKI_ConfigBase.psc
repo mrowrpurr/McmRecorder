@@ -387,7 +387,7 @@ Int function AddInputOption(String a_text, String a_value, Int a_flags)
 endFunction
 
 function SelectOption(Int a_index)
-
+	McmRecorder.OnOptionSelect(self, a_index)
 	String optionState = _stateOptionMap[a_index]
 	if optionState != ""
 		String oldState = self.GetState()
