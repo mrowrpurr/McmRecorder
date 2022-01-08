@@ -22,13 +22,13 @@ String property MENU_ROOT
 endproperty
 
 ;-- Variables ---------------------------------------
-String[] _modNames
+String[] property _modNames auto
 Bool _locked = false
 Bool _lockInit = false
 Int _updateCounter = 0
 Bool _cleanupFlag = false
 Int _configCount = 0
-SKI_ConfigBase[] _modConfigs
+SKI_ConfigBase[] property _modConfigs auto
 SKI_ConfigBase _activeConfig
 Int _curConfigID = 0
 Int _addCounter = 0
