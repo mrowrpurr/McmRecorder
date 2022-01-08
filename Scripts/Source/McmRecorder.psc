@@ -132,15 +132,17 @@ int function GetModPageConfigurationOptionsForOptionType(string modName, string 
     return typeMap
 endFunction
 
-function RecordAction(string modName, string pageName, int index = -1, bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string optionType = "") global
+function RecordAction(string modName, string pageName, int optionId = -1, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string optionType = "") global
     if IsRecording() && modName != "MCM Recorder"
+        Debug.MessageBox("Record Action " + modName + " " + pageName + " " + optionId)
         int mcmAction = JMap.object()
         JArray.addObj(GetCurrentRecording(), mcmAction)
         JMap.setStr(mcmAction, "mod", modName)
         if pageName != "SKYUI_DEFAULT_PAGE"
             JMap.setStr(mcmAction, "page", pageName)
         endIf
-        JMap.setInt(mcmAction, "index", index)
+        JMap.setInt(mcmAction, "optionId", optionId)
+        JMap.setStr(mcmAction, "state", stateName)
         if recordOptionType
             JMap.setStr(mcmAction, "type", optionType)
         endIf
@@ -172,24 +174,44 @@ function PlayAction(int actionInfo) global
     string strValue = JMap.getStr(actionInfo, "value")
     ; string text = JMap.getStr(actionInfo, "text") ; TODO update to store text (instead of option index)
 
-    int optionId = JMap.getInt(actionInfo, "index")
+    int optionId = JMap.getInt(actionInfo, "optionId")
+    string stateName = JMap.getStr(actionInfo, "state")
+
     SKI_ConfigBase mcm = GetMcmInstance(modName)
     ; Debug.MessageBox("PlayAction " + modName + " " + pageName + " " + optionId + " " + mcm)
     
     ; mcm.SetPage(pageName, 0) ; TODO store / get page indicies
 
-    if optionType == "menu"
-        mcm._activeOption = optionId
-        mcm.SetMenuIndex(fltValue as int)
-        Debug.Notification(modName + " " + optionType + " " + optionId + " " + fltValue)
-    elseIf optionType == "slider"
-        mcm._activeOption = optionId
-        mcm.OnOptionSliderAccept(optionId, fltValue)
-        ; Debug.MessageBox("On Slider " + optionId + " " + fltValue)
-        Debug.Notification(modName + " " + optionType + " " + optionId + " " + fltValue)
-    elseIf optionType == ""
-        mcm._activeOption = optionId
-        mcm.SelectOption(optionId)
-        Debug.Notification(modName + " " + optionType + " " + optionId)
+    if stateName
+        string previousState = mcm.GetState()
+        mcm.GotoState(stateName)
+        if optionType == "menu"
+            mcm.OnMenuAcceptST(fltValue as int)
+        elseIf optionType == "slider"
+            mcm.OnSliderAcceptST(fltValue)
+        elseIf optionType == "keymap"
+            mcm.OnKeyMapChangeST(fltValue as int, "", "")
+        elseIf optionType == "color"
+            mcm.OnColorAcceptST(fltValue as int)
+        elseIf optionType == "input"
+            mcm.OnInputAcceptST(strValue)
+        elseIf optionType == "" || optionType == "text"
+            mcm.OnSelectST()
+        endIf
+        mcm.GotoState(previousState)
+    else
+        if optionType == "menu"
+            mcm.OnOptionMenuAccept(optionId, fltValue as int)
+        elseIf optionType == "slider"
+            mcm.OnOptionSliderAccept(optionId, fltValue)
+        elseIf optionType == "keymap"
+            mcm.OnOptionKeyMapChange(optionId, fltValue as int, "", "")
+        elseIf optionType == "color"
+            mcm.OnOptionColorAccept(optionId, fltValue as int)
+        elseIf optionType == "input"
+            mcm.OnOptionInputAccept(optionId, strValue)
+        elseIf optionType == "" || optionType == "text"
+            mcm.OnOptionSelect(optionId)
+        endIf
     endIf
 endFunction
