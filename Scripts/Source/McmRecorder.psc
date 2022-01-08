@@ -55,6 +55,8 @@ endFunction
 
 function OnOptionSelect(SKI_ConfigBase mcm, int optionId) global
     if IsRecording()
-        Debug.MessageBox("CLICK " + optionId + " " + mcm)
+        Debug.MessageBox("Clicked on option " + optionId + " of mod " + mcm.ModName + " page " + mcm.CurrentPage)
+        Debug.MessageBox("Type: " + mcm._optionTypeBuf[optionId])
+        Debug.MessageBox("Text: " + mcm._textBuf[optionId])
     endIf
 endFunction
