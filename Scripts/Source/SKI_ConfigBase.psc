@@ -174,7 +174,7 @@ SKI_ConfigManager _configManager
 Int[] _optionFlagsBuf
 String[] _strValueBuf
 String _inputStartText
-Int _activeOption = -1
+Int property _activeOption = -1 auto
 Int _state = 0
 String _currentPage = ""
 Bool _initialized = false

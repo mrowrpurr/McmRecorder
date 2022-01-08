@@ -54,7 +54,7 @@ function BeginRecording(string recordingName) global
 endFunction
 
 function StopRecording() global
-    ;;;;;;
+    SetCurrentRecordingName("")
 endFunction
 
 string function GetCurrentRecordingName() global
@@ -166,8 +166,28 @@ endFunction
 function PlayAction(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
+    string optionType = JMap.getStr(actionInfo, "type")
+    float fltValue = JMap.getFlt(actionInfo, "value")
+    string strValue = JMap.getStr(actionInfo, "value")
     ; string text = JMap.getStr(actionInfo, "text") ; TODO update to store text (instead of option index)
+
     int optionId = JMap.getInt(actionInfo, "index")
     SKI_ConfigBase mcm = GetMcmInstance(modName)
-    Debug.MessageBox("PlayAction " + modName + " " + pageName + " " + optionId + " " + mcm)
+    ; Debug.MessageBox("PlayAction " + modName + " " + pageName + " " + optionId + " " + mcm)
+    
+    mcm.SetPage(pageName, 0) ; TODO store / get page indicies
+
+    if optionType == "menu"
+        mcm._activeOption = optionId
+        mcm.SetMenuIndex(fltValue as int)
+        Debug.Notification(modName + " " + optionType + " " + optionId + " " + fltValue)
+    elseIf optionType == "slider"
+        mcm._activeOption = optionId
+        mcm.SetSliderValue(fltValue)
+        Debug.Notification(modName + " " + optionType + " " + optionId + " " + fltValue)
+    elseIf optionType == ""
+        mcm._activeOption = optionId
+        mcm.SelectOption(optionId)
+        Debug.Notification(modName + " " + optionType + " " + optionId)
+    endIf
 endFunction
