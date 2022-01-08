@@ -31,8 +31,12 @@ string function JdbPathToCurrentRecordingRecordingStep() global
     return ".mcmRecorder.currentRecording.currentModStep"
 endFunction
 
+string function JdbPathToMcmOptions() global
+    return ".mcmRecorder.mcmOptions"
+endFunction
+
 string function JdbPathToModConfigurationOptionsForPage(string modName, string pageName) global
-    return ".mcmRecorder.mcmOptions." + JdbPathPart(modName) + "." + JdbPathPart(pageName)
+    return JdbPathToMcmOptions() + "." + JdbPathPart(modName) + "." + JdbPathPart(pageName)
 endFunction
 
 string function JdbPathToIsPlayingRecording() global
@@ -190,7 +194,7 @@ function Save(string recordingName, string modName) global
 endFunction
 
 function AddConfigurationOption(string modName, string pageName, int optionId, string optionType, string optionText, string optionStrValue, float optionFltValue) global
-    int optionsOnModPageForType = GetModPageConfigurationOptionsForOptionType(modName, pageName, optionType)
+    int optionsOnModPageForType = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
     int option = JMap.object()
     JArray.addObj(optionsOnModPageForType, option)
     JMap.setInt(option, "id", optionId)
@@ -201,7 +205,14 @@ function AddConfigurationOption(string modName, string pageName, int optionId, s
     JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
 endFunction
 
+function ResetMcmOptions() global
+    JDB.solveObjSetter(JdbPathToMcmOptions(), JMap.object(), createMissingKeys = true)
+endFunction
+
 int function GetModPageConfigurationOptions(string modName, string pageName) global
+    if ! pageName
+        pageName = "SKYUI_DEFAULT_PAGE"
+    endIf
     int options = JDB.solveObj(JdbPathToModConfigurationOptionsForPage(modName, pageName))
     if ! options
         options = JMap.object()
@@ -211,12 +222,12 @@ int function GetModPageConfigurationOptions(string modName, string pageName) glo
     return options
 endFunction
 
-int function GetModPageConfigurationOptionsForOptionTypes(string modName, string pageName) global
+int function GetModPageConfigurationOptionsByOptionTypes(string modName, string pageName) global
     return JMap.getObj(GetModPageConfigurationOptions(modName, pageName), "byType")
 endFunction
 
-int function GetModPageConfigurationOptionsForOptionType(string modName, string pageName, string optionType) global
-    int byType = GetModPageConfigurationOptionsForOptionTypes(modName, pageName)
+int function GetModPageConfigurationOptionsByOptionType(string modName, string pageName, string optionType) global
+    int byType = GetModPageConfigurationOptionsByOptionTypes(modName, pageName)
     int typeMap = JMap.getObj(byType, optionType)
     if ! typeMap
         typeMap = JArray.object()
@@ -274,6 +285,56 @@ function PlayRecording(string recordingName) global
 endFunction
 
 function PlayAction(int actionInfo) global
+    string modName = JMap.getStr(actionInfo, "mod")
+    string pageName = JMap.getStr(actionInfo, "page")
+    Debug.MessageBox("Play action for " + modName + " '" + pageName + "'")
+
+    SKI_ConfigBase mcm = GetMcmInstance(modName)
+
+    Debug.MessageBox("MCM: " + mcm)
+
+    ; int pageIndex = mcm.Pages.Find(pageName)
+    ; if pageIndex == -1
+    ;     pageIndex = 0
+    ; endIf
+
+    ResetMcmOptions()
+    mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
+
+    Debug.MessageBox("Rendered page: " + modName + " '" + pageName + "'")
+
+    ; PRINT OUT THE NAMES OF ALL OF THE WIDGETS ON THE PAGE
+
+    int byType = GetModPageConfigurationOptionsByOptionTypes(modName, pageName)
+    string[] typeNames = JMap.allKeysPArray(byType)
+    Debug.MessageBox(typeNames)
+
+    int i = 0
+    while i < typeNames.Length
+        int widgets = JMap.getObj(byType, typeNames[i])
+        int widgetCount = JArray.count(widgets)
+        int j = 0
+        while j < widgetCount
+            int widget = JArray.getObj(widgets, j)
+            Debug.MessageBox(typeNames[i] + " Widget: " + JMap.getStr(widget, "text"))
+            j += 1
+        endWhile
+        i += 1
+    endWhile
+endFunction
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+function PlayAction_VERSION_ONE(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
