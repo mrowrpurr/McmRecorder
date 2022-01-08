@@ -1153,7 +1153,13 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 	if _cursorPosition >= 128
 		_cursorPosition = -1
 	endIf
-	return pos + _currentPageNum * 256
+	int optionId = pos + _currentPageNum * 256
+	string pageName = _currentPage
+	if ! pageName
+		pageName = "SKYUI_DEFAULT_PAGE"
+	endIf
+	McmRecorder.AddConfigurationOption(ModName, _currentPage, optionId, "TYPE: " + a_optionType, a_text, a_strValue, a_numValue)
+	return optionId
 endFunction
 
 function CloseConfig()
