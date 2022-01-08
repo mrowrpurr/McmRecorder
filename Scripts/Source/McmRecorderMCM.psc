@@ -20,15 +20,8 @@ event OnPageReset(string page)
         oid_Record = AddInputOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
         AddTextOption("You will be prompted to provide a name for your recording", "", OPTION_FLAG_DISABLED)
     endIf
-
+    
     SetCursorFillMode(TOP_TO_BOTTOM)
-    AddToggleOption("Toggle Option", true, OPTION_FLAG_NONE)
-    AddTextOption("Text option", "Text value", OPTION_FLAG_NONE)
-    AddInputOption("Input option", "Input value", OPTION_FLAG_NONE)
-    AddSliderOption("Slider option", 0.0, "{0}", OPTION_FLAG_NONE)
-    AddKeyMapOption("KeyMapOption", 42, OPTION_FLAG_NONE)
-    AddMenuOption("Menu Option", "Menu option value", OPTION_FLAG_NONE)
-    AddColorOption("Color option", 0, OPTION_FLAG_NONE)
 endEvent
 
 event OnOptionSelect(int optionId)

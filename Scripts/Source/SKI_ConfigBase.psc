@@ -8,6 +8,15 @@ Computer : DESKTOP-1OLNAKU
 scriptName SKI_ConfigBase extends SKI_QuestBase
 
 ;-- Properties --------------------------------------
+string property PageNameOrDefault
+	string function get()
+		if _currentPage
+			return _currentPage
+		else
+			return "SKYUI_DEFAULT_PAGE"
+		endIf
+	endFunction
+endProperty
 String property CurrentPage
 	String function get()
 
@@ -389,12 +398,14 @@ endFunction
 function SelectOption(Int a_index)
 	String optionState = _stateOptionMap[a_index]
 	if optionState != ""
+		; TODO STATE
 		String oldState = self.GetState()
 		self.GotoState(optionState)
 		self.OnSelectST()
 		self.GotoState(oldState)
 	else
 		Int option = a_index + _currentPageNum * 256
+		McmRecorder.OnSelectOption(ModName, PageNameOrDefault, option)
 		self.OnOptionSelect(option)
 	endIf
 endFunction
@@ -846,6 +857,11 @@ function AddOptionST(String a_stateName, Int a_optionType, String a_text, String
 		return 
 	endIf
 	Int index = self.AddOption(a_optionType, a_text, a_strValue, a_numValue, a_flags) % 256
+	; string pageName = _currentPage
+	; if ! pageName
+	; 	pageName = "SKYUI_DEFAULT_PAGE"
+	; endIf
+	; McmRecorder.AddStateToStatefulConfiguration(ModName, pageName, index, a_stateName)
 	if index < 0
 		return 
 	endIf
@@ -1154,11 +1170,25 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 		_cursorPosition = -1
 	endIf
 	int optionId = pos + _currentPageNum * 256
-	string pageName = _currentPage
-	if ! pageName
-		pageName = "SKYUI_DEFAULT_PAGE"
+	if McmRecorder.IsRecording()
+		string optionType
+		if a_optionType == 2
+			optionType = "text"
+		elseIf a_optionType == 3
+			optionType = "toggle"
+		elseIf a_optionType == 4
+			optionType = "slider"
+		elseIf a_optionType == 5
+			optionType = "menu"
+		elseIf a_optionType == 6
+			optionType = "color"
+		elseIf a_optionType == 7
+			optionType = "keymap"
+		elseIf a_optionType == 7
+			optionType = "input"
+		endIf
+		McmRecorder.AddConfigurationOption(ModName, PageNameOrDefault, optionId, optionType, a_text, a_strValue, a_numValue)
 	endIf
-	McmRecorder.AddConfigurationOption(ModName, _currentPage, optionId, "TYPE: " + a_optionType, a_text, a_strValue, a_numValue)
 	return optionId
 endFunction
 

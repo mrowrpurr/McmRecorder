@@ -158,8 +158,6 @@ function OnOptionDefault(String a_eventName, String a_strArg, Float a_numArg, Fo
 endFunction
 
 function OnOptionSelect(String a_eventName, String a_strArg, Float a_numArg, Form a_sender)
-    ; Debug.Notification("MANAGER Option Select " + a_eventName + " " + a_strArg + " " + a_numArg)
-    ; Debug.MessageBox("MANAGER Option Select " + a_eventName + " " + a_strArg + " " + a_numArg)
 	Int optionIndex = a_numArg as Int
 	_activeConfig.SelectOption(optionIndex)
 	ui.InvokeBool(self.JOURNAL_MENU, self.MENU_ROOT + ".unlock", true)
