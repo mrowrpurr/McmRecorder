@@ -2,16 +2,16 @@ scriptName McmRecorder extends Quest
 
 int property CurrentRecordingId auto
 
-SKI_ConfigBase[] MCMs0
-SKI_ConfigBase[] MCMs1
-SKI_ConfigBase[] MCMs2
-SKI_ConfigBase[] MCMs3
-SKI_ConfigBase[] MCMs4
-SKI_ConfigBase[] MCMs5
-SKI_ConfigBase[] MCMs6
-SKI_ConfigBase[] MCMs7
-SKI_ConfigBase[] MCMs8
-SKI_ConfigBase[] MCMs9
+SKI_ConfigBase[] property MCMs0 auto
+SKI_ConfigBase[] property MCMs1 auto
+SKI_ConfigBase[] property MCMs2 auto
+SKI_ConfigBase[] property MCMs3 auto
+SKI_ConfigBase[] property MCMs4 auto
+SKI_ConfigBase[] property MCMs5 auto
+SKI_ConfigBase[] property MCMs6 auto
+SKI_ConfigBase[] property MCMs7 auto
+SKI_ConfigBase[] property MCMs8 auto
+SKI_ConfigBase[] property MCMs9 auto
 
 McmRecorder function GetInstance() global
     return Game.GetFormFromFile(0x800, "McmRecorder.esp") as McmRecorder
@@ -106,20 +106,42 @@ string[] function GetRecordingNames() global
     return fileNames
 endFunction
 
-int function GetMcmInstanceMap(string modName) global
-    int instanceMap = JDB.solveObj("JdbPathToMcmInstanceIndicies")
+int function GetMcmInstanceMap() global
+    int instanceMap = JDB.solveObj(JdbPathToMcmInstanceIndicies())
+    if ! instanceMap
+        instanceMap = JMap.object()
+        JDB.solveObjSetter(JdbPathToMcmInstanceIndicies(), instanceMap, createMissingKeys = true)
+    endIf
+    return instanceMap
+endFunction
+
+; TODO - add locking here
+int function GetNextMcmInstanceIndex(string modName) global
+    int index = JMap.count(GetMcmInstanceMap())
+    JMap.setObj(GetMcmInstanceMap(), modName, index)
+    return index
 endFunction
 
 int function GetMcmInstanceIndex(string modName) global
-
-endFunction
-
-int function GetNextMcmInstanceIndex() global
-
+    return JMap.getInt(GetMcmInstanceMap(), modName)
 endFunction
 
 function StoreMcmInstance(string modName, SKI_ConfigBase mcm) global
+    int instanceIndex = GetNextMcmInstanceIndex(modName)
+    McmRecorder recorder = GetInstance()
+    if instanceIndex < 128
+        recorder.MCMs0[instanceIndex] = mcm
+    ; .... TODO ....
+    endIf
+endFunction
 
+SKI_ConfigBase function GetMcmInstance(string modName) global
+    McmRecorder recorder = GetInstance()
+    int instanceIndex = GetMcmInstanceIndex(modName)
+    if instanceIndex < 128
+        return recorder.MCMs0[instanceIndex]
+    ; .... TODO ....
+    endIf
 endFunction
 
 bool function IsRecording() global
@@ -131,8 +153,6 @@ function Save(string recordingName = "") global
         recordingName = GetCurrentRecordingName()
     endIf
     JValue.writeToFile(JDB.solveObj(JdbPathToRecording(recordingName)), PathToRecordingFile(recordingName))
-    StorageUtil.SetIntValue(None, "MC_IsAwesome", 1)
-    ; StorageUtil.GetIntValue(None, )
 endFunction
 
 function AddConfigurationOption(string modName, string pageName, int optionId, string optionType, string optionText, string optionStrValue, float optionFltValue) global
@@ -203,6 +223,10 @@ function PlayRecording(string recordingName) global
 endFunction
 
 function PlayAction(int actionInfo) global
-    ; string pageName = JMap.getStr(actionInfo, "page")
-
+    string modName = JMap.getStr(actionInfo, "mod")
+    string pageName = JMap.getStr(actionInfo, "page")
+    ; string text = JMap.getStr(actionInfo, "text") ; TODO update to store text (instead of option index)
+    int optionId = JMap.getInt(actionInfo, "index")
+    SKI_ConfigBase mcm = GetMcmInstance(modName)
+    Debug.MessageBox("PlayAction " + modName + " " + pageName + " " + optionId + " " + mcm)
 endFunction
