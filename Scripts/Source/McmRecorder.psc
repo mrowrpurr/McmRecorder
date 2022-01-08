@@ -287,42 +287,81 @@ endFunction
 function PlayAction(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
-    Debug.MessageBox("Play action for " + modName + " '" + pageName + "'")
 
     SKI_ConfigBase mcm = GetMcmInstance(modName)
-
-    Debug.MessageBox("MCM: " + mcm)
-
-    ; int pageIndex = mcm.Pages.Find(pageName)
-    ; if pageIndex == -1
-    ;     pageIndex = 0
-    ; endIf
 
     ResetMcmOptions()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
 
-    Debug.MessageBox("Rendered page: " + modName + " '" + pageName + "'")
-
-    ; PRINT OUT THE NAMES OF ALL OF THE WIDGETS ON THE PAGE
-
-    int byType = GetModPageConfigurationOptionsByOptionTypes(modName, pageName)
-    string[] typeNames = JMap.allKeysPArray(byType)
-    Debug.MessageBox(typeNames)
-
-    int i = 0
-    while i < typeNames.Length
-        int widgets = JMap.getObj(byType, typeNames[i])
-        int widgetCount = JArray.count(widgets)
-        int j = 0
-        while j < widgetCount
-            int widget = JArray.getObj(widgets, j)
-            Debug.MessageBox(typeNames[i] + " Widget: " + JMap.getStr(widget, "text"))
-            j += 1
-        endWhile
-        i += 1
-    endWhile
+    if JMap.getStr(actionInfo, "click")
+        PlayAction_Text(modName, pageName, actionInfo)
+    elseIf JMap.getStr(actionInfo, "toggle")
+        PlayAction_Toggle(mcm, modName, pageName, actionInfo)
+    elseIf JMap.getStr(actionInfo, "select")
+        PlayAction_Menu(modName, pageName, actionInfo)
+    elseIf JMap.getStr(actionInfo, "text")
+        PlayAction_InputText(modName, pageName, actionInfo)
+    elseIf JMap.getStr(actionInfo, "shortcut")
+        PlayAction_KeyboardShortcut(modName, pageName, actionInfo)
+    elseIf JMap.getStr(actionInfo, "color")
+        PlayAction_Color(modName, pageName, actionInfo)
+    endIf
 endFunction
 
+function PlayAction_Text(string modName, string pageName, int actionInfo) global
+endFunction
+
+function PlayAction_Toggle(SKI_ConfigBase mcm, string modName, string pageName, int actionInfo) global
+    string selector = JMap.getStr(actionInfo, "toggle")
+    string stateName = JMap.getStr(actionInfo, "state")
+    Debug.MessageBox("WILDCARD: '" + GetWildcardMatcher(selector) + "'")
+
+    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, "toggle")
+    int optionCount = JArray.count(options)
+    bool found
+    int i = 0
+    while i < optionCount && (! found)
+        int option = JArray.getObj(options, i)
+        if JMap.getStr(option, "text") == selector
+            Debug.MessageBox("FOUND " + selector)
+            found = true
+            if stateName
+                string previousState = mcm.GetState()
+                mcm.GotoState(stateName)
+                mcm.OnSelectST()
+                mcm.GotoState(previousState)
+            else
+                mcm.OnOptionSelect(JMap.getInt(option, "id"))
+            endIf
+        endIf
+        i += 1
+    endWhile
+
+    if ! found
+        Debug.MessageBox("Could not find option " + "toggle" + " for " + modName + " " + pageName + " " + selector)
+    endIf
+endFunction
+
+function PlayAction_Menu(string modName, string pageName, int actionInfo) global
+endFunction
+
+function PlayAction_InputText(string modName, string pageName, int actionInfo) global
+endFunction
+
+function PlayAction_KeyboardShortcut(string modName, string pageName, int actionInfo) global
+endFunction
+
+function PlayAction_Color(string modName, string pageName, int actionInfo) global
+endFunction
+
+string function GetWildcardMatcher(string selector) global
+    int strLength = StringUtil.GetLength(selector)
+    if StringUtil.Substring(selector, 0, 1) == "*" && StringUtil.Substring(selector, strLength - 1, 1) == "*"
+        return StringUtil.Substring(selector, 1, strLength - 2)
+    else
+        return ""
+    endIf
+endFunction
 
 
 
