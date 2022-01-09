@@ -211,7 +211,8 @@ function AddConfigurationOption(string modName, string pageName, int optionId, s
     JMap.setStr(option, "text", optionText)
     JMap.setStr(option, "strValue", optionStrValue)
     JMap.setFlt(option, "fltValue", optionFltValue)
-    JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
+    ; JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
+    ; LogContainer("Added Config Option", option)
 endFunction
 
 int function GetConfigurationOption(string modName, string pageName, int optionId) global
@@ -275,7 +276,12 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
             if JMap.getStr(option, "type") == "toggle"
                 JMap.setStr(mcmAction, "toggle", JMap.getStr(option, "text"))
             else
-                JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+                if JMap.getStr(option, "text")
+                    JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+                else
+                    JMap.setStr(mcmAction, "click", JMap.getStr(option, "strValue"))
+                    JMap.setStr(mcmAction, "side", "right")
+                endIf
             endIf
 
         elseIf optionType == "menu"
@@ -330,6 +336,7 @@ function PlayRecording(string recordingName) global
         int actionCount = JArray.count(recordingActions)
         int i = 0
         while i < actionCount
+            Log("RUN ACTION " + ToJson(JArray.getObj(recordingActions, i)))
             PlayAction(JArray.getObj(recordingActions, i))
             i += 1
         endWhile
@@ -343,13 +350,13 @@ function PlayAction(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
-    LogContainer(modName + " " + pageName + " MCM Page", GetModPageConfigurationOptionsByOptionTypes(modName, pageName))
-    LogContainer("Action", actionInfo)
-
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
     ResetMcmOptions()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
+
+    ; LogContainer(modName + " " + pageName + " MCM Page", GetModPageConfigurationOptionsByOptionTypes(modName, pageName))
+    ; LogContainer("Action", actionInfo)
 
     string optionType
     string selector
@@ -389,24 +396,29 @@ function PlayAction(int actionInfo) global
     string wildcard = GetWildcardMatcher(selector)
     string stateName = JMap.getStr(actionInfo, "state")
 
+    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
+    int optionCount = JArray.count(options)
+
     Log("Option type: " + optionType)
     Log("Selector: " + selector)
     Log("Wildcard: " + wildcard)
     Log("State Name: " + stateName)
-
-    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
-    int optionCount = JArray.count(options)
-
     Log("There are " + optionCount + " " + optionType + " options on page " + pageName)
 
     bool found
     int i = 0
     while i < optionCount && (! found)
+        Log("Searching for " + selector + " ...")
+
         int option = JArray.getObj(options, i)
         int optionId = JMap.getInt(option, "id")
         string optionText = JMap.getStr(option, "text")
 
-        LogContainer("Comparing with MCM option", option)
+        if JMap.getStr(actionInfo, "side") == "right"
+            optionText = JMap.getStr(option, "strValue")
+        endIf
+
+        ; LogContainer("Comparing with MCM option", option)
 
         if wildcard
             found = StringUtil.Find(optionText, wildcard) > -1
@@ -415,6 +427,8 @@ function PlayAction(int actionInfo) global
         endIf
 
         if found
+            LogContainer("Found! Option", option)
+
             if stateName
                 string previousState = mcm.GetState()
                 mcm.GotoState(stateName)
@@ -434,11 +448,11 @@ function PlayAction(int actionInfo) global
                 elseIf optionType == "keymap"
                     mcm.OnKeyMapChangeST(JMap.getFlt(actionInfo, "shortcut") as int, "", "")
 
-                ; elseIf optionType == "color"
-                ;     mcm.OnColorAcceptST(fltValue as int)
+                elseIf optionType == "color"
+                    mcm.OnColorAcceptST(JMap.getInt(actionInfo, "color"))
 
-                ; elseIf optionType == "input"
-                ;     mcm.OnInputAcceptST(strValue)
+                elseIf optionType == "input"
+                    mcm.OnInputAcceptST(JMap.getFlt(actionInfo, "text"))
 
                 elseIf optionType == "slider"
                     mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "value"))
@@ -468,17 +482,19 @@ function PlayAction(int actionInfo) global
                 elseIf optionType == "keymap"
                     mcm.OnOptionKeyMapChange(optionId, JMap.getFlt(actionInfo, "shortcut") as int, "", "")
 
-                ; elseIf optionType == "color"
-                ;     mcm.OnOptionColorAccept(optionId, fltValue as int)
+                elseIf optionType == "color"
+                    mcm.OnOptionColorAccept(optionId, JMap.getInt(actionInfo, "color"))
 
-                ; elseIf optionType == "input"
-                ;     mcm.OnOptionInputAccept(optionId, strValue)
+                elseIf optionType == "input"
+                    mcm.OnOptionInputAccept(optionId, JMap.getFlt(actionInfo, "text"))
 
                 elseIf optionType == "toggle" || optionType == "text"
+                    Log("TOGGLE! SHOULD HAPPEN ONCE YO " + selector)
                     mcm.OnOptionSelect(optionId)
                 endIf
             endIf
         endIf
+
         i += 1
     endWhile
 
