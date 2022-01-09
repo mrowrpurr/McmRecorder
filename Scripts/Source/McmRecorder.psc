@@ -295,23 +295,34 @@ function PlayAction(int actionInfo) global
 
     string optionType
     string selector
+
     if JMap.getStr(actionInfo, "click")
         optionType = "text"
         selector = JMap.getStr(actionInfo, "click")
+
     elseIf JMap.getStr(actionInfo, "toggle")
         optionType = "toggle"
         selector = JMap.getStr(actionInfo, "toggle")
+
     elseIf JMap.getStr(actionInfo, "select")
         optionType = "menu"
-        selector = JMap.getStr(actionInfo, "from")
+        selector = JMap.getStr(actionInfo, "option")
+
     elseIf JMap.getStr(actionInfo, "text")
-        ; optionType = "input"
+        optionType = "input"
+
     elseIf JMap.getStr(actionInfo, "shortcut")
-        ; optionType = "keymap"
+        optionType = "keymap"
+
     elseIf JMap.getStr(actionInfo, "color")
-        ; optionType = "color"
-    elseIf JMap.getStr(actionInfo, "slider")
-        ; optionType = "slider"
+        optionType = "color"
+
+    elseIf JMap.getFlt(actionInfo, "value")
+        optionType = "slider"
+        selector = JMap.getStr(actionInfo, "option")
+
+    else
+        optionType = "UNKNOWN"
     endIf
 
     string wildcard = GetWildcardMatcher(selector)
@@ -336,22 +347,38 @@ function PlayAction(int actionInfo) global
             if stateName
                 string previousState = mcm.GetState()
                 mcm.GotoState(stateName)
+
                 if optionType == "menu"
-                    ; mcm.OnMenuAcceptST(fltValue as int)
-                ; elseIf optionType == "slider"
-                ;     mcm.OnSliderAcceptST(fltValue)
+
+                    string menuItem = JMap.getStr(actionInfo, "select")
+                    mcm.OnOptionMenuOpen(optionId)
+                    string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                    int itemIndex = menuOptions.Find(menuItem)
+                    if itemIndex == -1
+                        Debug.MessageBox("Could not find " + menuItem + " menu item ")
+                    else
+                        mcm.OnMenuAcceptST(itemIndex)
+                    endIf
+
+                    ; mcm.(fltValue as int)
                 ; elseIf optionType == "keymap"
                 ;     mcm.OnKeyMapChangeST(fltValue as int, "", "")
                 ; elseIf optionType == "color"
                 ;     mcm.OnColorAcceptST(fltValue as int)
                 ; elseIf optionType == "text"
                 ;     mcm.OnInputAcceptST(strValue)
+
+                elseIf optionType == "slider"
+                    mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "value"))
+
                 elseIf optionType == "toggle"
                     mcm.OnSelectST()
                 endIf
+
                 mcm.GotoState(previousState)
             else
                 if optionType == "menu"
+
                     string menuItem = JMap.getStr(actionInfo, "select")
                     mcm.OnOptionMenuOpen(optionId)
                     string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
@@ -365,8 +392,10 @@ function PlayAction(int actionInfo) global
 
 
                 ;     mcm.OnOptionMenuAccept(optionId, fltValue as int)
-                ; elseIf optionType == "slider"
-                ;     mcm.OnOptionSliderAccept(optionId, fltValue)
+
+                elseIf optionType == "slider"
+                    mcm.OnOptionSliderAccept(optionId, JMap.getFlt(actionInfo, "value"))
+
                 ; elseIf optionType == "keymap"
                 ;     mcm.OnOptionKeyMapChange(optionId, fltValue as int, "", "")
                 ; elseIf optionType == "color"
@@ -374,6 +403,7 @@ function PlayAction(int actionInfo) global
                 ; elseIf optionType == "text"
                 ;     Debug.MessageBox("Calling OnOptionInputAccept " + optionId + " " + strValue + " " + mcm)
                 ;     mcm.OnOptionInputAccept(optionId, strValue)
+
                 elseIf optionType == "toggle"
                     mcm.OnOptionSelect(optionId)
                 endIf
