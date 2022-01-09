@@ -842,6 +842,9 @@ function ClearOptionBuffers()
 endFunction
 
 function WriteOptionBuffers()
+	if McmRecorder.IsPlayingRecording()
+		return
+	endIf
 
 	String menu = self.JOURNAL_MENU
 	String root = self.MENU_ROOT

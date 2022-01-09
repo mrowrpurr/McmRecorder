@@ -211,7 +211,7 @@ function AddConfigurationOption(string modName, string pageName, int optionId, s
     JMap.setStr(option, "text", optionText)
     JMap.setStr(option, "strValue", optionStrValue)
     JMap.setFlt(option, "fltValue", optionFltValue)
-    ; JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
+    JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
     ; LogContainer("Added Config Option", option)
 endFunction
 
@@ -333,10 +333,11 @@ function PlayRecording(string recordingName) global
     int fileIndex = 0
     while fileIndex < stepFiles.Length
         int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + stepFiles[i])
+        JValue.writeToFile(recordingActions, "RECORDING_ACTIONS_" + stepFiles[i])
         int actionCount = JArray.count(recordingActions)
         int i = 0
         while i < actionCount
-            Log("RUN ACTION " + ToJson(JArray.getObj(recordingActions, i)))
+            Log("RUN ACTION!!!!! " + ToJson(JArray.getObj(recordingActions, i)))
             PlayAction(JArray.getObj(recordingActions, i))
             i += 1
         endWhile
@@ -351,6 +352,15 @@ function PlayAction(int actionInfo) global
     string pageName = JMap.getStr(actionInfo, "page")
 
     SKI_ConfigBase mcm = GetMcmInstance(modName)
+
+    if ! mcm
+        mcm = GetMcmInstance(modName)
+    endIf
+
+    if ! mcm
+        Debug.MessageBox("Could not load MCM menu for " + modName) ; TODO turn into a LOG TRACE
+        return
+    endIf
 
     ResetMcmOptions()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
@@ -452,7 +462,7 @@ function PlayAction(int actionInfo) global
                     mcm.OnColorAcceptST(JMap.getInt(actionInfo, "color"))
 
                 elseIf optionType == "input"
-                    mcm.OnInputAcceptST(JMap.getFlt(actionInfo, "text"))
+                    mcm.OnInputAcceptST(JMap.getStr(actionInfo, "text"))
 
                 elseIf optionType == "slider"
                     mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "value"))
@@ -486,7 +496,7 @@ function PlayAction(int actionInfo) global
                     mcm.OnOptionColorAccept(optionId, JMap.getInt(actionInfo, "color"))
 
                 elseIf optionType == "input"
-                    mcm.OnOptionInputAccept(optionId, JMap.getFlt(actionInfo, "text"))
+                    mcm.OnOptionInputAccept(optionId, JMap.getStr(actionInfo, "text"))
 
                 elseIf optionType == "toggle" || optionType == "text"
                     Log("TOGGLE! SHOULD HAPPEN ONCE YO " + selector)
