@@ -246,7 +246,7 @@ int function GetModPageConfigurationOptionsByOptionType(string modName, string p
     return typeMap
 endFunction
 
-function RecordAction(string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "") global
+function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "") global
     if IsRecording() && modName != "MCM Recorder"
         if modName != GetCurrentRecordingModName()
             ResetCurrentRecordingSteps()
@@ -265,23 +265,26 @@ function RecordAction(string modName, string pageName, string optionType, int op
 
         if optionType == "clickable"
             JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+        elseIf optionType == "menu"
+            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            if stateName
+                string previousState = mcm.GetState()
+                mcm.GotoState(stateName)
+                mcm.OnMenuOpenST()
+                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                string selectedOptionText = menuOptions[fltValue as int]
+                JMap.setStr(mcmAction, "select", selectedOptionText)
+                mcm.GotoState(previousState)
+            else
+                mcm.OnOptionMenuOpen(optionId)
+                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                string selectedOptionText = menuOptions[fltValue as int]
+                JMap.setStr(mcmAction, "select", selectedOptionText)
+            endIf
         else
             Debug.MessageBox("TODO: support " + optionType)
         endIf
 
-        ; if stateName
-        ;     JMap.setStr(mcmAction, "state", stateName)
-        ; else
-        ;     JMap.setInt(mcmAction, "optionId", optionId)
-        ; endIf
-        if recordOptionType
-            JMap.setStr(mcmAction, "type", optionType)
-        endIf
-        if recordFloatValue
-            JMap.setFlt(mcmAction, "value", fltValue)
-        elseIf recordStringValue
-            JMap.setStr(mcmAction, "value", strValue)
-        endIf
         Save(GetCurrentRecordingName(), modName)
     endIf
 endFunction
