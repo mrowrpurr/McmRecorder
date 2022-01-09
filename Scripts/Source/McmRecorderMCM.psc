@@ -6,6 +6,7 @@ int oid_Record
 int oid_Stop
 int[] oids_Recordings
 string[] recordings
+string recordingToPlayWhenMcmCloses
 
 event OnConfigInit()
     ModName = "MCM Recorder"
@@ -45,7 +46,9 @@ event OnOptionSelect(int optionId)
     elseIf oids_Recordings.Find(optionId) > -1
         if ShowMessage("Are you sure you would like to play this recording?", true, "Yes", "No")
             int recordingIndex = oids_Recordings.Find(optionId)
-            McmRecorder.PlayRecording(recordings[recordingIndex])
+            Debug.MessageBox("Please close the MCM to begin playing this recording.")
+            recordingToPlayWhenMcmCloses = recordings[recordingIndex]
+            RegisterForMenu("Journal Menu")
         endIf
     endIf
 endEvent
@@ -53,12 +56,23 @@ endEvent
 event OnOptionInputAccept(int optionId, string text)
     McmRecorder.BeginRecording(text)
     ForcePageReset()
-    Debug.MessageBox("Recording Started\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording. You will be prompted to save or delete the recording.\n\nRecordings are saved in Data\\McmRecorder")
+    Debug.MessageBox("Recording Started!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
 endEvent
 
 event OnOptionInputOpen(int optionId)
     if optionId == oid_Record
         string[] currentTimeParts = StringUtil.Split(Utility.GetCurrentRealTime(), ".")
         SetInputDialogStartText("Recording_" + currentTimeParts[0] + "_" + currentTimeParts[1])
+    endIf
+endEvent
+
+event OnMenuClose(string menuName)
+    if menuName == "Journal Menu"
+        if recordingToPlayWhenMcmCloses
+            Debug.MessageBox("Playing MCM recording " + recordingToPlayWhenMcmCloses)
+            McmRecorder.PlayRecording(recordingToPlayWhenMcmCloses)
+            recordingToPlayWhenMcmCloses = ""
+            UnregisterForMenu("Journal Menu")
+        endIf
     endIf
 endEvent

@@ -283,7 +283,6 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
                     JMap.setStr(mcmAction, "side", "right")
                 endIf
             endIf
-
         elseIf optionType == "menu"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
             if stateName
@@ -291,30 +290,25 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
                 mcm.GotoState(stateName)
                 mcm.OnMenuOpenST()
                 string selectedOptionText = menuOptions[fltValue as int]
-                JMap.setStr(mcmAction, "select", selectedOptionText)
+                JMap.setStr(mcmAction, "choose", selectedOptionText)
                 mcm.GotoState(previousState)
             else
                 mcm.OnOptionMenuOpen(optionId)
                 string selectedOptionText = menuOptions[fltValue as int]
-                JMap.setStr(mcmAction, "select", selectedOptionText)
+                JMap.setStr(mcmAction, "choose", selectedOptionText)
             endIf
-
         elseIf optionType == "slider"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
-            JMap.setFlt(mcmAction, "value", fltValue)
-
+            JMap.setFlt(mcmAction, "slider", fltValue)
         elseIf optionType == "keymap"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
             JMap.setInt(mcmAction, "shortcut", fltValue as int)
-
         elseIf optionType == "color"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
             JMap.setInt(mcmAction, "color", fltValue as int)
-
         elseIf optionType == "input"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
             JMap.setStr(mcmAction, "text", strValue)
-
         else
             Debug.MessageBox("TODO: support " + optionType)
         endIf
@@ -332,27 +326,29 @@ function PlayRecording(string recordingName) global
     string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
     int fileIndex = 0
     while fileIndex < stepFiles.Length
-        int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + stepFiles[fileIndex])
+        string filename = stepFiles[fileIndex]
+        int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + filename)
         JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
 
         int i = 0
         while i < actionCount
             int recordingAction = JArray.getObj(recordingActions, i)
-            Log("RUN ACTION!!!!! " + ToJson(JArray.getObj(recordingActions, i)))
-            PlayAction(recordingAction)
+            LogContainer("Run Action", recordingAction)
+            PlayAction(recordingAction, filename)
+            Debug.Notification(filename + " (" + (i + 1) + "/" + stepFiles.Length + ")")
             i += 1
         endWhile
 
         JValue.release(recordingActions)
         fileIndex += 1
     endWhile
-    Debug.MessageBox(recordingName + " has finished playing.")
+    Debug.MessageBox("MCM recording " + recordingName + " has finished playing.")
 
     SetIsPlayingRecording(false)
 endFunction
 
-function PlayAction(int actionInfo) global
+function PlayAction(int actionInfo, string stepName) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
@@ -364,164 +360,140 @@ function PlayAction(int actionInfo) global
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
     if ! mcm
-        mcm = GetMcmInstance(modName)
-    endIf
-
-    if ! mcm
-        Debug.MessageBox("Could not load MCM menu for " + modName) ; TODO turn into a LOG TRACE
+        Debug.MessageBox("MCM recorder could not load MCM menu for " + modName + " for step " + stepName + " action: " + ToJson(actionInfo)) ; TODO turn into a LOG TRACE
         return
     endIf
 
-    ResetMcmOptions()
-    mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
-
-    ; LogContainer(modName + " " + pageName + " MCM Page", GetModPageConfigurationOptionsByOptionTypes(modName, pageName))
-    ; LogContainer("Action", actionInfo)
-
     string optionType
-    string selector
+    string selector = JMap.getStr(actionInfo, "option")
 
     if JMap.getStr(actionInfo, "click")
         optionType = "text"
         selector = JMap.getStr(actionInfo, "click")
-
     elseIf JMap.getStr(actionInfo, "toggle")
         optionType = "toggle"
         selector = JMap.getStr(actionInfo, "toggle")
-
-    elseIf JMap.getStr(actionInfo, "select")
+    elseIf JMap.getStr(actionInfo, "choose")
         optionType = "menu"
-        selector = JMap.getStr(actionInfo, "option")
-
     elseIf JMap.getStr(actionInfo, "text")
         optionType = "input"
-        selector = JMap.getStr(actionInfo, "option")
-
     elseIf JMap.getFlt(actionInfo, "shortcut")
         optionType = "keymap"
-        selector = JMap.getStr(actionInfo, "option")
-
     elseIf JMap.getStr(actionInfo, "color")
         optionType = "color"
-
-    elseIf JMap.getFlt(actionInfo, "value")
+    elseIf JMap.getFlt(actionInfo, "slider")
         optionType = "slider"
-        selector = JMap.getStr(actionInfo, "option")
-
     else
-        Debug.MessageBox("Um this is unknown? Wrote to UNKNOWN.json " + JValue.writeToFile(actionInfo, "UNKNOWN.json"))
-        optionType = "UNKNOWN"
+        Debug.MessageBox("MCM recording step " + stepName + " is not known type.")
+        return
     endIf
 
     string wildcard = GetWildcardMatcher(selector)
+    string side = JMap.getStr(actionInfo, "side", "left")
     string stateName = JMap.getStr(actionInfo, "state")
+    
+    float searchTimeout = JMap.getFlt(actionInfo, "timeout", 30.0) ; Default to wait for options to show up for a max of 30 seconds
+    float searchInterval = JMap.getFlt(actionInfo, "interval", 0.5) ; Default to try twice per second
 
-    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
-    int optionCount = JArray.count(options)
-
-    Log("Option type: " + optionType)
-    Log("Selector: " + selector)
-    Log("Wildcard: " + wildcard)
-    Log("State Name: " + stateName)
-    Log("There are " + optionCount + " " + optionType + " options on page " + pageName)
-
-    bool found
-    int i = 0
-    while i < optionCount && (! found)
-        Log("Searching for " + selector + " ...")
-
-        int option = JArray.getObj(options, i)
+    int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchTimeout, searchInterval)
+    if option
         int optionId = JMap.getInt(option, "id")
-        string optionText = JMap.getStr(option, "text")
+        if stateName
+            string previousState = mcm.GetState()
+            mcm.GotoState(stateName)
+            if optionType == "menu"
+                string menuItem = JMap.getStr(actionInfo, "choose")
+                mcm.OnOptionMenuOpen(optionId)
+                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                int itemIndex = menuOptions.Find(menuItem)
+                if itemIndex == -1
+                    Debug.MessageBox("Could not find " + menuItem + " menu item ")
+                else
+                    mcm.OnMenuAcceptST(itemIndex)
+                endIf
+            elseIf optionType == "keymap"
+                mcm.OnKeyMapChangeST(JMap.getFlt(actionInfo, "shortcut") as int, "", "")
+            elseIf optionType == "color"
+                mcm.OnColorAcceptST(JMap.getInt(actionInfo, "color"))
+            elseIf optionType == "input"
+                mcm.OnInputAcceptST(JMap.getStr(actionInfo, "text"))
+            elseIf optionType == "slider"
+                mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "slider"))
+            elseIf optionType == "toggle" || optionType == "text"
+                mcm.OnSelectST()
+            endIf
+            mcm.GotoState(previousState)
+        else
+            if optionType == "menu"
+                string menuItem = JMap.getStr(actionInfo, "choose")
+                mcm.OnOptionMenuOpen(optionId)
+                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                int itemIndex = menuOptions.Find(menuItem)
+                if itemIndex == -1
+                    Debug.MessageBox("Could not find " + menuItem + " menu item ")
+                else
+                    mcm.OnOptionMenuAccept(optionId, itemIndex)
+                endIf
+            elseIf optionType == "slider"
+                mcm.OnOptionSliderAccept(optionId, JMap.getFlt(actionInfo, "slider"))
+            elseIf optionType == "keymap"
+                mcm.OnOptionKeyMapChange(optionId, JMap.getFlt(actionInfo, "shortcut") as int, "", "")
+            elseIf optionType == "color"
+                mcm.OnOptionColorAccept(optionId, JMap.getInt(actionInfo, "color"))
+            elseIf optionType == "input"
+                mcm.OnOptionInputAccept(optionId, JMap.getStr(actionInfo, "text"))
+            elseIf optionType == "toggle" || optionType == "text"
+                mcm.OnOptionSelect(optionId)
+            endIf
+        endIf
+    else
+        Debug.MessageBox("Could not find option " + optionType + " for " + modName + " " + pageName + " selector: '" + selector)
+    endIf
+endFunction
 
-        if JMap.getStr(actionInfo, "side") == "right"
+int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchTimeout, float searchInterval) global
+    int foundOption
+    float startTime = Utility.GetCurrentRealTime()
+    while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout
+        foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, side)
+        if ! foundOption
+            Utility.WaitMenuMode(searchInterval)
+        endIf
+    endWhile
+    return foundOption
+endFunction
+
+int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side) global
+    ResetMcmOptions()
+    mcm.SetPage(pageName, mcm.Pages.Find(pageName))
+    
+    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
+    int optionsCount = JArray.count(options)
+
+    int i = 0
+    while i < optionsCount
+        int option = JArray.getObj(options, i)
+        
+        string optionText = JMap.getStr(option, "text")
+        if side == "right"
             optionText = JMap.getStr(option, "strValue")
         endIf
 
-        ; LogContainer("Comparing with MCM option", option)
-
+        bool matches
         if wildcard
-            found = StringUtil.Find(optionText, wildcard) > -1
+            matches = StringUtil.Find(optionText, wildcard) > -1
         else
-            found = optionText == selector
+            matches = optionText == selector
         endIf
 
-        if found
-            LogContainer("Found! Option", option)
-
-            if stateName
-                string previousState = mcm.GetState()
-                mcm.GotoState(stateName)
-
-                if optionType == "menu"
-
-                    string menuItem = JMap.getStr(actionInfo, "select")
-                    mcm.OnOptionMenuOpen(optionId)
-                    string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
-                    int itemIndex = menuOptions.Find(menuItem)
-                    if itemIndex == -1
-                        Debug.MessageBox("Could not find " + menuItem + " menu item ")
-                    else
-                        mcm.OnMenuAcceptST(itemIndex)
-                    endIf
-
-                elseIf optionType == "keymap"
-                    mcm.OnKeyMapChangeST(JMap.getFlt(actionInfo, "shortcut") as int, "", "")
-
-                elseIf optionType == "color"
-                    mcm.OnColorAcceptST(JMap.getInt(actionInfo, "color"))
-
-                elseIf optionType == "input"
-                    mcm.OnInputAcceptST(JMap.getStr(actionInfo, "text"))
-
-                elseIf optionType == "slider"
-                    mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "value"))
-
-                elseIf optionType == "toggle" || optionType == "text"
-                    mcm.OnSelectST()
-                endIf
-
-                mcm.GotoState(previousState)
-
-            else
-                if optionType == "menu"
-
-                    string menuItem = JMap.getStr(actionInfo, "select")
-                    mcm.OnOptionMenuOpen(optionId)
-                    string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
-                    int itemIndex = menuOptions.Find(menuItem)
-                    if itemIndex == -1
-                        Debug.MessageBox("Could not find " + menuItem + " menu item ")
-                    else
-                        mcm.OnOptionMenuAccept(optionId, itemIndex)
-                    endIf
-
-                elseIf optionType == "slider"
-                    mcm.OnOptionSliderAccept(optionId, JMap.getFlt(actionInfo, "value"))
-
-                elseIf optionType == "keymap"
-                    mcm.OnOptionKeyMapChange(optionId, JMap.getFlt(actionInfo, "shortcut") as int, "", "")
-
-                elseIf optionType == "color"
-                    mcm.OnOptionColorAccept(optionId, JMap.getInt(actionInfo, "color"))
-
-                elseIf optionType == "input"
-                    mcm.OnOptionInputAccept(optionId, JMap.getStr(actionInfo, "text"))
-
-                elseIf optionType == "toggle" || optionType == "text"
-                    Log("TOGGLE! SHOULD HAPPEN ONCE YO " + selector)
-                    mcm.OnOptionSelect(optionId)
-                endIf
-            endIf
+        if matches
+            return option
         endIf
 
         i += 1
     endWhile
 
-    if ! found
-        JValue.writeToFile(actionInfo, "NOT_FOUND.json")
-        Debug.MessageBox("Could not find option " + optionType + " for " + modName + " " + pageName + " selector: '" + selector + "' Saved to NOT_FOUND.json")
-    endIf
+    return 0
 endFunction
 
 string function GetWildcardMatcher(string selector) global
@@ -534,6 +506,7 @@ string function GetWildcardMatcher(string selector) global
 endFunction
 
 string function ToJson(int jcontainer) global
-    JValue.writeToFile(jcontainer, "TempJson.json")
-    return MiscUtil.ReadFromFile("TempJson.json")
+    string filepath = PathToRecordings() + "/" + "temp.json"
+    JValue.writeToFile(jcontainer, filepath)
+    return MiscUtil.ReadFromFile(filepath)
 endFunction
