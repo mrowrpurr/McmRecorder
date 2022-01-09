@@ -255,7 +255,7 @@ int function GetModPageConfigurationOptionsByOptionType(string modName, string p
     return typeMap
 endFunction
 
-function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "") global
+function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global
     if IsRecording() && modName != "MCM Recorder"
         if modName != GetCurrentRecordingModName()
             ResetCurrentRecordingSteps()
@@ -290,13 +290,11 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
                 string previousState = mcm.GetState()
                 mcm.GotoState(stateName)
                 mcm.OnMenuOpenST()
-                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "select", selectedOptionText)
                 mcm.GotoState(previousState)
             else
                 mcm.OnOptionMenuOpen(optionId)
-                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "select", selectedOptionText)
             endIf

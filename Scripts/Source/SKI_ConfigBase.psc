@@ -687,10 +687,10 @@ function SetMenuIndex(Int a_index)
 		self.GotoState(optionState)
 		self.OnMenuAcceptST(a_index)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, stateName = optionState, fltValue = a_index, recordFloatValue = true, recordOptionType = true)
+		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, stateName = optionState, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
 	else
 		self.OnOptionMenuAccept(_activeOption, a_index)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, fltValue = a_index, recordFloatValue = true, recordOptionType = true)
+		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
 	endIf
 	_activeOption = -1
 endFunction
