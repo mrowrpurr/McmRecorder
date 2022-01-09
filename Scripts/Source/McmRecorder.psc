@@ -326,27 +326,40 @@ endFunction
 function PlayRecording(string recordingName) global
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
+
     SetIsPlayingRecording(true)
+
     string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
     int fileIndex = 0
     while fileIndex < stepFiles.Length
         int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + stepFiles[fileIndex])
+        JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
+
         int i = 0
         while i < actionCount
+            int recordingAction = JArray.getObj(recordingActions, i)
             Log("RUN ACTION!!!!! " + ToJson(JArray.getObj(recordingActions, i)))
-            PlayAction(JArray.getObj(recordingActions, i))
+            PlayAction(recordingAction)
             i += 1
         endWhile
+
+        JValue.release(recordingActions)
         fileIndex += 1
     endWhile
     Debug.MessageBox(recordingName + " has finished playing.")
+
     SetIsPlayingRecording(false)
 endFunction
 
 function PlayAction(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
+
+    if ! modName
+        Debug.MessageBox("Play action without mod name? What??? " + ToJson(actionInfo))
+        return
+    endIf
 
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
