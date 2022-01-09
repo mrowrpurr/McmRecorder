@@ -332,8 +332,7 @@ function PlayRecording(string recordingName) global
     string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
     int fileIndex = 0
     while fileIndex < stepFiles.Length
-        int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + stepFiles[i])
-        JValue.writeToFile(recordingActions, "RECORDING_ACTIONS_" + stepFiles[i])
+        int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + stepFiles[fileIndex])
         int actionCount = JArray.count(recordingActions)
         int i = 0
         while i < actionCount
