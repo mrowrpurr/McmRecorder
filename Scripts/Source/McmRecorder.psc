@@ -469,7 +469,7 @@ endFunction
 int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchInterval, float searchPageLoadTime) global
     Log("Refresh Page " + modName + " " + pageName)
     ResetMcmOptions()
-    mcm.OnConfigOpen()
+    mcm.OpenConfig()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName))
 
     float startTime = Utility.GetCurrentRealTime()
@@ -496,7 +496,7 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
             endIf
 
             if matches
-                mcm.OnConfigClose()
+                mcm.CloseConfig()
                 return option
             endIf
 
@@ -505,7 +505,7 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
         Utility.WaitMenuMode(searchInterval)
     endWhile
 
-    mcm.OnConfigClose()
+    mcm.CloseConfig()
     return 0
 endFunction
 

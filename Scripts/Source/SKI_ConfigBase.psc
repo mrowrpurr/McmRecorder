@@ -1213,6 +1213,7 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 	if pos == -1
 		return -1
 	endIf
+
 	_optionFlagsBuf[pos] = a_optionType + a_flags * 256
 	_textBuf[pos] = a_text
 	_strValueBuf[pos] = a_strValue
@@ -1221,6 +1222,7 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 	if _cursorPosition >= 128
 		_cursorPosition = -1
 	endIf
+
 	int optionId = pos + _currentPageNum * 256
 	if McmRecorder.IsPlayingRecording() || McmRecorder.IsRecording()
 		string optionType
