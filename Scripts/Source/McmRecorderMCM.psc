@@ -6,7 +6,8 @@ int oid_Record
 int oid_Stop
 int[] oids_Recordings
 string[] recordings
-string recordingToPlayWhenMcmCloses
+bool isPlayingRecording
+string currentlyPlayingRecordingName
 
 event OnConfigInit()
     ModName = "MCM Recorder"
@@ -47,7 +48,7 @@ event OnOptionSelect(int optionId)
         if ShowMessage("Are you sure you would like to play this recording?", true, "Yes", "No")
             int recordingIndex = oids_Recordings.Find(optionId)
             Debug.MessageBox("Please close the MCM to begin playing this recording.")
-            recordingToPlayWhenMcmCloses = recordings[recordingIndex]
+            currentlyPlayingRecordingName = recordings[recordingIndex]
             RegisterForMenu("Journal Menu")
         endIf
     endIf
@@ -66,12 +67,22 @@ event OnOptionInputOpen(int optionId)
     endIf
 endEvent
 
+event OnMenuOpen(string menuName)
+    if menuName == "Journal Menu"
+        if isPlayingRecording
+            Debug.MessageBox("MCM Recorder " + currentlyPlayingRecordingName + " playback in progress. Opening MCM menu not recommended!")            
+        endIf
+    endIf
+endEvent
+
 event OnMenuClose(string menuName)
     if menuName == "Journal Menu"
-        if recordingToPlayWhenMcmCloses
-            Debug.MessageBox("Playing MCM recording " + recordingToPlayWhenMcmCloses)
-            McmRecorder.PlayRecording(recordingToPlayWhenMcmCloses)
-            recordingToPlayWhenMcmCloses = ""
+        if currentlyPlayingRecordingName && ! isPlayingRecording
+            isPlayingRecording = true
+            Debug.MessageBox("Playing MCM recording " + currentlyPlayingRecordingName)
+            McmRecorder.PlayRecording(currentlyPlayingRecordingName)
+            isPlayingRecording = false
+            currentlyPlayingRecordingName = ""
             UnregisterForMenu("Journal Menu")
         endIf
     endIf

@@ -8,6 +8,7 @@ McmRecorder function GetInstance() global
 endFunction
 
 function Log(string text) global
+    return ; Disable logging
     Debug.Trace("[MCM Recorder] " + text)
 endFunction
 
@@ -212,6 +213,7 @@ function AddConfigurationOption(string modName, string pageName, int optionId, s
     JMap.setStr(option, "strValue", optionStrValue)
     JMap.setFlt(option, "fltValue", optionFltValue)
     JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
+    Log("AddConfigOption " + modName + " " + pageName + " " + optionText + " " + optionStrValue)
     ; LogContainer("Added Config Option", option)
 endFunction
 
@@ -394,8 +396,9 @@ function PlayAction(int actionInfo, string stepName) global
     
     float searchTimeout = JMap.getFlt(actionInfo, "timeout", 30.0) ; Default to wait for options to show up for a max of 30 seconds
     float searchInterval = JMap.getFlt(actionInfo, "interval", 0.5) ; Default to try twice per second
+    float searchPageLoadTime = JMap.getFlt(actionInfo, "pageload", 5.0) ; Allow pages up to 5 seconds for an option to appear
 
-    int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchTimeout, searchInterval)
+    int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchTimeout, searchInterval, searchPageLoadTime)
     if option
         int optionId = JMap.getInt(option, "id")
         if stateName
@@ -451,11 +454,11 @@ function PlayAction(int actionInfo, string stepName) global
     endIf
 endFunction
 
-int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchTimeout, float searchInterval) global
+int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchTimeout, float searchInterval, float searchPageLoadTime) global
     int foundOption
     float startTime = Utility.GetCurrentRealTime()
     while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout
-        foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, side)
+        foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchInterval, searchPageLoadTime)
         if ! foundOption
             Utility.WaitMenuMode(searchInterval)
         endIf
@@ -463,36 +466,46 @@ int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, str
     return foundOption
 endFunction
 
-int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side) global
+int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchInterval, float searchPageLoadTime) global
+    Log("Refresh Page " + modName + " " + pageName)
     ResetMcmOptions()
+    mcm.OnConfigOpen()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName))
-    
-    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
-    int optionsCount = JArray.count(options)
 
-    int i = 0
-    while i < optionsCount
-        int option = JArray.getObj(options, i)
-        
-        string optionText = JMap.getStr(option, "text")
-        if side == "right"
-            optionText = JMap.getStr(option, "strValue")
-        endIf
+    float startTime = Utility.GetCurrentRealTime()
+    while (Utility.GetCurrentRealTime() - startTime) < searchPageLoadTime
+        int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
+        int optionsCount = JArray.count(options)
+        Log("Searching for option: " + modName + " " + pageName + " " + optionType + " " + selector)
+        LogContainer("Options on this page", options)
+        ; JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "MCM" + modName + "_" + pageName + ".json")
+        int i = 0
+        while i < optionsCount
+            int option = JArray.getObj(options, i)
+            
+            string optionText = JMap.getStr(option, "text")
+            if side == "right"
+                optionText = JMap.getStr(option, "strValue")
+            endIf
 
-        bool matches
-        if wildcard
-            matches = StringUtil.Find(optionText, wildcard) > -1
-        else
-            matches = optionText == selector
-        endIf
+            bool matches
+            if wildcard
+                matches = StringUtil.Find(optionText, wildcard) > -1
+            else
+                matches = optionText == selector
+            endIf
 
-        if matches
-            return option
-        endIf
+            if matches
+                mcm.OnConfigClose()
+                return option
+            endIf
 
-        i += 1
+            i += 1
+        endWhile
+        Utility.WaitMenuMode(searchInterval)
     endWhile
 
+    mcm.OnConfigClose()
     return 0
 endFunction
 
