@@ -958,7 +958,10 @@ Bool function ShowMessage(String a_message, Bool a_withCancel, String a_acceptLa
 	return _messageResult
 endFunction
 
+string[] property MostRecentlyConfiguredMenuDialogOptions auto
+
 function SetMenuDialogOptions(String[] a_options)
+	MostRecentlyConfiguredMenuDialogOptions = a_options
 
 	if _state != self.STATE_MENU
 		self.Error("Cannot set menu dialog params while outside OnOptionMenuOpen()")

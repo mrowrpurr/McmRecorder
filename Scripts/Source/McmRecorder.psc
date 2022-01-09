@@ -294,23 +294,26 @@ function PlayAction(int actionInfo) global
     mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
 
     string optionType
+    string selector
     if JMap.getStr(actionInfo, "click")
         optionType = "text"
+        selector = JMap.getStr(actionInfo, "click")
     elseIf JMap.getStr(actionInfo, "toggle")
         optionType = "toggle"
+        selector = JMap.getStr(actionInfo, "toggle")
     elseIf JMap.getStr(actionInfo, "select")
         optionType = "menu"
+        selector = JMap.getStr(actionInfo, "from")
     elseIf JMap.getStr(actionInfo, "text")
-        optionType = "input"
+        ; optionType = "input"
     elseIf JMap.getStr(actionInfo, "shortcut")
-        optionType = "keymap"
+        ; optionType = "keymap"
     elseIf JMap.getStr(actionInfo, "color")
-        optionType = "color"
+        ; optionType = "color"
     elseIf JMap.getStr(actionInfo, "slider")
-        optionType = "slider"
+        ; optionType = "slider"
     endIf
 
-    string selector = JMap.getStr(actionInfo, "toggle")
     string wildcard = GetWildcardMatcher(selector)
     string stateName = JMap.getStr(actionInfo, "state")
 
@@ -349,6 +352,18 @@ function PlayAction(int actionInfo) global
                 mcm.GotoState(previousState)
             else
                 if optionType == "menu"
+                    string menuItem = JMap.getStr(actionInfo, "select")
+                    mcm.OnOptionMenuOpen(optionId)
+                    string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                    int itemIndex = menuOptions.Find(menuItem)
+                    if itemIndex == -1
+                        Debug.MessageBox("Could not find " + menuItem + " menu item ")
+                    else
+                        mcm.OnOptionMenuAccept(optionId, itemIndex)
+                    endIf
+
+
+
                 ;     mcm.OnOptionMenuAccept(optionId, fltValue as int)
                 ; elseIf optionType == "slider"
                 ;     mcm.OnOptionSliderAccept(optionId, fltValue)
