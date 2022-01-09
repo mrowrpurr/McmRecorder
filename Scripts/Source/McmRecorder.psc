@@ -265,6 +265,7 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
 
         if optionType == "clickable"
             JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+
         elseIf optionType == "menu"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
             if stateName
@@ -281,6 +282,23 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "select", selectedOptionText)
             endIf
+
+        elseIf optionType == "slider"
+            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setFlt(mcmAction, "value", fltValue)
+
+        elseIf optionType == "keymap"
+            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setInt(mcmAction, "shortcut", fltValue as int)
+
+        elseIf optionType == "color"
+            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setInt(mcmAction, "color", fltValue as int)
+
+        elseIf optionType == "input"
+            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setStr(mcmAction, "text", strValue)
+
         else
             Debug.MessageBox("TODO: support " + optionType)
         endIf
