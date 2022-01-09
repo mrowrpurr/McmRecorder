@@ -310,9 +310,11 @@ function PlayAction(int actionInfo) global
 
     elseIf JMap.getStr(actionInfo, "text")
         optionType = "input"
+        selector = JMap.getStr(actionInfo, "option")
 
-    elseIf JMap.getStr(actionInfo, "shortcut")
+    elseIf JMap.getFlt(actionInfo, "shortcut")
         optionType = "keymap"
+        selector = JMap.getStr(actionInfo, "option")
 
     elseIf JMap.getStr(actionInfo, "color")
         optionType = "color"
@@ -322,6 +324,7 @@ function PlayAction(int actionInfo) global
         selector = JMap.getStr(actionInfo, "option")
 
     else
+        Debug.MessageBox("Um this is unknown? Wrote to UNKNOWN.json " + JValue.writeToFile(actionInfo, "UNKNOWN.json"))
         optionType = "UNKNOWN"
     endIf
 
@@ -360,22 +363,24 @@ function PlayAction(int actionInfo) global
                         mcm.OnMenuAcceptST(itemIndex)
                     endIf
 
-                    ; mcm.(fltValue as int)
-                ; elseIf optionType == "keymap"
-                ;     mcm.OnKeyMapChangeST(fltValue as int, "", "")
+                elseIf optionType == "keymap"
+                    mcm.OnKeyMapChangeST(JMap.getFlt(actionInfo, "shortcut") as int, "", "")
+
                 ; elseIf optionType == "color"
                 ;     mcm.OnColorAcceptST(fltValue as int)
-                ; elseIf optionType == "text"
+
+                ; elseIf optionType == "input"
                 ;     mcm.OnInputAcceptST(strValue)
 
                 elseIf optionType == "slider"
                     mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "value"))
 
-                elseIf optionType == "toggle"
+                elseIf optionType == "toggle" || optionType == "text"
                     mcm.OnSelectST()
                 endIf
 
                 mcm.GotoState(previousState)
+
             else
                 if optionType == "menu"
 
@@ -389,22 +394,19 @@ function PlayAction(int actionInfo) global
                         mcm.OnOptionMenuAccept(optionId, itemIndex)
                     endIf
 
-
-
-                ;     mcm.OnOptionMenuAccept(optionId, fltValue as int)
-
                 elseIf optionType == "slider"
                     mcm.OnOptionSliderAccept(optionId, JMap.getFlt(actionInfo, "value"))
 
-                ; elseIf optionType == "keymap"
-                ;     mcm.OnOptionKeyMapChange(optionId, fltValue as int, "", "")
+                elseIf optionType == "keymap"
+                    mcm.OnOptionKeyMapChange(optionId, JMap.getFlt(actionInfo, "shortcut") as int, "", "")
+
                 ; elseIf optionType == "color"
                 ;     mcm.OnOptionColorAccept(optionId, fltValue as int)
-                ; elseIf optionType == "text"
-                ;     Debug.MessageBox("Calling OnOptionInputAccept " + optionId + " " + strValue + " " + mcm)
+
+                ; elseIf optionType == "input"
                 ;     mcm.OnOptionInputAccept(optionId, strValue)
 
-                elseIf optionType == "toggle"
+                elseIf optionType == "toggle" || optionType == "text"
                     mcm.OnOptionSelect(optionId)
                 endIf
             endIf
@@ -413,7 +415,8 @@ function PlayAction(int actionInfo) global
     endWhile
 
     if ! found
-        Debug.MessageBox("Could not find option " + optionType + " for " + modName + " " + pageName + " " + selector)
+        JValue.writeToFile(actionInfo, "NOT_FOUND.json")
+        Debug.MessageBox("Could not find option " + optionType + " for " + modName + " " + pageName + " selector: '" + selector + "' Saved to NOT_FOUND.json")
     endIf
 endFunction
 
