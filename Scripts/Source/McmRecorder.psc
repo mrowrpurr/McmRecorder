@@ -7,6 +7,14 @@ McmRecorder function GetInstance() global
     return Game.GetFormFromFile(0x800, "McmRecorder.esp") as McmRecorder
 endFunction
 
+function Log(string text) global
+    Debug.Trace("[MCM Recorder] " + text)
+endFunction
+
+function LogContainer(string text, int jcontainer) global
+    Log(text + ":\n" + ToJson(jcontainer))
+endFunction
+
 event OnInit()
     skiConfigManager = Game.GetFormFromFile(0x802, "SkyUI_SE.esp") as SKI_ConfigManager
 endEvent
@@ -264,7 +272,11 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         endIf
 
         if optionType == "clickable"
-            JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+            if JMap.getStr(option, "type") == "toggle"
+                JMap.setStr(mcmAction, "toggle", JMap.getStr(option, "text"))
+            else
+                JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+            endIf
 
         elseIf optionType == "menu"
             JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
@@ -331,6 +343,9 @@ function PlayAction(int actionInfo) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
+    LogContainer(modName + " " + pageName + " MCM Page", GetModPageConfigurationOptionsByOptionTypes(modName, pageName))
+    LogContainer("Action", actionInfo)
+
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
     ResetMcmOptions()
@@ -374,14 +389,24 @@ function PlayAction(int actionInfo) global
     string wildcard = GetWildcardMatcher(selector)
     string stateName = JMap.getStr(actionInfo, "state")
 
+    Log("Option type: " + optionType)
+    Log("Selector: " + selector)
+    Log("Wildcard: " + wildcard)
+    Log("State Name: " + stateName)
+
     int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
     int optionCount = JArray.count(options)
+
+    Log("There are " + optionCount + " " + optionType + " options on page " + pageName)
+
     bool found
     int i = 0
     while i < optionCount && (! found)
         int option = JArray.getObj(options, i)
         int optionId = JMap.getInt(option, "id")
         string optionText = JMap.getStr(option, "text")
+
+        LogContainer("Comparing with MCM option", option)
 
         if wildcard
             found = StringUtil.Find(optionText, wildcard) > -1
@@ -470,4 +495,9 @@ string function GetWildcardMatcher(string selector) global
     else
         return ""
     endIf
+endFunction
+
+string function ToJson(int jcontainer) global
+    JValue.writeToFile(jcontainer, "TempJson.json")
+    return MiscUtil.ReadFromFile("TempJson.json")
 endFunction
