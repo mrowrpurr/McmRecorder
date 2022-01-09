@@ -332,13 +332,13 @@ function PlayRecording(string recordingName) global
         int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + filename)
         JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
+        Debug.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
 
         int i = 0
         while i < actionCount
             int recordingAction = JArray.getObj(recordingActions, i)
             LogContainer("Run Action", recordingAction)
             PlayAction(recordingAction, filename)
-            Debug.Notification(filename + " (" + (i + 1) + "/" + stepFiles.Length + ")")
             i += 1
         endWhile
 
