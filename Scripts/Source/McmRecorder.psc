@@ -293,65 +293,83 @@ function PlayAction(int actionInfo) global
     ResetMcmOptions()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName)) ; TODO - track these things to search! - TODO: clear the mod/page tracked options every time!
 
+    string optionType
     if JMap.getStr(actionInfo, "click")
-        PlayAction_Text(modName, pageName, actionInfo)
+        optionType = "text"
     elseIf JMap.getStr(actionInfo, "toggle")
-        PlayAction_Toggle(mcm, modName, pageName, actionInfo)
+        optionType = "toggle"
     elseIf JMap.getStr(actionInfo, "select")
-        PlayAction_Menu(modName, pageName, actionInfo)
+        optionType = "menu"
     elseIf JMap.getStr(actionInfo, "text")
-        PlayAction_InputText(modName, pageName, actionInfo)
+        optionType = "input"
     elseIf JMap.getStr(actionInfo, "shortcut")
-        PlayAction_KeyboardShortcut(modName, pageName, actionInfo)
+        optionType = "keymap"
     elseIf JMap.getStr(actionInfo, "color")
-        PlayAction_Color(modName, pageName, actionInfo)
+        optionType = "color"
+    elseIf JMap.getStr(actionInfo, "slider")
+        optionType = "slider"
     endIf
-endFunction
 
-function PlayAction_Text(string modName, string pageName, int actionInfo) global
-endFunction
-
-function PlayAction_Toggle(SKI_ConfigBase mcm, string modName, string pageName, int actionInfo) global
     string selector = JMap.getStr(actionInfo, "toggle")
+    string wildcard = GetWildcardMatcher(selector)
     string stateName = JMap.getStr(actionInfo, "state")
-    Debug.MessageBox("WILDCARD: '" + GetWildcardMatcher(selector) + "'")
 
-    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, "toggle")
+    int options = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
     int optionCount = JArray.count(options)
     bool found
     int i = 0
     while i < optionCount && (! found)
         int option = JArray.getObj(options, i)
-        if JMap.getStr(option, "text") == selector
-            Debug.MessageBox("FOUND " + selector)
-            found = true
+        int optionId = JMap.getInt(option, "id")
+        string optionText = JMap.getStr(option, "text")
+
+        if wildcard
+            found = StringUtil.Find(optionText, wildcard) > -1
+        else
+            found = optionText == selector
+        endIf
+
+        if found
             if stateName
                 string previousState = mcm.GetState()
                 mcm.GotoState(stateName)
-                mcm.OnSelectST()
+                if optionType == "menu"
+                    ; mcm.OnMenuAcceptST(fltValue as int)
+                ; elseIf optionType == "slider"
+                ;     mcm.OnSliderAcceptST(fltValue)
+                ; elseIf optionType == "keymap"
+                ;     mcm.OnKeyMapChangeST(fltValue as int, "", "")
+                ; elseIf optionType == "color"
+                ;     mcm.OnColorAcceptST(fltValue as int)
+                ; elseIf optionType == "text"
+                ;     mcm.OnInputAcceptST(strValue)
+                elseIf optionType == "toggle"
+                    mcm.OnSelectST()
+                endIf
                 mcm.GotoState(previousState)
             else
-                mcm.OnOptionSelect(JMap.getInt(option, "id"))
+                if optionType == "menu"
+                ;     mcm.OnOptionMenuAccept(optionId, fltValue as int)
+                ; elseIf optionType == "slider"
+                ;     mcm.OnOptionSliderAccept(optionId, fltValue)
+                ; elseIf optionType == "keymap"
+                ;     mcm.OnOptionKeyMapChange(optionId, fltValue as int, "", "")
+                ; elseIf optionType == "color"
+                ;     mcm.OnOptionColorAccept(optionId, fltValue as int)
+                ; elseIf optionType == "text"
+                ;     Debug.MessageBox("Calling OnOptionInputAccept " + optionId + " " + strValue + " " + mcm)
+                ;     mcm.OnOptionInputAccept(optionId, strValue)
+                elseIf optionType == "toggle"
+                    mcm.OnOptionSelect(optionId)
+                endIf
             endIf
         endIf
         i += 1
     endWhile
 
     if ! found
-        Debug.MessageBox("Could not find option " + "toggle" + " for " + modName + " " + pageName + " " + selector)
+        Debug.MessageBox("Could not find option " + optionType + " for " + modName + " " + pageName + " " + selector)
     endIf
-endFunction
-
-function PlayAction_Menu(string modName, string pageName, int actionInfo) global
-endFunction
-
-function PlayAction_InputText(string modName, string pageName, int actionInfo) global
-endFunction
-
-function PlayAction_KeyboardShortcut(string modName, string pageName, int actionInfo) global
-endFunction
-
-function PlayAction_Color(string modName, string pageName, int actionInfo) global
 endFunction
 
 string function GetWildcardMatcher(string selector) global
