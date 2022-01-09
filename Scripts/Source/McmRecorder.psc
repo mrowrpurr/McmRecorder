@@ -197,12 +197,17 @@ function AddConfigurationOption(string modName, string pageName, int optionId, s
     int optionsOnModPageForType = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
     int option = JMap.object()
     JArray.addObj(optionsOnModPageForType, option)
+    JMap.setObj(GetModPageConfigurationOptionsByOptionIds(modName, pageName), optionId, option)
     JMap.setInt(option, "id", optionId)
     JMap.setStr(option, "type", optionType)
     JMap.setStr(option, "text", optionText)
     JMap.setStr(option, "strValue", optionStrValue)
     JMap.setFlt(option, "fltValue", optionFltValue)
     JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
+endFunction
+
+int function GetConfigurationOption(string modName, string pageName, int optionId) global
+    return JMap.getObj(GetModPageConfigurationOptionsByOptionIds(modName, pageName), optionId)
 endFunction
 
 function ResetMcmOptions() global
@@ -217,9 +222,14 @@ int function GetModPageConfigurationOptions(string modName, string pageName) glo
     if ! options
         options = JMap.object()
         JDB.solveObjSetter(JdbPathToModConfigurationOptionsForPage(modName, pageName), options, createMissingKeys = true)
+        JMap.setObj(options, "byId", JMap.object())
         JMap.setObj(options, "byType", JMap.object())
     endIf
     return options
+endFunction
+
+int function GetModPageConfigurationOptionsByOptionIds(string modName, string pageName) global
+    return JMap.getObj(GetModPageConfigurationOptions(modName, pageName), "byId")
 endFunction
 
 int function GetModPageConfigurationOptionsByOptionTypes(string modName, string pageName) global
@@ -236,22 +246,34 @@ int function GetModPageConfigurationOptionsByOptionType(string modName, string p
     return typeMap
 endFunction
 
-function RecordAction(string modName, string pageName, int optionId = -1, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string optionType = "") global
+function RecordAction(string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "") global
     if IsRecording() && modName != "MCM Recorder"
         if modName != GetCurrentRecordingModName()
             ResetCurrentRecordingSteps()
         endIf
+
+        int option = GetConfigurationOption(modName, pageName, optionId)
+
         int mcmAction = JMap.object()
         JArray.addObj(GetCurrentRecordingSteps(), mcmAction)
+
         JMap.setStr(mcmAction, "mod", modName)
+
         if pageName != "SKYUI_DEFAULT_PAGE"
             JMap.setStr(mcmAction, "page", pageName)
         endIf
-        if stateName
-            JMap.setStr(mcmAction, "state", stateName)
+
+        if optionType == "clickable"
+            JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
         else
-            JMap.setInt(mcmAction, "optionId", optionId)
+            Debug.MessageBox("TODO: support " + optionType)
         endIf
+
+        ; if stateName
+        ;     JMap.setStr(mcmAction, "state", stateName)
+        ; else
+        ;     JMap.setInt(mcmAction, "optionId", optionId)
+        ; endIf
         if recordOptionType
             JMap.setStr(mcmAction, "type", optionType)
         endIf
