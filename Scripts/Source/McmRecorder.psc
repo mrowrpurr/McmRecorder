@@ -106,6 +106,9 @@ function BeginRecording(string recordingName) global
     SetCurrentRecordingName(recordingName)
     SetCurrentRecordingModName("")
     ResetCurrentRecordingSteps()
+    int metaFile = JMap.object()
+    JMap.setStr(metaFile, "name", recordingName)    
+    JValue.writeToFile(metaFile, PathToRecordingFolder(recordingName) + ".json")
 endFunction
 
 function StopRecording() global
@@ -142,7 +145,7 @@ endFunction
 
 string function GetFileNameForRecordingAction(string recordingName, string modName) global
     string recordingFolder = PathToRecordingFolder(recordingName)
-    int recordingStepNumber = MiscUtil.FilesInFolder(recordingFolder).Length
+    int recordingStepNumber = JMap.allKeysPArray(JValue.readFromDirectory(recordingFolder)).Length
     if modName != GetCurrentRecordingModName()
         recordingStepNumber += 1
         SetCurrentRecordingModName(modName)
@@ -155,7 +158,7 @@ string function GetFileNameForRecordingAction(string recordingName, string modNa
 endFunction
 
 string[] function GetRecordingNames() global
-    string[] fileNames = MiscUtil.FoldersInFolder(PathToRecordings())
+    string[] fileNames = JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordings()))
     int i = 0
     while i < fileNames.Length
         fileNames[i] = StringUtil.Substring(fileNames[i], 0, StringUtil.Find(fileNames[i], ".json"))
@@ -330,14 +333,17 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5)
 
     SetIsPlayingRecording(true)
 
-    string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
+    int steps = JValue.readFromDirectory(PathToRecordingFolder(recordingName))
+    JValue.retain(steps)
+
+    string[] stepFiles = JMap.allKeysPArray(steps)
 
     Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
 
     int fileIndex = 0
     while fileIndex < stepFiles.Length
         string filename = stepFiles[fileIndex]
-        int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + filename)
+        int recordingActions = JMap.getObj(steps, filename)
         JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
         Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
@@ -357,6 +363,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5)
     endWhile
     Debug.MessageBox("MCM recording " + recordingName + " has finished playing.")
 
+    JValue.release(steps)
     SetIsPlayingRecording(false)
 endFunction
 

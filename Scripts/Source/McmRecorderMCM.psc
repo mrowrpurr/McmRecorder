@@ -9,9 +9,12 @@ string[] recordings
 bool isPlayingRecording
 string currentlyPlayingRecordingName
 
+bool IsSkyrimVR
+
 event OnConfigInit()
     ModName = "MCM Recorder"
     Recorder = (self as Quest) as McmRecorder
+    IsSkyrimVR = Game.GetModByName("SkyrimVR.esm") != 255
 endEvent
 
 event OnPageReset(string page)
@@ -19,7 +22,11 @@ event OnPageReset(string page)
         oid_Stop = AddTextOption("Currently Recording!", "STOP RECORDING", OPTION_FLAG_NONE)
         AddTextOption(McmRecorder.GetCurrentRecordingName(), "", OPTION_FLAG_DISABLED)
     else
-        oid_Record = AddInputOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
+        if IsSkyrimVR
+            oid_Record = AddTextOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
+        else
+            oid_Record = AddInputOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
+        endIf
         AddTextOption("You will be prompted to provide a name for your recording", "", OPTION_FLAG_DISABLED)
     endIf
     ListRecordings()
@@ -41,7 +48,11 @@ function ListRecordings()
 endFunction
 
 event OnOptionSelect(int optionId)
-    if optionId == oid_Stop
+    if optionId == oid_Record ; SkyrimVR
+        McmRecorder.BeginRecording(GetRandomRecordingName())
+        ForcePageReset()
+        Debug.MessageBox("Recording Started!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
+    elseIf optionId == oid_Stop
         McmRecorder.StopRecording()
         ForcePageReset()
     elseIf oids_Recordings.Find(optionId) > -1
@@ -62,10 +73,14 @@ endEvent
 
 event OnOptionInputOpen(int optionId)
     if optionId == oid_Record
-        string[] currentTimeParts = StringUtil.Split(Utility.GetCurrentRealTime(), ".")
-        SetInputDialogStartText("Recording_" + currentTimeParts[0] + "_" + currentTimeParts[1])
+        SetInputDialogStartText(GetRandomRecordingName())
     endIf
 endEvent
+
+string function GetRandomRecordingName()
+    string[] currentTimeParts = StringUtil.Split(Utility.GetCurrentRealTime(), ".")
+    return "Recording_" + currentTimeParts[0] + "_" + currentTimeParts[1]
+endFunction
 
 event OnMenuOpen(string menuName)
     if menuName == "Journal Menu"
