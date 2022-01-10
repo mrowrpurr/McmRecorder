@@ -400,7 +400,6 @@ function PlayAction(int actionInfo, string stepName) global
         selector = JMap.getStr(actionInfo, "click")
     elseIf JMap.hasKey(actionInfo, "toggle")
         optionType = "toggle"
-        selector = JMap.getStr(actionInfo, "toggle")
     elseIf JMap.hasKey(actionInfo, "choose")
         optionType = "menu"
     elseIf JMap.hasKey(actionInfo, "text")
@@ -452,8 +451,15 @@ function PlayAction(int actionInfo, string stepName) global
                 mcm.OnInputAcceptST(JMap.getStr(actionInfo, "text"))
             elseIf optionType == "slider"
                 mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "slider"))
-            elseIf optionType == "toggle" || optionType == "text"
-                Log("On Select ST")
+            elseIf optionType == "toggle"
+                string turnOnOrOff = JMap.getStr(actionInfo, "toggle")
+                bool currentlyEnabledOnPage = JMap.getFlt(option, "fltValue") == 1
+                if currentlyEnabledOnPage && turnOnOrOff == "off"
+                    mcm.OnSelectST() ; Turn off
+                elseIf (!currentlyEnabledOnPage) && turnOnOrOff == "on"
+                    mcm.OnSelectST() ; Turn on
+                endIf
+            elseIf optionType == "text"
                 mcm.OnSelectST()
             endIf
             mcm.GotoState(previousState)
@@ -476,8 +482,15 @@ function PlayAction(int actionInfo, string stepName) global
                 mcm.OnOptionColorAccept(optionId, JMap.getInt(actionInfo, "color"))
             elseIf optionType == "input"
                 mcm.OnOptionInputAccept(optionId, JMap.getStr(actionInfo, "text"))
-            elseIf optionType == "toggle" || optionType == "text"
-                Log("OnOptionSelect " + optionId)
+            elseIf optionType == "toggle"
+                string turnOnOrOff = JMap.getStr(actionInfo, "toggle")
+                bool currentlyEnabledOnPage = JMap.getFlt(option, "fltValue") == 1
+                if currentlyEnabledOnPage && turnOnOrOff == "off"
+                    mcm.OnOptionSelect(optionId) ; Turn off
+                elseIf (!currentlyEnabledOnPage) && turnOnOrOff == "on"
+                    mcm.OnOptionSelect(optionId) ; Turn on
+                endIf
+            elseIf optionType == "text"
                 mcm.OnOptionSelect(optionId)
             endIf
         endIf
