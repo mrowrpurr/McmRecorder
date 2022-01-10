@@ -34,7 +34,7 @@
         <!-- These mods DO NOT come with loose .psc files or are not "mods" and need to be setup manually  -->
         <!-- <Import>@ImportsFolder\SkyUI_5.1_SDK\Scripts\Source</Import> -->
         <!-- <Import>@ImportsFolder\ConsoleUtil</Import> -->
-        <!-- <Import>@ImportsFolder\UIExtensions\scripts\source</Import> -->
+        <Import>@ImportsFolder\UIExtensions\scripts\source</Import>
 
         <!-- Change this to be your default Skyrim install directory's Scripts\Source path  -->
         <Import>C:\Steam\steamapps\common\Skyrim Special Edition - Modding\Data\Scripts\Source</Import>

@@ -8,6 +8,7 @@ int[] oids_Recordings
 string[] recordings
 bool isPlayingRecording
 string currentlyPlayingRecordingName
+bool openRunOrPreviewStepsPrompt
 
 bool IsSkyrimVR
 
@@ -27,21 +28,29 @@ event OnPageReset(string page)
         else
             oid_Record = AddInputOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
         endIf
-        AddTextOption("You will be prompted to provide a name for your recording", "", OPTION_FLAG_DISABLED)
+        AddEmptyOption()
     endIf
     ListRecordings()
 endEvent
 
 function ListRecordings()
-    SetCursorFillMode(TOP_TO_BOTTOM)
     recordings = McmRecorder.GetRecordingNames()
     if recordings.Length
         AddEmptyOption()
+        AddEmptyOption()
         AddTextOption("Choose a recording to play:", "", OPTION_FLAG_NONE)
+        AddEmptyOption()
         oids_Recordings = Utility.CreateIntArray(recordings.Length)
         int i = 0
         while i < recordings.Length
-            oids_Recordings[i] = AddTextOption("", recordings[i], OPTION_FLAG_NONE)
+            string recordingName = recordings[i]
+            oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
+            int recordingInfo = McmRecorder.GetRecordingInfo(recordingName)
+            string authorText = ""
+            if JMap.getStr(recordingInfo, "author")
+                authorText = "by " + JMap.getStr(recordingInfo, "author")
+            endIf
+            AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
             i += 1
         endWhile
     endIf
@@ -56,12 +65,9 @@ event OnOptionSelect(int optionId)
         ForcePageReset()
         Debug.MessageBox("Recording Started!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
     elseIf oids_Recordings.Find(optionId) > -1
-        if ShowMessage("Are you sure you would like to play this recording?", true, "Yes", "No")
-            int recordingIndex = oids_Recordings.Find(optionId)
-            Debug.MessageBox("Please close the MCM to begin playing this recording.")
-            currentlyPlayingRecordingName = recordings[recordingIndex]
-            RegisterForMenu("Journal Menu")
-        endIf
+        int recordingIndex = oids_Recordings.Find(optionId)
+        string recordingName = recordings[recordingIndex]
+        PromptToRunRecordingOrPreviewSteps(recordingName)
     endIf
 endEvent
 
@@ -90,15 +96,82 @@ event OnMenuOpen(string menuName)
     endIf
 endEvent
 
-event OnMenuClose(string menuName)
-    if menuName == "Journal Menu"
-        if currentlyPlayingRecordingName && ! isPlayingRecording
+function PromptToRunRecordingOrPreviewSteps(string recordingName)
+    int info = McmRecorder.GetRecordingInfo(recordingName)
+    string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
+
+    string recordingDescription = recordingName
+    if JMap.getStr(info, "version")
+        recordingDescription += " (" + JMap.getStr(info, "version") + ")"
+    endIf
+    if JMap.getStr(info, "author")
+        recordingDescription += "\n~ by " + JMap.getStr(info, "author") + " ~"
+    endIf
+    recordingDescription += "\nSteps: " + stepNames.Length
+
+    if ShowMessage("Close the MCM to play the recording:\n\n" + recordingDescription + "\n\nYou can also preview all recording steps or play individual steps.\n\nWould you like to continue?", "No", "Yes", "Cancel")
+
+        Debug.MessageBox("Close the MCM now to play the recording")
+
+        UnregisterForMenu("Journal Menu")  
+        RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
+
+        string text = recordingName
+        if JMap.getStr(info, "version")
+            text += " (" + JMap.getStr(info, "version") + ")"
+        endIf
+        if JMap.getStr(info, "author")
+            text += "\n~ by " + JMap.getStr(info, "author") + " ~"
+        endIf
+        text += "\n\n" + stepNames.Length + " steps\n"
+        int i = 0
+        while i < stepNames.Length && i < 11
+            if i == 10
+                text += "\n- ..."
+            else
+                text += "\n- " + StringUtil.Substring(stepNames[i], 0, StringUtil.Find(stepNames[i], ".json"))
+            endIf
+            i += 1
+        endWhile
+        text += "\n\nWould you like to play this recording?"
+
+        string response = Recorder.GetUserResponseToRunRecording(text)
+
+        if response == "Play All Steps"
+            currentlyPlayingRecordingName = recordingName
             isPlayingRecording = true
-            Debug.MessageBox("Playing MCM recording " + currentlyPlayingRecordingName)
-            McmRecorder.PlayRecording(currentlyPlayingRecordingName)
-            isPlayingRecording = false
+            McmRecorder.PlayRecording(recordingName)
             currentlyPlayingRecordingName = ""
-            UnregisterForMenu("Journal Menu")
+            isPlayingRecording = false
+        elseIf response == "View Steps"
+            ShowStepSelectionUI(recordingName, stepNames)
         endIf
     endIf
-endEvent
+endFunction
+
+function ShowStepSelectionUI(string recordingName, string[] stepNames)
+    UIListMenu menu = UIExtensions.GetMenu("UIListMenu") as UIListMenu
+    menu.AddEntryItem("[" + recordingName + "]")
+    menu.AddEntryItem(" ")
+
+    int i = 0
+    while i < stepNames.Length
+        string stepName = stepNames[i]
+        menu.AddEntryItem(stepName)
+        i += 1
+    endWhile
+
+    menu.OpenMenu()
+
+    int selection = menu.GetResultInt()
+
+    if selection < 2 ; Go Back
+        ; TODO open the previous prompt! This isn't working...
+        ; PromptToRunRecordingOrPreviewSteps(recordingName)
+    else
+        int stepIndex = selection - 2 ; Subtract the top 3 entry items
+        string stepName = stepNames[stepIndex]
+        McmRecorder.PlayStep(recordingName, stepName)
+        Debug.MessageBox("MCM recording " + recordingName + " step " + stepName + " has finished playing.")
+    endIf
+endFunction

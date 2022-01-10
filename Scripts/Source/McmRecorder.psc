@@ -2,6 +2,8 @@ scriptName McmRecorder extends Quest
 
 int property CurrentRecordingId auto
 SKI_ConfigManager property skiConfigManager auto
+Message property McmRecorder_Message_RunRecordingOrViewSteps auto
+Form property McmRecorder_MessageText auto
 
 McmRecorder function GetInstance() global
     return Game.GetFormFromFile(0x800, "McmRecorder.esp") as McmRecorder
@@ -26,6 +28,10 @@ endFunction
 
 string function PathToRecordingFolder(string recordingName) global
     return PathToRecordings() + "/" + FileSystemPathPart(recordingName)
+endFunction
+
+string function PathToStepFile(string recordingName, string stepName) global
+    return PathToRecordings() + "/" + FileSystemPathPart(recordingName) + "/" + stepName + ".json"
 endFunction
 
 string function JdbPathToCurrentRecordingName() global
@@ -107,7 +113,10 @@ function BeginRecording(string recordingName) global
     SetCurrentRecordingModName("")
     ResetCurrentRecordingSteps()
     int metaFile = JMap.object()
+    string authorName = Game.GetPlayer().GetActorBase().GetName()
     JMap.setStr(metaFile, "name", recordingName)    
+    JMap.setStr(metaFile, "version", "1.0.0")
+    JMap.setStr(metaFile, "author", authorName)
     JValue.writeToFile(metaFile, PathToRecordingFolder(recordingName) + ".json")
 endFunction
 
@@ -165,6 +174,10 @@ string[] function GetRecordingNames() global
         i += 1
     endWhile
     return fileNames
+endFunction
+
+int function GetRecordingInfo(string recordingName) global
+    return JValue.ReadFromFile(PathToRecordingFolder(recordingName) + ".json")
 endFunction
 
 SKI_ConfigBase function GetMcmInstance(string modName) global
@@ -332,7 +345,11 @@ function Notification(string text) global
     Debug.Notification("[McmRecorder] " + text)
 endFunction
 
-function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5) global
+string[] function GetRecordingStepNames(string recordingName) global
+    return JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordingFolder(recordingName)))
+endFunction
+
+function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.2) global
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
@@ -356,7 +373,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5)
         int i = 0
         while i < actionCount
             int recordingAction = JArray.getObj(recordingActions, i)
-            PlayAction(recordingAction, filename)
+            PlayAction(recordingAction, StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json")))
             if waitTimeBetweenActions
                 Utility.WaitMenuMode(waitTimeBetweenActions)
             endIf
@@ -370,6 +387,23 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5)
 
     JValue.release(steps)
     SetIsPlayingRecording(false)
+endFunction
+
+function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.2) global
+    Notification("Play " + recordingName + " step " + stepName)
+    int stepInfo = JValue.readFromFile(PathToStepFile(recordingName, stepName))
+    JValue.retain(stepInfo)
+    int actionCount = JArray.count(stepInfo)
+    int i = 0
+    while i < actionCount
+        int recordingAction = JArray.getObj(stepInfo, i)
+        PlayAction(recordingAction, stepName)
+        if waitTimeBetweenActions
+            Utility.WaitMenuMode(waitTimeBetweenActions)
+        endIf
+        i += 1
+    endWhile
+    JValue.release(stepInfo)
 endFunction
 
 function PlayAction(int actionInfo, string stepName) global
@@ -577,4 +611,16 @@ string function ToJson(int jcontainer) global
     string filepath = PathToRecordings() + "/" + "temp.json"
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)
+endFunction
+
+string function GetUserResponseToRunRecording(string text)
+    McmRecorder_MessageText.SetName(text)
+    int response = McmRecorder_Message_RunRecordingOrViewSteps.Show()
+    if response == 0
+        return "Play All Steps"
+    elseIf response == 1
+        return "View Steps"
+    elseIf response == 2
+        return "Cancel"
+    endIf
 endFunction
