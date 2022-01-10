@@ -390,20 +390,31 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.2)
 endFunction
 
 function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.2) global
-    Notification("Play " + recordingName + " step " + stepName)
-    int stepInfo = JValue.readFromFile(PathToStepFile(recordingName, stepName))
+    SetCurrentPlayingRecordingModName("")
+    SetCurrentPlayingRecordingModPageName("")
+    SetIsPlayingRecording(true) ; XXX is this used?
+
+    int stepInfo = JValue.readFromFile(PathToStepFile(recordingName, StringUtil.Substring(stepName, 0, StringUtil.Find(stepName, ".json"))))
+    
     JValue.retain(stepInfo)
+
+    ; Debug.MessageBox("PLAYING STEP " + stepInfo)
+    
     int actionCount = JArray.count(stepInfo)
     int i = 0
     while i < actionCount
         int recordingAction = JArray.getObj(stepInfo, i)
+        ; Debug.MessageBox("PLAYING ACTION " + recordingAction + " " + ToJson(recordingAction))
         PlayAction(recordingAction, stepName)
         if waitTimeBetweenActions
             Utility.WaitMenuMode(waitTimeBetweenActions)
         endIf
         i += 1
     endWhile
+    
     JValue.release(stepInfo)
+
+    SetIsPlayingRecording(false)
 endFunction
 
 function PlayAction(int actionInfo, string stepName) global
@@ -608,7 +619,7 @@ endFunction
 
 string function ToJson(int jcontainer) global
     ; return "LOGGING OBJECT SERIALIZATION"
-    string filepath = PathToRecordings() + "/" + "temp.json"
+    string filepath = PathToRecordings() + "/" + ".temp" + "/temp.json"
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)
 endFunction

@@ -172,6 +172,6 @@ function ShowStepSelectionUI(string recordingName, string[] stepNames)
         int stepIndex = selection - 2 ; Subtract the top 3 entry items
         string stepName = stepNames[stepIndex]
         McmRecorder.PlayStep(recordingName, stepName)
-        Debug.MessageBox("MCM recording " + recordingName + " step " + stepName + " has finished playing.")
+        Debug.MessageBox("MCM recording " + recordingName + " step " + StringUtil.Substring(stepName, 0, StringUtil.Find(stepName, ".json")) + " has finished playing.")
     endIf
 endFunction
