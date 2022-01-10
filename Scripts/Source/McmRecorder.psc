@@ -280,7 +280,12 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
 
         if optionType == "clickable"
             if JMap.getStr(option, "type") == "toggle"
-                JMap.setStr(mcmAction, "toggle", JMap.getStr(option, "text"))
+                JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+                if JMap.getFlt(option, "fltValue") == 0
+                    JMap.setStr(mcmAction, "toggle", "on")
+                else
+                    JMap.setStr(mcmAction, "toggle", "off")
+                endIf
             else
                 if JMap.getStr(option, "text")
                     JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))

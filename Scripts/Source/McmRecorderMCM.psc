@@ -48,13 +48,13 @@ function ListRecordings()
 endFunction
 
 event OnOptionSelect(int optionId)
-    if optionId == oid_Record ; SkyrimVR
+    if optionId == oid_Stop
+        McmRecorder.StopRecording()
+        ForcePageReset()
+    elseIf IsSkyrimVR && optionId == oid_Record ; SkyrimVR
         McmRecorder.BeginRecording(GetRandomRecordingName())
         ForcePageReset()
         Debug.MessageBox("Recording Started!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
-    elseIf optionId == oid_Stop
-        McmRecorder.StopRecording()
-        ForcePageReset()
     elseIf oids_Recordings.Find(optionId) > -1
         if ShowMessage("Are you sure you would like to play this recording?", true, "Yes", "No")
             int recordingIndex = oids_Recordings.Find(optionId)
