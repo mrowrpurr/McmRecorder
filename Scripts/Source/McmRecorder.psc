@@ -320,8 +320,11 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
     endIf
 endFunction
 
+function Notification(string text) global
+    Debug.Notification("[McmRecorder] " + text)
+endFunction
+
 function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5) global
-    Debug.MessageBox("PLAY RECORDING " + recordingName)
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
@@ -329,7 +332,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5)
 
     string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
 
-    Debug.Notification("Playing " + recordingName + " (" + stepFiles.Length + " steps)")
+    Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
 
     int fileIndex = 0
     while fileIndex < stepFiles.Length
@@ -337,7 +340,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5)
         int recordingActions = JValue.readFromFile(PathToRecordingFolder(recordingName) + "/" + filename)
         JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
-        Debug.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
+        Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
 
         int i = 0
         while i < actionCount
@@ -378,24 +381,24 @@ function PlayAction(int actionInfo, string stepName) global
     string optionType
     string selector = JMap.getStr(actionInfo, "option")
 
-    if JMap.getStr(actionInfo, "click")
+    if JMap.hasKey(actionInfo, "click")
         optionType = "text"
         selector = JMap.getStr(actionInfo, "click")
-    elseIf JMap.getStr(actionInfo, "toggle")
+    elseIf JMap.hasKey(actionInfo, "toggle")
         optionType = "toggle"
         selector = JMap.getStr(actionInfo, "toggle")
-    elseIf JMap.getStr(actionInfo, "choose")
+    elseIf JMap.hasKey(actionInfo, "choose")
         optionType = "menu"
-    elseIf JMap.getStr(actionInfo, "text")
+    elseIf JMap.hasKey(actionInfo, "text")
         optionType = "input"
-    elseIf JMap.getFlt(actionInfo, "shortcut")
+    elseIf JMap.hasKey(actionInfo, "shortcut")
         optionType = "keymap"
-    elseIf JMap.getStr(actionInfo, "color")
+    elseIf JMap.hasKey(actionInfo, "color")
         optionType = "color"
-    elseIf JMap.getFlt(actionInfo, "slider")
+    elseIf JMap.hasKey(actionInfo, "slider")
         optionType = "slider"
     else
-        Debug.MessageBox("MCM recording step " + stepName + " is not known type.")
+        Debug.MessageBox("MCM recording step " + stepName + " has action of unknown or unsupported type: '" + optionType + "'\n" + ToJson(actionInfo))
         return
     endIf
 
@@ -419,11 +422,11 @@ function PlayAction(int actionInfo, string stepName) global
             mcm.GotoState(stateName)
             if optionType == "menu"
                 string menuItem = JMap.getStr(actionInfo, "choose")
-                mcm.OnOptionMenuOpen(optionId)
+                mcm.OnMenuOpenST()
                 string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
-                    Debug.MessageBox("Could not find " + menuItem + " menu item ")
+                    Debug.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
                     mcm.OnMenuAcceptST(itemIndex)
                 endIf
@@ -447,7 +450,7 @@ function PlayAction(int actionInfo, string stepName) global
                 string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
-                    Debug.MessageBox("Could not find " + menuItem + " menu item ")
+                    Debug.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
                     mcm.OnOptionMenuAccept(optionId, itemIndex)
                 endIf
@@ -474,7 +477,8 @@ int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, str
     float startTime = Utility.GetCurrentRealTime()
     while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout
         foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchInterval, searchPageLoadTime)
-        if ! foundOption
+        if ! foundOption ; Does this ever run?
+            Notification(modName + ": " + pageName + " (search for " + selector + ")")
             Utility.WaitMenuMode(searchInterval)
         endIf
     endWhile
@@ -518,6 +522,10 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
             i += 1
         endWhile
         Utility.WaitMenuMode(searchInterval)
+
+        if (Utility.GetCurrentRealTime() - startTime) >= 4 ; Every 4 seconds print an update
+            Notification(modName + ": " + pageName + " (search for " + selector + ")")
+        endIf
     endWhile
 
     return 0
