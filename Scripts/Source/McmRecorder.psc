@@ -366,17 +366,19 @@ function PlayAction(int actionInfo, string stepName) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
-    if ! modName
-        Debug.MessageBox("Play action without mod name? What??? " + ToJson(actionInfo))
-        return
-    endIf
-
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
     if ! mcm
         Debug.MessageBox("MCM recorder could not load MCM menu for " + modName + " for step " + stepName + " action: " + ToJson(actionInfo)) ; TODO turn into a LOG TRACE
         return
     endIf
+
+    if modName != GetCurrentPlayingRecordingModName() || pageName != GetCurrentPlayingRecordingModPageName()
+        RefreshMcmPage(mcm, pageName)
+    endIf
+
+    SetCurrentPlayingRecordingModName(modName)
+    SetCurrentPlayingRecordingModPageName(pageName)
 
     string optionType
     string selector = JMap.getStr(actionInfo, "option")
@@ -485,12 +487,15 @@ int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, str
     return foundOption
 endFunction
 
-int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchInterval, float searchPageLoadTime) global
-    Log("Refresh Page " + modName + " " + pageName)
+function RefreshMcmPage(SKI_ConfigBase mcm, string pageName) global
     ResetMcmOptions()
     mcm.CloseConfig()
     mcm.OpenConfig()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName))
+endFunction
+
+int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchInterval, float searchPageLoadTime) global
+    Log("Refresh Page " + modName + " " + pageName)
 
     float startTime = Utility.GetCurrentRealTime()
     while (Utility.GetCurrentRealTime() - startTime) < searchPageLoadTime
@@ -498,7 +503,6 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
         int optionsCount = JArray.count(options)
         Log("Searching for option: " + modName + " " + pageName + " " + optionType + " " + selector)
         LogContainer("Options on this page", options)
-        ; JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "MCM" + modName + "_" + pageName + ".json")
         int i = 0
         while i < optionsCount
             int option = JArray.getObj(options, i)
@@ -521,7 +525,10 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
 
             i += 1
         endWhile
+        
         Utility.WaitMenuMode(searchInterval)
+
+        RefreshMcmPage(mcm, pageName) ; Wasn't on the page! Let's refresh the page.
 
         if (Utility.GetCurrentRealTime() - startTime) >= 4 ; Every 4 seconds print an update
             Notification(modName + ": " + pageName + " (search for " + selector + ")")
@@ -541,6 +548,7 @@ string function GetWildcardMatcher(string selector) global
 endFunction
 
 string function ToJson(int jcontainer) global
+    ; return "LOGGING OBJECT SERIALIZATION"
     string filepath = PathToRecordings() + "/" + "temp.json"
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)

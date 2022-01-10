@@ -571,7 +571,13 @@ endFunction
 function ForcePageReset()
 {Forces a full reset of the current page}
 
-	if ! McmRecorder.IsPlayingRecording()
+	if McmRecorder.IsPlayingRecording()
+		McmRecorder.ResetMcmOptions()
+		CloseConfig()
+		OpenConfig()
+		Debug.Trace("[McmRecorder] ForcePageReset() for page " + CurrentPage)
+		SetPage(CurrentPage, Pages.Find(CurrentPage))
+	else
 		ui.Invoke(self.JOURNAL_MENU, self.MENU_ROOT + ".forcePageReset")
 	endIf
 endFunction
