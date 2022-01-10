@@ -8,7 +8,7 @@ McmRecorder function GetInstance() global
 endFunction
 
 function Log(string text) global
-    return ; Disable logging
+    ; return ; Disable logging
     Debug.Trace("[MCM Recorder] " + text)
 endFunction
 
@@ -202,12 +202,13 @@ function Save(string recordingName, string modName) global
     JValue.writeToFile(GetCurrentRecordingSteps(), GetFileNameForRecordingAction(recordingName, modName))
 endFunction
 
-function AddConfigurationOption(string modName, string pageName, int optionId, string optionType, string optionText, string optionStrValue, float optionFltValue) global
+function AddConfigurationOption(string modName, string pageName, int optionId, string optionType, string optionText, string optionStrValue, float optionFltValue, string stateName) global
     int optionsOnModPageForType = GetModPageConfigurationOptionsByOptionType(modName, pageName, optionType)
     int option = JMap.object()
     JArray.addObj(optionsOnModPageForType, option)
     JMap.setObj(GetModPageConfigurationOptionsByOptionIds(modName, pageName), optionId, option)
     JMap.setInt(option, "id", optionId)
+    JMap.setStr(option, "state", stateName)
     JMap.setStr(option, "type", optionType)
     JMap.setStr(option, "text", optionText)
     JMap.setStr(option, "strValue", optionStrValue)
@@ -319,13 +320,17 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
     endIf
 endFunction
 
-function PlayRecording(string recordingName) global
+function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.5) global
+    Debug.MessageBox("PLAY RECORDING " + recordingName)
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
     SetIsPlayingRecording(true)
 
     string[] stepFiles = MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
+
+    Debug.Notification("Playing " + recordingName + " (" + stepFiles.Length + " steps)")
+
     int fileIndex = 0
     while fileIndex < stepFiles.Length
         string filename = stepFiles[fileIndex]
@@ -337,8 +342,10 @@ function PlayRecording(string recordingName) global
         int i = 0
         while i < actionCount
             int recordingAction = JArray.getObj(recordingActions, i)
-            LogContainer("Run Action", recordingAction)
             PlayAction(recordingAction, filename)
+            if waitTimeBetweenActions
+                Utility.WaitMenuMode(waitTimeBetweenActions)
+            endIf
             i += 1
         endWhile
 
@@ -351,6 +358,8 @@ function PlayRecording(string recordingName) global
 endFunction
 
 function PlayAction(int actionInfo, string stepName) global
+    LogContainer("Run Action", actionInfo)
+
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
@@ -400,6 +409,10 @@ function PlayAction(int actionInfo, string stepName) global
 
     int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchTimeout, searchInterval, searchPageLoadTime)
     if option
+        LogContainer("Found Option", option)
+        if ! stateName
+            stateName = JMap.getStr(option, "state")
+        endIf
         int optionId = JMap.getInt(option, "id")
         if stateName
             string previousState = mcm.GetState()
@@ -423,6 +436,7 @@ function PlayAction(int actionInfo, string stepName) global
             elseIf optionType == "slider"
                 mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "slider"))
             elseIf optionType == "toggle" || optionType == "text"
+                Log("On Select ST")
                 mcm.OnSelectST()
             endIf
             mcm.GotoState(previousState)
@@ -446,6 +460,7 @@ function PlayAction(int actionInfo, string stepName) global
             elseIf optionType == "input"
                 mcm.OnOptionInputAccept(optionId, JMap.getStr(actionInfo, "text"))
             elseIf optionType == "toggle" || optionType == "text"
+                Log("OnOptionSelect " + optionId)
                 mcm.OnOptionSelect(optionId)
             endIf
         endIf

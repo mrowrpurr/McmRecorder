@@ -889,7 +889,7 @@ function AddOptionST(String a_stateName, Int a_optionType, String a_text, String
 		self.Error("State option name " + a_stateName + " is already in use")
 		return 
 	endIf
-	Int index = self.AddOption(a_optionType, a_text, a_strValue, a_numValue, a_flags) % 256
+	Int index = self.AddOption(a_optionType, a_text, a_strValue, a_numValue, a_flags, a_stateName) % 256
 	; string pageName = _currentPage
 	; if ! pageName
 	; 	pageName = "SKYUI_DEFAULT_PAGE"
@@ -1204,7 +1204,7 @@ function SetToggleOptionValue(Int a_option, Bool a_checked, Bool a_noUpdate)
 	self.SetOptionNumValue(index, (a_checked as Int) as Float, a_noUpdate)
 endFunction
 
-Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float a_numValue, Int a_flags)
+Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float a_numValue, Int a_flags, string stateName = "")
 	if _state != self.STATE_RESET
 		self.Error("Cannot add option " + a_text + " outside of OnPageReset()")
 		return -1
@@ -1250,7 +1250,7 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 			Debug.Trace("[MCM Recorder] UNKNOWN or UNSUPPORTED Option Type " + a_optionType + " text: " + a_text + " value: " + a_strValue)
 		endIf
 		if optionType
-			McmRecorder.AddConfigurationOption(ModName, PageNameOrDefault, optionId, optionType, a_text, a_strValue, a_numValue)
+			McmRecorder.AddConfigurationOption(ModName, PageNameOrDefault, optionId, optionType, a_text, a_strValue, a_numValue, stateName)
 		endIf
 	endIf
 	return optionId

@@ -79,7 +79,7 @@ event OnMenuClose(string menuName)
     if menuName == "Journal Menu"
         if currentlyPlayingRecordingName && ! isPlayingRecording
             isPlayingRecording = true
-            Debug.MessageBox("Playing MCM recording " + currentlyPlayingRecordingName)
+            Debug.MessageBox("!!! Playing MCM recording " + currentlyPlayingRecordingName)
             McmRecorder.PlayRecording(currentlyPlayingRecordingName)
             isPlayingRecording = false
             currentlyPlayingRecordingName = ""
