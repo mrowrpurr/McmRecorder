@@ -10,7 +10,7 @@ McmRecorder function GetInstance() global
 endFunction
 
 function Log(string text) global
-    ; return ; Disable logging
+    return ; Disable logging
     Debug.Trace("[MCM Recorder] " + text)
 endFunction
 
@@ -618,7 +618,7 @@ string function GetWildcardMatcher(string selector) global
 endFunction
 
 string function ToJson(int jcontainer) global
-    ; return "LOGGING OBJECT SERIALIZATION"
+    return "LOGGING OBJECT SERIALIZATION DISABLED"
     string filepath = PathToRecordings() + "/" + ".temp" + "/temp.json"
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)
