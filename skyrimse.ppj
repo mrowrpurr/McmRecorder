@@ -11,6 +11,7 @@
     Final="false">
     <Variables>
         <Variable Name="ModName" Value="McmRecorder" />
+        <Variable Name="ModVersion" Value="1.0.2" />
         <Variable Name="ModsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Mods" />
         <Variable Name="ImportsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Imports" />
     </Variables>
@@ -26,7 +27,7 @@
         <Folder>./Scripts/Source</Folder>
     </Folders>
     <ZipFiles Output="Build">
-        <ZipFile Name="@ModName" RootDir="." Compression="deflate">
+        <ZipFile Name="@ModName-v@ModVersion" RootDir="." Compression="deflate">
             <Include>@ModName.esp</Include>
             <Match In="Scripts">*.pex</Match>
             <Match In="Scripts\Source">*.psc</Match>
