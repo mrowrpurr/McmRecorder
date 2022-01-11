@@ -167,6 +167,11 @@ string function GetFileNameForRecordingAction(string recordingName, string modNa
 endFunction
 
 string[] function GetRecordingNames() global
+    if ! MiscUtil.FileExists(PathToRecordings())
+        string[] ret
+        return ret
+    endIf
+
     string[] fileNames = JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordings()))
     int i = 0
     while i < fileNames.Length
@@ -426,7 +431,7 @@ function PlayAction(int actionInfo, string stepName) global
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
     if ! mcm
-        Debug.MessageBox("MCM recorder could not load MCM menu for " + modName + " for step " + stepName + " action: " + ToJson(actionInfo)) ; TODO turn into a LOG TRACE
+        Debug.Trace("MCM recorder could not load MCM menu for " + modName)
         return
     endIf
 

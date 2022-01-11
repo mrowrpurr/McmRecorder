@@ -485,7 +485,6 @@ Int function AddHeaderOption(String a_text, Int a_flags)
 endFunction
 
 function OnGameReload()
-
 	if !_initialized
 		_initialized = true
 		_sliderParams = new Float[5]

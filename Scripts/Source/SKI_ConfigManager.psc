@@ -36,6 +36,7 @@ Int _addCounter = 0
 ;-- Functions ---------------------------------------
 
 function OnGameReload()
+	Debug.MessageBox("Config Manager instance OnGameReload")
 
 	self.RegisterForModEvent("SKICP_modSelected", "OnModSelect")
 	self.RegisterForModEvent("SKICP_pageSelected", "OnPageSelect")
@@ -59,6 +60,8 @@ function OnGameReload()
 	self.SendModEvent("SKICP_configManagerReady", "", 0.000000)
 	_updateCounter = 0
 	self.RegisterForSingleUpdate(5 as Float)
+
+	Debug.MessageBox("MODS: " + _modNames)
 endFunction
 
 function OnSliderSelect(String a_eventName, String a_strArg, Float a_numArg, Form a_sender)
@@ -257,10 +260,11 @@ Int function RegisterMod(SKI_ConfigBase a_menu, String a_modName)
 endFunction
 
 function OnMenuOpen(String a_menuName)
-
+	Debug.MessageBox("JOURNAL OPEN, SET MOD NAMES: " + _modNames)
 	self.GotoState("BUSY")
 	_activeConfig = none
 	ui.InvokeStringA(self.JOURNAL_MENU, self.MENU_ROOT + ".setModNames", _modNames)
+	Debug.MessageBox("DID IT WORK?")
 endFunction
 
 function OnModSelect(String a_eventName, String a_strArg, Float a_numArg, Form a_sender)
