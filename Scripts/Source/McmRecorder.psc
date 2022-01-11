@@ -18,8 +18,7 @@ string function GetVersion() global
 endFunction
 
 function Log(string text) global
-    return ; Disable logging
-    Debug.Trace("[MCM Recorder] " + text)
+    ; Debug.Trace("[MCM Recorder] " + text)
 endFunction
 
 function LogContainer(string text, int jcontainer) global
@@ -260,9 +259,8 @@ function AddConfigurationOption(string modName, string pageName, int optionId, s
     JMap.setStr(option, "text", optionText)
     JMap.setStr(option, "strValue", optionStrValue)
     JMap.setFlt(option, "fltValue", optionFltValue)
-    JValue.writeToFile(JDB.solveObj(".mcmRecorder"), "McmOptions.json")
     Log("AddConfigOption " + modName + " " + pageName + " " + optionText + " " + optionStrValue)
-    ; LogContainer("Added Config Option", option)
+    LogContainer("Added Config Option", option)
 endFunction
 
 int function GetConfigurationOption(string modName, string pageName, int optionId) global
@@ -312,6 +310,12 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         endIf
 
         int option = GetConfigurationOption(modName, pageName, optionId)
+
+        if ! option
+            Debug.MessageBox("[McmRecorder] Problem! You clicked on an MCM field which we were not able to detect.")
+            Debug.Notification("[McmRecorder] Problem! You clicked on an MCM field which we were not able to detect.")
+            return
+        endIf
 
         int mcmAction = JMap.object()
         JArray.addObj(GetCurrentRecordingSteps(), mcmAction)

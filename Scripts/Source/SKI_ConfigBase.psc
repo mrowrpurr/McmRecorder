@@ -378,7 +378,6 @@ function AddInputOptionST(String a_stateName, String a_text, String a_value, Int
 endFunction
 
 function AddKeyMapOptionST(String a_stateName, String a_text, Int a_keyCode, Int a_flags)
-
 	self.AddOptionST(a_stateName, self.OPTION_TYPE_KEYMAP, a_text, none, a_keyCode as Float, a_flags)
 endFunction
 
@@ -889,17 +888,11 @@ function SetSliderOptionValue(Int a_option, Float a_value, String a_formatString
 endFunction
 
 function AddOptionST(String a_stateName, Int a_optionType, String a_text, String a_strValue, Float a_numValue, Int a_flags)
-
 	if _stateOptionMap.find(a_stateName, 0) != -1
 		self.Error("State option name " + a_stateName + " is already in use")
 		return 
 	endIf
 	Int index = self.AddOption(a_optionType, a_text, a_strValue, a_numValue, a_flags, a_stateName) % 256
-	; string pageName = _currentPage
-	; if ! pageName
-	; 	pageName = "SKYUI_DEFAULT_PAGE"
-	; endIf
-	; McmRecorder.AddStateToStatefulConfiguration(ModName, pageName, index, a_stateName)
 	if index < 0
 		return 
 	endIf
