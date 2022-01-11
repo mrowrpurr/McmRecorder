@@ -44,15 +44,17 @@ function ListRecordings()
         int i = 0
         while i < recordings.Length
             string recordingName = recordings[i]
-            string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
-            if stepNames
-                oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
-                int recordingInfo = McmRecorder.GetRecordingInfo(recordingName)
-                string authorText = ""
-                if JMap.getStr(recordingInfo, "author")
-                    authorText = "by " + JMap.getStr(recordingInfo, "author")
+            if recordingName != McmRecorder.GetCurrentRecordingName()
+                string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
+                if stepNames
+                    oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
+                    int recordingInfo = McmRecorder.GetRecordingInfo(recordingName)
+                    string authorText = ""
+                    if JMap.getStr(recordingInfo, "author")
+                        authorText = "by " + JMap.getStr(recordingInfo, "author")
+                    endIf
+                    AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
                 endIf
-                AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
             endIf
             i += 1
         endWhile

@@ -403,13 +403,12 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     
     JValue.retain(stepInfo)
 
-    ; Debug.MessageBox("PLAYING STEP " + stepInfo)
+    Notification("Playing step " + stepName + " of recording " + recordingName)
     
     int actionCount = JArray.count(stepInfo)
     int i = 0
     while i < actionCount
         int recordingAction = JArray.getObj(stepInfo, i)
-        ; Debug.MessageBox("PLAYING ACTION " + recordingAction + " " + ToJson(recordingAction))
         PlayAction(recordingAction, stepName)
         if waitTimeBetweenActions
             Utility.WaitMenuMode(waitTimeBetweenActions)
