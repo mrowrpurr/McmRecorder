@@ -105,43 +105,27 @@ event OnMenuOpen(string menuName)
     endIf
 endEvent
 
+; TODO move to the McmRecorder maybe a global script for prompts
 function PromptToRunRecordingOrPreviewSteps(string recordingName)
-    int info = McmRecorder.GetRecordingInfo(recordingName)
-    string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
-
-    string recordingDescription = recordingName
-    if JMap.getStr(info, "version")
-        recordingDescription += " (" + JMap.getStr(info, "version") + ")"
-    endIf
-    if JMap.getStr(info, "author")
-        recordingDescription += "\n~ by " + JMap.getStr(info, "author") + " ~"
-    endIf
-    recordingDescription += "\nSteps: " + stepNames.Length
+    string recordingDescription = McmRecorder.GetRecordingDescription(recordingName)
 
     bool confirmation = true
 
     ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog
     if IsSkyrimVR
-        Debug.MessageBox("Close the MCM to play the recording:\n\n" + recordingDescription + "\n\nYou can also preview all recording steps or play individual steps.")
+        Debug.MessageBox(recordingDescription + "\n\nClose the MCM to continue\n\nYou will be prompted to play this recording\n\nYou will also be able to preview all recording steps or play individual one\n\nYou will also be given the opportunity to continue the recording")
     else
-        confirmation = ShowMessage("Close the MCM to play the recording:\n\n" + recordingDescription + "\n\nYou can also preview all recording steps or play individual steps.\n\nWould you like to continue?", "No", "Yes", "Cancel")
+        confirmation = ShowMessage(recordingDescription + "\n\nClose the MCM to continue\n\nYou will be prompted to play this recording\n\nYou will also be able to preview all recording steps or play individual one\n\nYou will also be given the opportunity to continue the recording\n\nWould you like to continue?", "No", "Yes", "Cancel")
         if confirmation
-            Debug.MessageBox("Close the MCM now to play the recording")
+            Debug.MessageBox("Close the MCM to continue")
         endIf
     endIf
 
     if confirmation
         UnregisterForMenu("Journal Menu")  
         RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
-
-        string text = recordingName
-        if JMap.getStr(info, "version")
-            text += " (" + JMap.getStr(info, "version") + ")"
-        endIf
-        if JMap.getStr(info, "author")
-            text += "\n~ by " + JMap.getStr(info, "author") + " ~"
-        endIf
-        text += "\n\n" + stepNames.Length + " steps\n"
+        string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
+        string text = recordingDescription + "\n"
         int i = 0
         while i < stepNames.Length && i < 11
             if i == 10
@@ -155,7 +139,7 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
 
         string response = Recorder.GetUserResponseToRunRecording(text)
 
-        if response == "Play All Steps"
+        if response == "Play Recording"
             currentlyPlayingRecordingName = recordingName
             isPlayingRecording = true
             McmRecorder.PlayRecording(recordingName)
@@ -163,6 +147,9 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
             isPlayingRecording = false
         elseIf response == "View Steps"
             ShowStepSelectionUI(recordingName, stepNames)
+        elseIf response == "Add to Recording"
+            McmRecorder.ContinueRecording(recordingName)
+            Debug.MessageBox("Recording has been restarted!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to the MCM Recorder mod configuration menu to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
         endIf
     endIf
 endFunction

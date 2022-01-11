@@ -1,12 +1,20 @@
 scriptName McmRecorder extends Quest  
 
+; TODO separate out an McmRecorderPrivate so this can become just a public API intended for integration
+
 int property CurrentRecordingId auto
 SKI_ConfigManager property skiConfigManager auto
 Message property McmRecorder_Message_RunRecordingOrViewSteps auto
+Message property McmRecorder_Message_SelectorNotFound auto
 Form property McmRecorder_MessageText auto
+string property CurrentlyInstalledVersion auto
 
 McmRecorder function GetInstance() global
     return Game.GetFormFromFile(0x800, "McmRecorder.esp") as McmRecorder
+endFunction
+
+string function GetVersion() global
+    return "1.0.2"
 endFunction
 
 function Log(string text) global
@@ -20,6 +28,7 @@ endFunction
 
 event OnInit()
     skiConfigManager = Game.GetFormFromFile(0x802, "SkyUI_SE.esp") as SKI_ConfigManager
+    CurrentlyInstalledVersion = GetVersion()
 endEvent
 
 string function PathToRecordings() global
@@ -108,7 +117,6 @@ string function FileSystemPathPart(string part) global
 endFunction
 
 function BeginRecording(string recordingName) global
-    int recordingSteps = JArray.object()
     SetCurrentRecordingName(recordingName)
     SetCurrentRecordingModName("")
     ResetCurrentRecordingSteps()
@@ -118,6 +126,12 @@ function BeginRecording(string recordingName) global
     JMap.setStr(metaFile, "version", "1.0.0")
     JMap.setStr(metaFile, "author", authorName)
     JValue.writeToFile(metaFile, PathToRecordingFolder(recordingName) + ".json")
+endFunction
+
+function ContinueRecording(string recordingName) global
+    SetCurrentRecordingName(recordingName)
+    SetCurrentRecordingModName("")
+    ResetCurrentRecordingSteps()
 endFunction
 
 function StopRecording() global
@@ -622,7 +636,6 @@ string function GetWildcardMatcher(string selector) global
 endFunction
 
 string function ToJson(int jcontainer) global
-    return "LOGGING OBJECT SERIALIZATION DISABLED"
     string filepath = PathToRecordings() + "/" + ".temp" + "/temp.json"
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)
@@ -632,10 +645,39 @@ string function GetUserResponseToRunRecording(string text)
     McmRecorder_MessageText.SetName(text)
     int response = McmRecorder_Message_RunRecordingOrViewSteps.Show()
     if response == 0
-        return "Play All Steps"
+        return "Play Recording"
     elseIf response == 1
         return "View Steps"
     elseIf response == 2
+        return "Add to Recording"
+    elseIf response == 3
         return "Cancel"
     endIf
 endFunction
+
+string function GetUserResponseForNotFoundSelector(string text)
+    McmRecorder_MessageText.SetName(text)
+    int response = McmRecorder_Message_SelectorNotFound.Show()
+    
+    ; TODO
+endFunction
+
+string function GetRecordingDescription(string recordingName) global
+    int info = McmRecorder.GetRecordingInfo(recordingName)
+    string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
+
+    string recordingDescription = recordingName
+    if JMap.getStr(info, "version")
+        recordingDescription += " (" + JMap.getStr(info, "version") + ")"
+    endIf
+    if JMap.getStr(info, "author")
+        recordingDescription += "\n~ by " + JMap.getStr(info, "author") + " ~"
+    endIf
+    recordingDescription += "\nSteps: " + stepNames.Length
+    
+    return recordingDescription
+endFunction
+
+; Continue
+; Try again
+; Skip
