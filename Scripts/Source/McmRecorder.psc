@@ -23,7 +23,7 @@ function Log(string text) global
 endFunction
 
 function LogContainer(string text, int jcontainer) global
-    Log(text + ":\n" + ToJson(jcontainer))
+    ; Log(text + ":\n" + ToJson(jcontainer))
 endFunction
 
 event OnInit()
@@ -73,6 +73,10 @@ endFunction
 
 string function JdbPathToPlayingRecordingModPageName() global
     return ".mcmRecorder.playingRecording.pageName"
+endFunction
+
+string function JdbPathToCurrentlySkippingModName() global
+    return ".mcmRecorder.playingRecording.modCurrentlySkipping"
 endFunction
 
 string function JdbPathPart(string part) global
@@ -229,8 +233,16 @@ string function GetCurrentPlayingRecordingModPageName() global
     return JDB.solveStr(JdbPathToPlayingRecordingModPageName())
 endFunction
 
-function SetCurrentPlayingRecordingModPageName(string pagename) global
+function SetCurrentPlayingRecordingModPageName(string pageName) global
     JDB.solveStrSetter(JdbPathToPlayingRecordingModPageName(), pageName , createMissingKeys = true)
+endFunction
+
+string function GetCurrentlySkippingModName() global
+    return JDB.solveStr(JdbPathToCurrentlySkippingModName())
+endFunction
+
+function SetCurrentlySkippingModName(string modName) global
+    JDB.solveStrSetter(JdbPathToCurrentlySkippingModName(), modName, createMissingKeys = true)
 endFunction
 
 function Save(string recordingName, string modName) global
@@ -435,11 +447,20 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     SetIsPlayingRecording(false)
 endFunction
 
-function PlayAction(int actionInfo, string stepName) global
+function PlayAction(int actionInfo, string stepName, bool promptOnFailures = true) global
     LogContainer("Run Action", actionInfo)
 
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
+
+    string skippingModName = GetCurrentlySkippingModName()
+    if skippingModName
+        if modName == skippingModName
+            return ; Skip!
+        else
+            SetCurrentlySkippingModName("")
+        endIf
+    endIf
 
     SKI_ConfigBase mcm = GetMcmInstance(modName)
 
@@ -487,6 +508,7 @@ function PlayAction(int actionInfo, string stepName) global
     float searchPageLoadTime = JMap.getFlt(actionInfo, "pageload", 5.0) ; Allow pages up to 5 seconds for an option to appear
 
     int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchTimeout, searchInterval, searchPageLoadTime)
+
     if option
         LogContainer("Found Option", option)
         if ! stateName
@@ -557,8 +579,13 @@ function PlayAction(int actionInfo, string stepName) global
                 mcm.OnOptionSelect(optionId)
             endIf
         endIf
-    else
-        Debug.MessageBox("Could not find option " + optionType + " for " + modName + " " + pageName + " selector: '" + selector)
+    elseIf promptOnFailures
+        string response = GetUserResponseForNotFoundSelector(modName, pageName, selector)
+        if response == "Try again"
+            PlayAction(actionInfo, stepName, promptOnFailures)
+        elseIf response == "Skip this mod"
+            SetCurrentlySkippingModName(modName)
+        endIf
     endIf
 endFunction
 
@@ -655,11 +682,26 @@ string function GetUserResponseToRunRecording(string text)
     endIf
 endFunction
 
-string function GetUserResponseForNotFoundSelector(string text)
-    McmRecorder_MessageText.SetName(text)
-    int response = McmRecorder_Message_SelectorNotFound.Show()
-    
-    ; TODO
+string function GetUserResponseForNotFoundSelector(string modName, string pageName, string selector) global
+    string description = "Could not find MCM option:\n\nMod name: " + modName
+    if pageName
+        description += "\nPage name: " + pageName
+    endIf
+    description += "\nField name: " + selector
+    description += "\n\nWhich of the following would you like to do?"
+    description += "\n- Continue this mod and move on to the next MCM field"
+    description += "\n- Try finding this MCM field again"
+    description += "\n- Skip this mod and move on to configuring the next one"
+    McmRecorder recorder = McmRecorder.GetInstance()
+    recorder.McmRecorder_MessageText.SetName(description)
+    int response = recorder.McmRecorder_Message_SelectorNotFound.Show()
+    if response == 0
+        return "Continue"
+    elseIf response == 1 
+        return "Try again"
+    elseIf response == 2
+        return "Skip this mod"
+    endIf
 endFunction
 
 string function GetRecordingDescription(string recordingName) global
@@ -677,7 +719,3 @@ string function GetRecordingDescription(string recordingName) global
     
     return recordingDescription
 endFunction
-
-; Continue
-; Try again
-; Skip
