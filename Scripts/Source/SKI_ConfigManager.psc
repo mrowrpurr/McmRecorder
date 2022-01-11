@@ -22,22 +22,32 @@ String property MENU_ROOT
 endproperty
 
 ;-- Variables ---------------------------------------
-String[] property _modNames auto
+String[] _modNames
 Bool _locked = false
 Bool _lockInit = false
 Int _updateCounter = 0
 Bool _cleanupFlag = false
 Int _configCount = 0
-SKI_ConfigBase[] property _modConfigs auto
+SKI_ConfigBase[] _modConfigs
 SKI_ConfigBase _activeConfig
 Int _curConfigID = 0
 Int _addCounter = 0
 
+string[] property ModNames
+	string[] function get()
+		return _modNames
+	endFunction
+endProperty
+
+SKI_ConfigBase[] property ModConfigs
+	SKI_ConfigBase[] function get()
+		return _modConfigs
+	endFunction
+endProperty
+
 ;-- Functions ---------------------------------------
 
 function OnGameReload()
-	Debug.MessageBox("Config Manager instance OnGameReload")
-
 	self.RegisterForModEvent("SKICP_modSelected", "OnModSelect")
 	self.RegisterForModEvent("SKICP_pageSelected", "OnPageSelect")
 	self.RegisterForModEvent("SKICP_optionHighlighted", "OnOptionHighlight")
@@ -60,8 +70,6 @@ function OnGameReload()
 	self.SendModEvent("SKICP_configManagerReady", "", 0.000000)
 	_updateCounter = 0
 	self.RegisterForSingleUpdate(5 as Float)
-
-	Debug.MessageBox("MODS: " + _modNames)
 endFunction
 
 function OnSliderSelect(String a_eventName, String a_strArg, Float a_numArg, Form a_sender)
@@ -260,11 +268,9 @@ Int function RegisterMod(SKI_ConfigBase a_menu, String a_modName)
 endFunction
 
 function OnMenuOpen(String a_menuName)
-	Debug.MessageBox("JOURNAL OPEN, SET MOD NAMES: " + _modNames)
 	self.GotoState("BUSY")
 	_activeConfig = none
 	ui.InvokeStringA(self.JOURNAL_MENU, self.MENU_ROOT + ".setModNames", _modNames)
-	Debug.MessageBox("DID IT WORK?")
 endFunction
 
 function OnModSelect(String a_eventName, String a_strArg, Float a_numArg, Form a_sender)

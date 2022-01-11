@@ -187,8 +187,8 @@ endFunction
 
 SKI_ConfigBase function GetMcmInstance(string modName) global
     McmRecorder recorder = GetInstance()
-    int index = recorder.skiConfigManager._modNames.Find(modName)
-    return recorder.skiConfigManager._modConfigs[index]
+    int index = recorder.skiConfigManager.ModNames.Find(modName)
+    return recorder.skiConfigManager.ModConfigs[index]
 endFunction
 
 function SetIsPlayingRecording(bool running = true) global

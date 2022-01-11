@@ -116,10 +116,19 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     endIf
     recordingDescription += "\nSteps: " + stepNames.Length
 
-    if ShowMessage("Close the MCM to play the recording:\n\n" + recordingDescription + "\n\nYou can also preview all recording steps or play individual steps.\n\nWould you like to continue?", "No", "Yes", "Cancel")
+    bool confirmation = true
 
-        Debug.MessageBox("Close the MCM now to play the recording")
+    ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog
+    if IsSkyrimVR
+        Debug.MessageBox("Close the MCM to play the recording:\n\n" + recordingDescription + "\n\nYou can also preview all recording steps or play individual steps.")
+    else
+        confirmation = ShowMessage("Close the MCM to play the recording:\n\n" + recordingDescription + "\n\nYou can also preview all recording steps or play individual steps.\n\nWould you like to continue?", "No", "Yes", "Cancel")
+        if confirmation
+            Debug.MessageBox("Close the MCM now to play the recording")
+        endIf
+    endIf
 
+    if confirmation
         UnregisterForMenu("Journal Menu")  
         RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
 
