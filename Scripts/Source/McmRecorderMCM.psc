@@ -112,9 +112,7 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     bool confirmation = true
 
     ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog
-    if IsSkyrimVR
-        Debug.MessageBox(recordingDescription + "\n\nClose the MCM to continue\n\nYou will be prompted to play this recording\n\nYou will also be able to preview all recording steps or play individual one\n\nYou will also be given the opportunity to continue the recording")
-    else
+    if ! IsSkyrimVR
         confirmation = ShowMessage(recordingDescription + "\n\nClose the MCM to continue\n\nYou will be prompted to play this recording\n\nYou will also be able to preview all recording steps or play individual one\n\nYou will also be given the opportunity to continue the recording\n\nWould you like to continue?", "No", "Yes", "Cancel")
         if confirmation
             Debug.MessageBox("Close the MCM to continue")
