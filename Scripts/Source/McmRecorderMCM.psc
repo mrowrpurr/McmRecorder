@@ -21,7 +21,7 @@ endEvent
 event OnPageReset(string page)
     if McmRecorder.IsRecording()
         oid_Stop = AddTextOption("Currently Recording!", "STOP RECORDING", OPTION_FLAG_NONE)
-        AddTextOption(McmRecorder.GetCurrentRecordingName(), "", OPTION_FLAG_DISABLED)
+        AddTextOption(McmRecorder_PrivateAPI.GetCurrentRecordingName(), "", OPTION_FLAG_DISABLED)
     else
         if IsSkyrimVR
             oid_Record = AddTextOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
@@ -34,7 +34,7 @@ event OnPageReset(string page)
 endEvent
 
 function ListRecordings()
-    recordings = McmRecorder.GetRecordingNames()
+    recordings = McmRecorder_PrivateAPI.GetRecordingNames()
     if recordings.Length
         AddEmptyOption()
         AddEmptyOption()
@@ -44,11 +44,11 @@ function ListRecordings()
         int i = 0
         while i < recordings.Length
             string recordingName = recordings[i]
-            if recordingName != McmRecorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
+            if recordingName != McmRecorder_PrivateAPI.GetCurrentRecordingName()
+                string[] stepNames = McmRecorder_PrivateAPI.GetRecordingStepNames(recordingName)
                 if stepNames
                     oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
-                    int recordingInfo = McmRecorder.GetRecordingInfo(recordingName)
+                    int recordingInfo = McmRecorder_PrivateAPI.GetRecordingInfo(recordingName)
                     string authorText = ""
                     if JMap.getStr(recordingInfo, "author")
                         authorText = "by " + JMap.getStr(recordingInfo, "author")
@@ -64,14 +64,14 @@ endFunction
 event OnOptionSelect(int optionId)
     if IsSkyrimVR && optionId == oid_Record ; SkyrimVR
         if ! McmRecorder.IsRecording()
-            McmRecorder.BeginRecording(GetRandomRecordingName())
+            McmRecorder_PrivateAPI.BeginRecording(GetRandomRecordingName())
             ForcePageReset()
         else
-            McmRecorder.StopRecording() ; For SkyrimVR these OIDs are the same
+            McmRecorder_PrivateAPI.StopRecording() ; For SkyrimVR these OIDs are the same
             ForcePageReset()
         endIf
     elseIf optionId == oid_Stop
-        McmRecorder.StopRecording()
+        McmRecorder_PrivateAPI.StopRecording()
         ForcePageReset()
     elseIf oids_Recordings.Find(optionId) > -1
         int recordingIndex = oids_Recordings.Find(optionId)
@@ -81,7 +81,7 @@ event OnOptionSelect(int optionId)
 endEvent
 
 event OnOptionInputAccept(int optionId, string text)
-    McmRecorder.BeginRecording(text)
+    McmRecorder_PrivateAPI.BeginRecording(text)
     ForcePageReset()
     Debug.MessageBox("Recording Started!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
 endEvent
@@ -107,7 +107,7 @@ endEvent
 
 ; TODO move to the McmRecorder maybe a global script for prompts
 function PromptToRunRecordingOrPreviewSteps(string recordingName)
-    string recordingDescription = McmRecorder.GetRecordingDescription(recordingName)
+    string recordingDescription = McmRecorder_PrivateAPI.GetRecordingDescription(recordingName)
 
     bool confirmation = true
 
@@ -122,7 +122,7 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     if confirmation
         UnregisterForMenu("Journal Menu")  
         RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
-        string[] stepNames = McmRecorder.GetRecordingStepNames(recordingName)
+        string[] stepNames = McmRecorder_PrivateAPI.GetRecordingStepNames(recordingName)
         string text = recordingDescription + "\n"
         int i = 0
         while i < stepNames.Length && i < 11
@@ -140,13 +140,13 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
         if response == "Play Recording"
             currentlyPlayingRecordingName = recordingName
             isPlayingRecording = true
-            McmRecorder.PlayRecording(recordingName)
+            McmRecorder_PrivateAPI.PlayRecording(recordingName)
             currentlyPlayingRecordingName = ""
             isPlayingRecording = false
         elseIf response == "View Steps"
             ShowStepSelectionUI(recordingName, stepNames)
         elseIf response == "Add to Recording"
-            McmRecorder.ContinueRecording(recordingName)
+            McmRecorder_PrivateAPI.ContinueRecording(recordingName)
             Debug.MessageBox("Recording has been restarted!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to the MCM Recorder mod configuration menu to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
         endIf
     endIf
@@ -174,7 +174,7 @@ function ShowStepSelectionUI(string recordingName, string[] stepNames)
     else
         int stepIndex = selection - 2 ; Subtract the top 3 entry items
         string stepName = stepNames[stepIndex]
-        McmRecorder.PlayStep(recordingName, stepName)
+        McmRecorder_PrivateAPI.PlayStep(recordingName, stepName)
         Debug.MessageBox("MCM recording " + recordingName + " step " + StringUtil.Substring(stepName, 0, StringUtil.Find(stepName, ".json")) + " has finished playing.")
     endIf
 endFunction

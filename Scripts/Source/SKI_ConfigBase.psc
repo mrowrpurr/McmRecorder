@@ -357,10 +357,10 @@ function SetInputText(String a_text)
 		self.GotoState(optionState)
 		self.OnInputAcceptST(a_text)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
 	else
 		self.OnOptionInputAccept(_activeOption, a_text)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -397,10 +397,10 @@ function SelectOption(Int a_index)
 		self.GotoState(optionState)
 		self.OnSelectST()
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "clickable", (a_index + _currentPageNum * 256), stateName = optionState)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "clickable", (a_index + _currentPageNum * 256), stateName = optionState)
 	else
 		Int option = a_index + _currentPageNum * 256
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "clickable", option)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "clickable", option)
 		self.OnOptionSelect(option)
 	endIf
 endFunction
@@ -542,10 +542,10 @@ function SetColorValue(Int a_color)
 		self.GotoState(optionState)
 		self.OnColorAcceptST(a_color)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, stateName = optionState, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, stateName = optionState, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
 	else
 		self.OnOptionColorAccept(_activeOption, a_color)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -563,7 +563,7 @@ function ForcePageReset()
 {Forces a full reset of the current page}
 
 	if McmRecorder.IsPlayingRecording()
-		McmRecorder.ResetMcmOptions()
+		McmRecorder_PrivateAPI.ResetMcmOptions()
 		CloseConfig()
 		OpenConfig()
 		Debug.Trace("[McmRecorder] ForcePageReset() for page " + CurrentPage)
@@ -684,10 +684,10 @@ function SetMenuIndex(Int a_index)
 		self.GotoState(optionState)
 		self.OnMenuAcceptST(a_index)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, stateName = optionState, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, stateName = optionState, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
 	else
 		self.OnOptionMenuAccept(_activeOption, a_index)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
 	endIf
 	_activeOption = -1
 endFunction
@@ -706,10 +706,10 @@ function SetSliderValue(Float a_value)
 		self.GotoState(optionState)
 		self.OnSliderAcceptST(a_value)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, stateName = optionState, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, stateName = optionState, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
 	else
 		self.OnOptionSliderAccept(_activeOption, a_value)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -1171,11 +1171,11 @@ function RemapKey(Int a_index, Int a_keyCode, String a_conflictControl, String a
 		self.GotoState(optionState)
 		self.OnKeyMapChangeST(a_keyCode, a_conflictControl, a_conflictName)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "keymap", (a_index + _currentPageNum * 256), stateName = optionState, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "keymap", (a_index + _currentPageNum * 256), stateName = optionState, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
 	else
 		Int option = a_index + _currentPageNum * 256
 		self.OnOptionKeyMapChange(option, a_keyCode, a_conflictControl, a_conflictName)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "keymap", option, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
+		McmRecorder_PrivateAPI.RecordAction(self, ModName, PageNameOrDefault, "keymap", option, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
 	endIf
 endFunction
 
@@ -1241,7 +1241,7 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 			Debug.Trace("[MCM Recorder] UNKNOWN or UNSUPPORTED Option Type " + a_optionType + " text: " + a_text + " value: " + a_strValue)
 		endIf
 		if optionType
-			McmRecorder.AddConfigurationOption(ModName, PageNameOrDefault, optionId, optionType, a_text, a_strValue, a_numValue, stateName)
+			McmRecorder_PrivateAPI.AddConfigurationOption(ModName, PageNameOrDefault, optionId, optionType, a_text, a_strValue, a_numValue, stateName)
 		endIf
 	endIf
 	return optionId
