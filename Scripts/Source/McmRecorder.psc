@@ -10,7 +10,7 @@ Form property McmRecorder_MessageText auto
 string property CurrentlyInstalledVersion auto
 
 McmRecorder function GetInstance() global
-    return Game.GetFormFromFile(0x800, "McmRecorder.esp") as McmRecorder
+    return Quest.GetQuest("McmRecorder") as McmRecorder
 endFunction
 
 string function GetVersion() global
@@ -26,7 +26,7 @@ function LogContainer(string text, int jcontainer) global
 endFunction
 
 event OnInit()
-    skiConfigManager = Game.GetFormFromFile(0x802, "SkyUI_SE.esp") as SKI_ConfigManager
+    skiConfigManager = Quest.GetQuest("SKI_ConfigManagerInstance") as SKI_ConfigManager
     CurrentlyInstalledVersion = GetVersion()
 endEvent
 
