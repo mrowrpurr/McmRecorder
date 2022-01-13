@@ -9,7 +9,7 @@ Message property McmRecorder_Message_SelectorNotFound auto
 Form property McmRecorder_MessageText auto
 string property CurrentlyInstalledVersion auto
 
-McmRecorder function GetInstance() global
+McmRecorder function GetPrivateInstance() global
     return Quest.GetQuest("McmRecorder") as McmRecorder
 endFunction
 
@@ -203,7 +203,7 @@ int function GetRecordingInfo(string recordingName) global
 endFunction
 
 SKI_ConfigBase function GetMcmInstance(string modName) global
-    McmRecorder recorder = GetInstance()
+    McmRecorder recorder = GetPrivateInstance()
     int index = recorder.skiConfigManager.ModNames.Find(modName)
     return recorder.skiConfigManager.ModConfigs[index]
 endFunction
@@ -696,7 +696,7 @@ string function GetUserResponseForNotFoundSelector(string modName, string pageNa
     description += "\n- Continue this mod and move on to the next MCM field"
     description += "\n- Try finding this MCM field again"
     description += "\n- Skip this mod and move on to configuring the next one"
-    McmRecorder recorder = McmRecorder.GetInstance()
+    McmRecorder recorder = McmRecorder.GetPrivateInstance()
     recorder.McmRecorder_MessageText.SetName(description)
     int response = recorder.McmRecorder_Message_SelectorNotFound.Show()
     if response == 0
