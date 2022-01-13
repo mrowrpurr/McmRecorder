@@ -135,7 +135,19 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
         endWhile
         text += "\n\nWould you like to play this recording?"
 
-        string response = Recorder.GetUserResponseToRunRecording(text)
+        ; Inlined to extract method later
+        Recorder.McmRecorder_MessageText.SetName(text)
+        int responseId = Recorder.McmRecorder_Message_RunRecordingOrViewSteps.Show()
+        string response
+        if responseId == 0
+            response = "Play Recording"
+        elseIf responseId == 1
+            response = "View Steps"
+        elseIf responseId == 2
+            response = "Add to Recording"
+        elseIf responseId == 3
+            response = "Cancel"
+        endIf
 
         if response == "Play Recording"
             currentlyPlayingRecordingName = recordingName

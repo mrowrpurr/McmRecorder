@@ -58,30 +58,3 @@ endFunction
 bool function IsPlayingRecording() global
     return JDB.solveInt(McmRecorder_PrivateAPI.JdbPathToIsPlayingRecording())
 endFunction
-
-
-
-
-
-
-
-
-
-
-
-
-; TODO rename
-; TODO put BOTH messages here - OR put both into the private API. That's even better. Remove from here.
-string function GetUserResponseToRunRecording(string text)
-    McmRecorder_MessageText.SetName(text)
-    int response = McmRecorder_Message_RunRecordingOrViewSteps.Show()
-    if response == 0
-        return "Play Recording"
-    elseIf response == 1
-        return "View Steps"
-    elseIf response == 2
-        return "Add to Recording"
-    elseIf response == 3
-        return "Cancel"
-    endIf
-endFunction
