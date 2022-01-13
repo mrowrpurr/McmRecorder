@@ -14,7 +14,7 @@ McmRecorder function GetInstance() global
 endFunction
 
 string function GetVersion() global
-    return "1.0.2"
+    return "1.0.3"
 endFunction
 
 function Log(string text) global
@@ -384,7 +384,7 @@ string[] function GetRecordingStepNames(string recordingName) global
     return JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordingFolder(recordingName)))
 endFunction
 
-function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.2) global
+function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0) global
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
@@ -424,7 +424,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.2)
     SetIsPlayingRecording(false)
 endFunction
 
-function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.2) global
+function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.0) global
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
     SetIsPlayingRecording(true) ; XXX is this used?
