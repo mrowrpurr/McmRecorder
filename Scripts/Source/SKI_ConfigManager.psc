@@ -1,10 +1,3 @@
-;/ Decompiled by Champollion V1.0.1
-Source   : SKI_ConfigManager.psc
-Modified : 2021-08-22 23:35:00
-Compiled : 2021-10-12 06:59:48
-User     : odie
-Computer : DESKTOP-1OLNAKU
-/;
 scriptName SKI_ConfigManager extends SKI_QuestBase hidden
 
 ;-- Properties --------------------------------------

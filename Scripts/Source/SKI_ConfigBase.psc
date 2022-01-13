@@ -1,10 +1,3 @@
-;/ Decompiled by Champollion V1.0.1
-Source   : SKI_ConfigBase.psc
-Modified : 2021-08-22 23:35:00
-Compiled : 2021-10-12 06:59:47
-User     : odie
-Computer : DESKTOP-1OLNAKU
-/;
 scriptName SKI_ConfigBase extends SKI_QuestBase
 
 ;-- Properties --------------------------------------
