@@ -37,6 +37,23 @@ event OnInit()
     skiConfigManager = Quest.GetQuest("SKI_ConfigManagerInstance") as SKI_ConfigManager
 endEvent
 
+; **DO NOT USE THIS**
+;
+; Returns a **private** script containing the script fields and properties used by MCM Recorder
+McmRecorder function GetMcmRecorderInstance() global
+    return Quest.GetQuest("McmRecorder") as McmRecorder
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Get SkyUI MCM Script Instance
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+SKI_ConfigBase function GetMcmInstance(string modName) global
+    McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
+    int index = recorder.skiConfigManager.ModNames.Find(modName)
+    return recorder.skiConfigManager.ModConfigs[index]
+endFunction
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Recording
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -45,7 +62,7 @@ endEvent
 ;
 ; Note: this is for recording not playback. Check `IsPlayingRecording()` for playback.
 bool function IsRecording() global
-    return McmRecorder_PrivateAPI.GetCurrentRecordingName()
+    return McmRecorder_Recorder.GetCurrentRecordingName()
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -56,5 +73,5 @@ endFunction
 ;
 ; Note: this will also return true if any step or action is being played.
 bool function IsPlayingRecording() global
-    return JDB.solveInt(McmRecorder_PrivateAPI.JdbPathToIsPlayingRecording())
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
 endFunction
