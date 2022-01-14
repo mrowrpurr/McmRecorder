@@ -33,6 +33,10 @@ string function JdbPath_PlayingRecordingModPageName() global
     return ".mcmRecorder.playingRecording.pageName"
 endFunction
 
+string function JdbPath_PlayingRecordingModsPlayed() global
+    return ".mcmRecorder.playingRecording.modsPlayed"
+endFunction
+
 string function JdbPath_CurrentlySkippingModName() global
     return ".mcmRecorder.playingRecording.modCurrentlySkipping"
 endFunction

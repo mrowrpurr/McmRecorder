@@ -2,6 +2,7 @@ scriptName McmRecorder_Player hidden
 {Responsible for playback of recordings or can trigger individual actions}
 
 function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0) global
+    ClearModsPlayed()
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
@@ -68,7 +69,7 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     SetIsPlayingRecording(false)
 endFunction
 
-function PlayAction(int actionInfo, string stepName, bool promptOnFailures = true, float mcmLoadWaitTime = 0.0) global
+function PlayAction(int actionInfo, string stepName, bool promptOnFailures = true, float mcmLoadWaitTime = 10.0) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
@@ -85,7 +86,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
 
     if (! mcm) && mcmLoadWaitTime
         float startTime = Utility.GetCurrentRealTime()
+        float lastNotification = startTime
         while (! mcm) && (Utility.GetCurrentRealTime() - startTime) < mcmLoadWaitTime
+            float now = Utility.GetCurrentRealTime()
+            if (now - lastNotification) >= 5.0 ; Make configurable, 5 secs waiting for MCM to load
+                lastNotification = now
+                McmRecorder_UI.Notification("Waiting for " + modName + " MCM to load")
+            endIf
             Utility.WaitMenuMode(1.0) ; hard coded for now
             mcm = McmRecorder.GetMcmInstance(modName)
         endWhile
@@ -112,7 +119,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     endIf
 
     if modName != GetCurrentPlayingRecordingModName() || pageName != GetCurrentPlayingRecordingModPageName()
-        RefreshMcmPage(mcm, pageName)
+        RefreshMcmPage(mcm, modName, pageName)
     endIf
 
     SetCurrentPlayingRecordingModName(modName)
@@ -231,9 +238,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     endIf
 endFunction
 
-function RefreshMcmPage(SKI_ConfigBase mcm, string pageName) global
+function RefreshMcmPage(SKI_ConfigBase mcm, string modName, string pageName) global
     McmRecorder_McmFields.ResetMcmOptions()
-    mcm.CloseConfig()
+    if HasModBeenPlayed(modName)
+        mcm.CloseConfig()
+    else
+        AddModPlayed(modName)
+    endIf
     mcm.OpenConfig()
     mcm.SetPage(pageName, mcm.Pages.Find(pageName))
 endFunction
@@ -256,6 +267,27 @@ endFunction
 
 function SetCurrentPlayingRecordingModPageName(string pageName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModPageName(), pageName , createMissingKeys = true)
+endFunction
+
+int function GetModsPlayed() global
+    int modsPlayed = JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed())
+    if ! modsPlayed
+        modsPlayed = JMap.object()
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed(), modsPlayed, createMissingKeys = true)
+    endIf
+    return modsPlayed
+endFunction
+
+function AddModPlayed(string modName) global
+    JMap.setInt(GetModsPlayed(), modName, 1)
+endFunction
+
+bool function HasModBeenPlayed(string modName) global
+    return JMap.getInt(GetModsPlayed(), modName)
+endFunction
+
+bool function ClearModsPlayed() global
+    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed(), 0)
 endFunction
 
 string function GetCurrentlySkippingModName() global
@@ -334,7 +366,7 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
         
         Utility.WaitMenuMode(searchInterval)
 
-        RefreshMcmPage(mcm, pageName) ; Wasn't on the page! Let's refresh the page.
+        RefreshMcmPage(mcm, modName, pageName) ; Wasn't on the page! Let's refresh the page.
 
         if (Utility.GetCurrentRealTime() - startTime) >= 4 ; Every 4 seconds print an update
             McmRecorder_UI.Notification(modName + ": " + pageName + " (search for " + selector + ")")
