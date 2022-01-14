@@ -262,6 +262,23 @@ string function GetCurrentlySkippingModName() global
     return JDB.solveStr(McmRecorder_JDB.JdbPath_CurrentlySkippingModName())
 endFunction
 
+int function GetAutorunHistory() global
+    int history = JDB.solveObj(McmRecorder_JDB.JdbPath_AutorunHistory())
+    if ! history
+        history = JMap.object()
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_AutorunHistory(), history, createMissingKeys = true)
+    endIf
+    return history
+endFunction
+
+bool function HasBeenAutorun(string recordingName) global
+    return JMap.getInt(GetAutorunHistory(), recordingName)
+endFunction
+
+function MarkHasBeenAutorun(string recordingName) global
+    JMap.setInt(GetAutorunHistory(), recordingName, 1)
+endFunction
+
 function SetCurrentlySkippingModName(string modName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentlySkippingModName(), modName, createMissingKeys = true)
 endFunction

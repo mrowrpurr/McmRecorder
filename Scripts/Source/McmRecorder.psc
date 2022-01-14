@@ -74,7 +74,8 @@ function AutorunRecordings()
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
         int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-        if McmRecorder_RecordingInfo.IsAutorun(recordingInfo)
+        if McmRecorder_RecordingInfo.IsAutorun(recordingInfo) && (! McmRecorder_Player.HasBeenAutorun(recordingName))
+            McmRecorder_Player.MarkHasBeenAutorun(recordingName)
             McmRecorder_Logging.Log("Autorun Recording " + recordingName)
             McmRecorder_Player.PlayRecording(recordingName, mcmLoadWaitTime = 30.0)
         endIf

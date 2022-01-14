@@ -37,6 +37,10 @@ string function JdbPath_CurrentlySkippingModName() global
     return ".mcmRecorder.playingRecording.modCurrentlySkipping"
 endFunction
 
+string function JdbPath_AutorunHistory() global
+    return ".mcmRecorder.autorunHistory"
+endFunction
+
 string function JdbPathPart(string part) global
     string[] parts = StringUtil.Split(part, ".")
     string sanitized = ""
