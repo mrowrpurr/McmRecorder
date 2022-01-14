@@ -1,6 +1,6 @@
 - [x] Extract all global functions to a private API (keep them there for now)
 - [x] Track the Nth cuz that's cool
-- [ ] Trigger automatically via autorun: true
+- [x] Trigger automatically via autorun: true
 - [ ] Branch logic on VR and use PapyrusUtil for SSE <----
 - [ ] Set verbosity (whether messages show up )
 - [ ] Trigger automatically via SKSE
