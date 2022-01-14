@@ -78,7 +78,7 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
             Debug.MessageBox("TODO: support " + optionType)
         endIf
 
-        McmRecorder_RecordingFiles.Save(GetCurrentRecordingName(), modName)
+        McmRecorder_RecordingFiles.SaveCurrentRecording(GetCurrentRecordingName(), modName)
     endIf
 endFunction
 

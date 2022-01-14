@@ -2,6 +2,7 @@
 - [x] Track the Nth cuz that's cool
 - [x] Trigger automatically via autorun: true
 - [ ] Branch logic on VR and use PapyrusUtil for SSE <----
+- [ ] Add better VR support by customizing the MCM menu when you're in VR!
 - [ ] Set verbosity (whether messages show up )
 - [ ] Trigger automatically via SKSE
 

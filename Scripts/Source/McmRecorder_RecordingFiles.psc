@@ -1,7 +1,7 @@
 scriptName McmRecorder_RecordingFiles hidden
 {Responsible for managing the recording files found in Data\McmRecorder\}
 
-function Save(string recordingName, string modName) global
+function SaveCurrentRecording(string recordingName, string modName) global
     JValue.writeToFile(McmRecorder_Recorder.GetCurrentRecordingSteps(), GetFileNameForRecordingAction(recordingName, modName))
 endFunction
 
