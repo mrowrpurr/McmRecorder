@@ -27,7 +27,7 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         string selector = JMap.getStr(option, "text")
 
         ; How many items on this page have the same 'selector'?
-        int selectorIndex = McmRecorder_McmFields.GetSelectorIndex(modName, pageName, optionType, selector, optionId, stateName)
+        int selectorIndex = McmRecorder_McmFields.GetSelectorIndex(modName, pageName, optionId)
         if selectorIndex > -1
             JMap.setInt(mcmAction, "index", selectorIndex)
         endIf

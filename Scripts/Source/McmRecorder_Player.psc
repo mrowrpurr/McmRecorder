@@ -141,7 +141,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         return
     endIf
 
-    string wildcard = GetWildcardMatcher(selector)
+    string wildcard = McmRecorder_McmFields.GetWildcardMatcher(selector)
     string side = JMap.getStr(actionInfo, "side", "left")
     string stateName = JMap.getStr(actionInfo, "state")
     int index = JMap.getInt(actionInfo, "index", -1)
@@ -342,13 +342,4 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
     endWhile
 
     return 0
-endFunction
-
-string function GetWildcardMatcher(string selector) global
-    int strLength = StringUtil.GetLength(selector)
-    if StringUtil.Substring(selector, 0, 1) == "*" && StringUtil.Substring(selector, strLength - 1, 1) == "*"
-        return StringUtil.Substring(selector, 1, strLength - 2)
-    else
-        return ""
-    endIf
 endFunction

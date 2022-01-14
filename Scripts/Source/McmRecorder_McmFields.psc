@@ -1,6 +1,8 @@
 scriptName McmRecorder_McmFields hidden
 {Responsible for storage of and querying of individual fields on Mod Configuration Menu pages}
 
+; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
+
 function TrackField(string modName, string pageName, string optionType, int optionId, string text, string strValue, float fltValue, string stateName, bool force = false) global
 	if force || McmRecorder.IsRecording() || McmRecorder.IsPlayingRecording()
         int optionsOnModPageForType = OptionsForModPage_ByOptionType(modName, pageName, optionType)
@@ -82,34 +84,38 @@ string function GetOptionTypeName(int skyUiMcmOptiontype) global
     endIf
 endFunction
 
-int function GetSelectorIndex(string modName, string pageName, string optionType, string selector, int optionId, string stateName) global
-    ; TODO XXX Update to support wildcards!
-    int options = OptionsForModPage_ByOptionType(modName, pageName, optionType)
-    int optionCount = JArray.count(options)
-    int index = -1
+int function GetSelectorIndex(string modName, string pageName, int optionId) global
+    int option = GetConfigurationOptionById(modName, pageName, optionId)
+
+    if ! option
+        McmRecorder_Logging.Log("Did not find option with ID " + optionId)
+        return -2
+    endIf
+
+    string selector = GetOptionSelector(option)
+    string stateName = JMap.getStr(option, "state")
+
+    int optionsToSearch = OptionsForModPage_ByOptionType(modName, pageName, JMap.getStr(option, "type"))
+    int optionsToSearchCount = JArray.count(optionsToSearch)
+
+    int index = -1 ; The index of the item to return (-1 means it's the only one with the selector on the page)
     int count = 0
+    
     int i = 0
+    while i < optionsToSearchCount && index == -1
+        int optionOnPage = JArray.getObj(optionsToSearch, i)
+        string optionOnPageSelector = GetOptionSelector(optionOnPage)
 
-    while i < optionCount
-        int option = JArray.getObj(options, i)
-
-        ; Right hand side text case when the left-hand-side text is blank
-        if JMap.getStr(option, "type") == "text" && (!JMap.getStr(option, "text"))
-            if JMap.getStr(option, "strValue") == selector
-                count += 1
-            endIf
-            ; Just check the left-hand-side text per usual
-        elseIf JMap.getStr(option, "text") == selector
+        if optionOnPageSelector == selector
             count += 1
         endIf
 
-        ; Is this the specific option?
-        string thisOptionState = JMap.getStr(option, "state")
-        int thisOptionId = JMap.getInt(option, "id")
-        if thisOptionState && thisOptionState == stateName
-            index = count ; the current matching index
-        elseIf thisOptionId && thisOptionId == optionId
-            index = count ; the current matching index
+        if stateName
+            if stateName == JMap.getStr(optionOnPage, "state")
+                index = count ; This is this specific item
+            endIf
+        elseIf optionId == JMap.getInt(optionOnPage, "id") 
+            index = count ; This is this specific item
         endIf
 
         i += 1
@@ -119,5 +125,22 @@ int function GetSelectorIndex(string modName, string pageName, string optionType
         return index
     else
         return -1
+    endIf
+endFunction
+
+string function GetOptionSelector(int option) global
+    string selector = JMap.getStr(option, "text")
+    if ! selector && JMap.getStr(option, "type") == "text" ; Use the 'right' side
+        selector = JMap.getStr(option, "strValue")
+    endIf
+    return selector
+endFunction
+
+string function GetWildcardMatcher(string selector) global
+    int strLength = StringUtil.GetLength(selector)
+    if StringUtil.Substring(selector, 0, 1) == "*" && StringUtil.Substring(selector, strLength - 1, 1) == "*"
+        return StringUtil.Substring(selector, 1, strLength - 2)
+    else
+        return ""
     endIf
 endFunction
