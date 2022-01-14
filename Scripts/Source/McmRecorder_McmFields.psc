@@ -81,3 +81,44 @@ string function GetOptionTypeName(int skyUiMcmOptiontype) global
         return "unknown"
     endIf
 endFunction
+
+int function GetSelectorIndex(string modName, string pageName, string optionType, string selector, int optionId, string stateName) global
+    int options = OptionsForModPage_ByOptionType(modName, pageName, optionType)
+    int optionCount = JArray.count(options)
+    int index = -1
+    int count = 0
+    int i = 0
+
+    while i < optionCount
+        int option = JArray.getObj(options, i)
+
+        ; Right hand side text case when the left-hand-side text is blank
+        if JMap.getStr(option, "type") == "text" && (!JMap.getStr(option, "text"))
+            if JMap.getStr(option, "strValue") == selector
+                count += 1
+            endIf
+            ; Just check the left-hand-side text per usual
+        elseIf JMap.getStr(option, "text") == selector
+            count += 1
+        endIf
+
+        ; Is this the specific option?
+        string thisOptionState = JMap.getStr(option, "state")
+        int thisOptionId = JMap.getInt(option, "id")
+        if thisOptionState && thisOptionState == stateName
+            index = count ; the current matching index
+        elseIf thisOptionId && thisOptionId == optionId
+            index = count ; the current matching index
+        endIf
+
+        i += 1
+    endWhile
+
+    Debug.MessageBox("COUNT " + modName + " " + pageName + " " + selector + " " + optionId + " " + stateName + " : " + index + " (" + count + ")")
+
+    if count > 1
+        return index
+    else
+        return -1
+    endIf
+endFunction

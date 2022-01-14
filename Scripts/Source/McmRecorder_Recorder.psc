@@ -24,24 +24,32 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
             JMap.setStr(mcmAction, "page", pageName)
         endIf
 
+        string selector = JMap.getStr(option, "text")
+
+        ; How many items on this page have the same 'selector'?
+        int selectorIndex = McmRecorder_McmFields.GetSelectorIndex(modName, pageName, optionType, selector, optionId, stateName)
+        if selectorIndex > -1
+            JMap.setStr(mcmAction, "index", selectorIndex)
+        endIf
+
         if optionType == "clickable"
             if JMap.getStr(option, "type") == "toggle"
-                JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+                JMap.setStr(mcmAction, "option", selector)
                 if JMap.getFlt(option, "fltValue") == 0
                     JMap.setStr(mcmAction, "toggle", "on")
                 else
                     JMap.setStr(mcmAction, "toggle", "off")
                 endIf
             else
-                if JMap.getStr(option, "text")
-                    JMap.setStr(mcmAction, "click", JMap.getStr(option, "text"))
+                if selector
+                    JMap.setStr(mcmAction, "click", selector)
                 else
                     JMap.setStr(mcmAction, "click", JMap.getStr(option, "strValue"))
                     JMap.setStr(mcmAction, "side", "right")
                 endIf
             endIf
         elseIf optionType == "menu"
-            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setStr(mcmAction, "option", selector)
             if stateName
                 string previousState = mcm.GetState()
                 mcm.GotoState(stateName)
@@ -55,16 +63,16 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
                 JMap.setStr(mcmAction, "choose", selectedOptionText)
             endIf
         elseIf optionType == "slider"
-            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setStr(mcmAction, "option", selector)
             JMap.setFlt(mcmAction, "slider", fltValue)
         elseIf optionType == "keymap"
-            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setStr(mcmAction, "option", selector)
             JMap.setInt(mcmAction, "shortcut", fltValue as int)
         elseIf optionType == "color"
-            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setStr(mcmAction, "option", selector)
             JMap.setInt(mcmAction, "color", fltValue as int)
         elseIf optionType == "input"
-            JMap.setStr(mcmAction, "option", JMap.getStr(option, "text"))
+            JMap.setStr(mcmAction, "option", selector)
             JMap.setStr(mcmAction, "text", strValue)
         else
             Debug.MessageBox("TODO: support " + optionType)
