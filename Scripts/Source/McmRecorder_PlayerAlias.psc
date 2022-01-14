@@ -1,5 +1,5 @@
 scriptName McmRecorder_PlayerAlias extends ReferenceAlias
 
 event OnPlayerLoadGame()
-    ; TODO
+    (GetOwningQuest() as McmRecorder).SaveGameLoaded()
 endEvent

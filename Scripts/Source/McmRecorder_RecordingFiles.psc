@@ -9,7 +9,7 @@ function WriteMetafile(string recordingName, int metaInfo) global
     JValue.writeToFile(metaInfo, PathToRecordingFolder(recordingName) + ".json")
 endFunction
 
-int function GetAllStepsByFilename(string recordingName) global
+int function GetAllStepsForRecording(string recordingName) global
     return JValue.readFromDirectory(PathToRecordingFolder(recordingName))
 endFunction
 

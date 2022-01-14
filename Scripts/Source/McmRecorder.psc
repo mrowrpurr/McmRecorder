@@ -19,6 +19,11 @@ Message property McmRecorder_Message_SelectorNotFound auto
 
 ; **PRIVATE**
 ;
+; Message used to ask the user if they want to skip a mod or wait for it to show up when a mod cannot be found
+Message property McmRecorder_Message_ModNotFound auto
+
+; **PRIVATE**
+;
 ; Form used to set dynamic text in all of the Message dialogs used by MCM Recorder.
 Form property McmRecorder_MessageText auto
 
@@ -35,6 +40,11 @@ endFunction
 event OnInit()
     CurrentlyInstalledVersion = GetVersion()
     skiConfigManager = Quest.GetQuest("SKI_ConfigManagerInstance") as SKI_ConfigManager
+    RegisterForSingleUpdate(5)
+endEvent
+
+event SaveGameLoaded()
+    RegisterForSingleUpdate(5)
 endEvent
 
 ; **DO NOT USE THIS**
@@ -53,6 +63,28 @@ SKI_ConfigBase function GetMcmInstance(string modName) global
     int index = recorder.skiConfigManager.ModNames.Find(modName)
     return recorder.skiConfigManager.ModConfigs[index]
 endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Autorun
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+function AutorunRecordings()
+    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    int i = 0
+    while i < recordingNames.Length
+        string recordingName = recordingNames[i]
+        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        if McmRecorder_RecordingInfo.IsAutorun(recordingInfo)
+            McmRecorder_Logging.Log("Autorun Recording " + recordingName)
+            McmRecorder_Player.PlayRecording(recordingName, mcmLoadWaitTime = 30.0)
+        endIf
+        i += 1
+    endWhile
+endFunction
+
+event OnUpdate()
+    AutorunRecordings()
+endEvent
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Recording

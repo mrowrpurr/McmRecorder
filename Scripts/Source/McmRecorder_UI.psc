@@ -25,3 +25,18 @@ string function GetUserResponseForNotFoundSelector(string modName, string pageNa
         return "Skip this mod"
     endIf
 endFunction
+
+string function GetUserResponseForNotFoundMod(string modName) global
+    string description = "Could not find MCM\n\nMod name: " + modName
+    description += "\n\nWhich of the following would you like to do?"
+    description += "\n- Try waiting longer for this mod to become available"
+    description += "\n- Skip this mod and move on to configuring the next one"
+    McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
+    recorder.McmRecorder_MessageText.SetName(description)
+    int response = recorder.McmRecorder_Message_ModNotFound.Show()
+    if response == 0
+        return "Try again"
+    elseIf response == 1
+        return "Skip this mod"
+    endIf
+endFunction

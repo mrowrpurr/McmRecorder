@@ -1,13 +1,13 @@
 scriptName McmRecorder_Player hidden
 {Responsible for playback of recordings or can trigger individual actions}
 
-function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0) global
+function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0) global
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
     SetIsPlayingRecording(true)
 
-    int steps = McmRecorder_RecordingFiles.GetAllStepsByFilename(recordingName)
+    int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
     JValue.retain(steps)
 
     string[] stepFiles = JMap.allKeysPArray(steps)
@@ -25,7 +25,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0)
         int i = 0
         while i < actionCount
             int recordingAction = JArray.getObj(recordingActions, i)
-            PlayAction(recordingAction, StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json")))
+            PlayAction(recordingAction, StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json")), mcmLoadWaitTime = mcmLoadWaitTime)
             if waitTimeBetweenActions
                 Utility.WaitMenuMode(waitTimeBetweenActions)
             endIf
@@ -68,7 +68,7 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     SetIsPlayingRecording(false)
 endFunction
 
-function PlayAction(int actionInfo, string stepName, bool promptOnFailures = true) global
+function PlayAction(int actionInfo, string stepName, bool promptOnFailures = true, float mcmLoadWaitTime = 0.0) global
     string modName = JMap.getStr(actionInfo, "mod")
     string pageName = JMap.getStr(actionInfo, "page")
 
@@ -82,6 +82,29 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     endIf
 
     SKI_ConfigBase mcm = McmRecorder.GetMcmInstance(modName)
+
+    if (! mcm) && mcmLoadWaitTime
+        float startTime = Utility.GetCurrentRealTime()
+        while (! mcm) && (Utility.GetCurrentRealTime() - startTime) < mcmLoadWaitTime
+            Utility.WaitMenuMode(1.0) ; hard coded for now
+            mcm = McmRecorder.GetMcmInstance(modName)
+        endWhile
+        if ! mcm
+            if promptOnFailures
+                string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
+                if result == "Try again"
+                    PlayAction(actionInfo, stepName, promptOnFailures, mcmLoadWaitTime)
+                elseIf result == "Skip this mod"
+                    SetCurrentlySkippingModName(modName)
+                    return
+                endIf
+            else
+                SetCurrentlySkippingModName(modName)
+                return
+            endIf
+            return
+        endIf
+    endIf
 
     if ! mcm
         Debug.Trace("MCM recorder could not load MCM menu for " + modName)

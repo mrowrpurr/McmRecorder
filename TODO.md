@@ -1,9 +1,9 @@
 - [x] Extract all global functions to a private API (keep them there for now)
-- [ ] Track the Nth cuz that's cool
-- [ ] Branch logic on VR and use PapyrusUtil for SSE
+- [x] Track the Nth cuz that's cool
+- [ ] Trigger automatically via autorun: true
+- [ ] Branch logic on VR and use PapyrusUtil for SSE <----
 - [ ] Set verbosity (whether messages show up )
 - [ ] Trigger automatically via SKSE
-- [ ] Trigger automatically via Config
 
 - Track the Nth index for selectors which have duplicates on the page
 - Can use SKSE mod events to run Recordings, Steps, or Actions
