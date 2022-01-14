@@ -121,12 +121,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     string wildcard = GetWildcardMatcher(selector)
     string side = JMap.getStr(actionInfo, "side", "left")
     string stateName = JMap.getStr(actionInfo, "state")
-    
+    int index = JMap.getInt(actionInfo, "index", -1)
+
     float searchTimeout = JMap.getFlt(actionInfo, "timeout", 30.0) ; Default to wait for options to show up for a max of 30 seconds
     float searchInterval = JMap.getFlt(actionInfo, "interval", 0.5) ; Default to try twice per second
     float searchPageLoadTime = JMap.getFlt(actionInfo, "pageload", 5.0) ; Allow pages up to 5 seconds for an option to appear
 
-    int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchTimeout, searchInterval, searchPageLoadTime)
+    int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, index, side, searchTimeout, searchInterval, searchPageLoadTime)
 
     if option
         if ! stateName
@@ -242,11 +243,11 @@ function SetCurrentlySkippingModName(string modName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentlySkippingModName(), modName, createMissingKeys = true)
 endFunction
 
-int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchTimeout, float searchInterval, float searchPageLoadTime) global
+int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchTimeout, float searchInterval, float searchPageLoadTime) global
     int foundOption
     float startTime = Utility.GetCurrentRealTime()
     while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout
-        foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, side, searchInterval, searchPageLoadTime)
+        foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, index, side, searchInterval, searchPageLoadTime)
         if ! foundOption ; Does this ever run?
             McmRecorder_UI.Notification(modName + ": " + pageName + " (search for " + selector + ")")
             Utility.WaitMenuMode(searchInterval)
@@ -255,11 +256,12 @@ int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, str
     return foundOption
 endFunction
 
-int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, string side, float searchInterval, float searchPageLoadTime) global
+int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchInterval, float searchPageLoadTime) global
     float startTime = Utility.GetCurrentRealTime()
     while (Utility.GetCurrentRealTime() - startTime) < searchPageLoadTime
         int options = McmRecorder_McmFields.OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int optionsCount = JArray.count(options)
+        int matchCount = 0
         int i = 0
         while i < optionsCount
             int option = JArray.getObj(options, i)
@@ -277,7 +279,14 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
             endIf
 
             if matches
-                return option
+                matchCount += 1
+                if index > -1 ; This must be the Nth one on the page
+                    if index == matchCount
+                        return option
+                    endIf
+                else
+                    return option
+                endIf
             endIf
 
             i += 1

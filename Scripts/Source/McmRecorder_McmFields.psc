@@ -83,6 +83,7 @@ string function GetOptionTypeName(int skyUiMcmOptiontype) global
 endFunction
 
 int function GetSelectorIndex(string modName, string pageName, string optionType, string selector, int optionId, string stateName) global
+    ; TODO XXX Update to support wildcards!
     int options = OptionsForModPage_ByOptionType(modName, pageName, optionType)
     int optionCount = JArray.count(options)
     int index = -1
@@ -113,8 +114,6 @@ int function GetSelectorIndex(string modName, string pageName, string optionType
 
         i += 1
     endWhile
-
-    Debug.MessageBox("COUNT " + modName + " " + pageName + " " + selector + " " + optionId + " " + stateName + " : " + index + " (" + count + ")")
 
     if count > 1
         return index
