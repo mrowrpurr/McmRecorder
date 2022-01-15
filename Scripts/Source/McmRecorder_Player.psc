@@ -278,7 +278,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
 endFunction
 
 function RefreshMcmPage(SKI_ConfigBase mcm, string modName, string pageName) global
-    McmRecorder_McmFields.ResetMcmOptions()
+    McmRecorder_McmFields.MarkMcmOptionsForReset()
     if HasModBeenPlayed(modName)
         mcm.CloseConfig()
     else

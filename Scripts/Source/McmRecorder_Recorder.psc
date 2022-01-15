@@ -15,7 +15,7 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
 
         if ! option
             McmRecorder_Logging.ConsoleOut("Could not get configuration option for " + modName + " " + pageName + " optionId " + optionId)
-            ; McmRecorder_Logging.DumpAll()
+            McmRecorder_Logging.DumpAll("Data/McmRecorder/.debug/ProblemMessageDump.json")
             Debug.MessageBox("[McmRecorder] Problem! You clicked on an MCM field which we were not able to detect.")
             Debug.Notification("[McmRecorder] Problem! You clicked on an MCM field which we were not able to detect.")
             return

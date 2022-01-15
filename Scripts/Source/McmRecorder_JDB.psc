@@ -17,6 +17,10 @@ string function JdbPath_McmOptions() global
     return ".mcmRecorder.mcmOptions"
 endFunction
 
+string function JdbPath_McmOptions_MarkForReset() global
+    return ".mcmRecorder.McmOptionsShouldBeReset"
+endFunction
+
 string function JdbPath_IsPlayingRecording() global
     return ".mcmRecorder.isPlayingRecording"
 endFunction

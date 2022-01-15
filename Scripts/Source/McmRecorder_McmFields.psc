@@ -4,13 +4,17 @@ scriptName McmRecorder_McmFields hidden
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
 function TrackField(string modName, string pageName, string optionType, int optionId, string text, string strValue, float fltValue, string stateName, bool force = false) global
+    if McmOptionsShouldBeReset()
+        ResetMcmOptions()
+    endIf
+
     McmRecorder_Logging.ConsoleOut("[Track Field] " + modName + " " + pageName + " " + optionType + " " + optionId + " " + text + " " + stateName)
 
 	if force || McmRecorder_Recorder.IsRecording() || McmRecorder_Player.IsPlayingRecording()
         int optionsOnModPageForType = OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int option = JMap.object()
         JArray.addObj(optionsOnModPageForType, option)
-        JMap.setObj(OptionsForModPage_ByOptionIds(modName, pageName), optionId, option)
+        JIntMap.setObj(OptionsForModPage_ByOptionIds(modName, pageName), optionId, option)
         JMap.setInt(option, "id", optionId)
         JMap.setStr(option, "state", stateName)
         JMap.setStr(option, "type", optionType)
@@ -22,12 +26,25 @@ function TrackField(string modName, string pageName, string optionType, int opti
     McmRecorder_Logging.DumpAll() ; TODO REMOVE ME
 endFunction
 
+function MarkMcmOptionsForReset() global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_McmOptions_MarkForReset(), 1, createMissingKeys = true)
+endFunction
+
+function UnMarkMcmOptionsForReset() global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_McmOptions_MarkForReset(), 0)
+endFunction
+
+bool function McmOptionsShouldBeReset() global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_McmOptions_MarkForReset()) == 1
+endFunction
+
 function ResetMcmOptions() global
+    UnMarkMcmOptionsForReset()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_McmOptions(), JMap.object(), createMissingKeys = true)
 endFunction
 
 int function GetConfigurationOptionById(string modName, string pageName, int optionId) global
-    return JMap.getObj(OptionsForModPage_ByOptionIds(modName, pageName), optionId)
+    return JIntMap.getObj(OptionsForModPage_ByOptionIds(modName, pageName), optionId)
 endFunction
 
 int function OptionsForModPage_ByOptionIds(string modName, string pageName) global
@@ -76,7 +93,7 @@ int function OptionsForModPage(string modName, string pageName) global
     if ! options
         options = JMap.object()
         JMap.setObj(modOptions, pageName, options)
-        JMap.setObj(options, "byId", JMap.object())
+        JMap.setObj(options, "byId", JIntMap.object())
         JMap.setObj(options, "byType", JMap.object())
     endIf
     return options

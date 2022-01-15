@@ -563,7 +563,6 @@ function ForcePageReset()
 {Forces a full reset of the current page}
 
 	if McmRecorder_Player.IsPlayingRecording()
-		; McmRecorder_McmFields.ResetMcmOptions()
 		CloseConfig()
 		OpenConfig()
 		Debug.Trace("[McmRecorder] ForcePageReset() for page " + CurrentPage)
@@ -824,7 +823,7 @@ endFunction
 
 function ClearOptionBuffers()
 	if McmRecorder_Player.IsPlayingRecording() || McmRecorder_Recorder.IsRecording()
-		McmRecorder_McmFields.ResetMcmOptions()
+		McmRecorder_McmFields.MarkMcmOptionsForReset()
 	endIf
 
 	Int t = self.OPTION_TYPE_EMPTY
