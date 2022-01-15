@@ -1,8 +1,12 @@
 scriptName McmRecorder_Recorder hidden
 {Responsible for recording actions in Mod Configuration Menus}
 
+bool function IsRecording() global
+    return GetCurrentRecordingName()
+endFunction
+
 function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global
-    if McmRecorder.IsRecording() && modName != "MCM Recorder"
+    if IsRecording() && modName != "MCM Recorder"
         if modName != GetCurrentRecordingModName()
             ResetCurrentRecordingSteps()
         endIf
@@ -32,20 +36,33 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
             JMap.setInt(mcmAction, "index", selectorIndex)
         endIf
 
+        string debugPrefix = "[Record Action] " + modName
+        if pageName
+            debugPrefix += ": " + pageName
+        endIf
+        debugPrefix += " (" + selector + ")"
+        if selectorIndex > -1
+            debugPrefix += " [" + selector + "]"
+        endIf
+
         if optionType == "clickable"
             if JMap.getStr(option, "type") == "toggle"
                 JMap.setStr(mcmAction, "option", selector)
                 if JMap.getFlt(option, "fltValue") == 0
                     JMap.setStr(mcmAction, "toggle", "on")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " on")
                 else
                     JMap.setStr(mcmAction, "toggle", "off")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " off")
                 endIf
             else
                 if selector
                     JMap.setStr(mcmAction, "click", selector)
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " click")
                 else
                     JMap.setStr(mcmAction, "click", JMap.getStr(option, "strValue"))
                     JMap.setStr(mcmAction, "side", "right")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " click (right)")
                 endIf
             endIf
         elseIf optionType == "menu"
@@ -57,23 +74,29 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "choose", selectedOptionText)
                 mcm.GotoState(previousState)
+                McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + selectedOptionText + "'")
             else
                 mcm.OnOptionMenuOpen(optionId)
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "choose", selectedOptionText)
+                McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + selectedOptionText + "'")
             endIf
         elseIf optionType == "slider"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setFlt(mcmAction, "slider", fltValue)
+            McmRecorder_Logging.ConsoleOut(debugPrefix + " slider " + fltValue)
         elseIf optionType == "keymap"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setInt(mcmAction, "shortcut", fltValue as int)
+            McmRecorder_Logging.ConsoleOut(debugPrefix + " shortcut " + fltValue)
         elseIf optionType == "color"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setInt(mcmAction, "color", fltValue as int)
+            McmRecorder_Logging.ConsoleOut(debugPrefix + " color " + fltValue)
         elseIf optionType == "input"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setStr(mcmAction, "text", strValue)
+            McmRecorder_Logging.ConsoleOut(debugPrefix + " input '" + strValue + "'")
         else
             Debug.MessageBox("TODO: support " + optionType)
         endIf
@@ -91,6 +114,7 @@ function BeginRecording(string recordingName) global
     JMap.setStr(metaFile, "name", recordingName)    
     JMap.setStr(metaFile, "version", "1.0.0")
     JMap.setStr(metaFile, "author", authorName)
+    JMap.setStr(metaFile, "autorun", "false")
     McmRecorder_RecordingFiles.WriteMetafile(recordingName, metaFile)
 endFunction
 

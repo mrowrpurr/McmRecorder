@@ -6,6 +6,7 @@ McmRecorder Recorder
 int oid_Record
 int oid_Stop
 int[] oids_Recordings
+
 string[] recordings
 bool isPlayingRecording
 string currentlyPlayingRecordingName
@@ -19,8 +20,11 @@ event OnConfigInit()
     IsSkyrimVR = Game.GetModByName("SkyrimVR.esm") != 255
 endEvent
 
+; event OnConfigOpen()
+; endEvent
+
 event OnPageReset(string page)
-    if McmRecorder.IsRecording()
+    if McmRecorder_Recorder.IsRecording()
         oid_Stop = AddTextOption("Currently Recording!", "STOP RECORDING", OPTION_FLAG_NONE)
         AddTextOption(McmRecorder_Recorder.GetCurrentRecordingName(), "", OPTION_FLAG_DISABLED)
     else
@@ -36,26 +40,24 @@ endEvent
 
 function ListRecordings()
     recordings = McmRecorder_RecordingFiles.GetRecordingNames()
-    if recordings.Length
+    if recordings.Length && ((! McmRecorder_Recorder.IsRecording()) || recordings.Length > 1)
         AddEmptyOption()
         AddEmptyOption()
-        AddTextOption("Choose a recording to play:", "", OPTION_FLAG_NONE)
+        AddTextOption("Choose a recording to play:", "", OPTION_FLAG_DISABLED)
         AddEmptyOption()
         oids_Recordings = Utility.CreateIntArray(recordings.Length)
         int i = 0
         while i < recordings.Length
             string recordingName = recordings[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepNames(recordingName)
-                if stepNames
-                    oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
-                    int recordingInfo = McmRecorder_RecordingFiles.GetRecordingInfo(recordingName)
-                    string authorText = ""
-                    if JMap.getStr(recordingInfo, "author")
-                        authorText = "by " + JMap.getStr(recordingInfo, "author")
-                    endIf
-                    AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
+                string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
+                oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
+                int recordingInfo = McmRecorder_RecordingFiles.GetRecordingInfo(recordingName)
+                string authorText = ""
+                if JMap.getStr(recordingInfo, "author")
+                    authorText = "by " + JMap.getStr(recordingInfo, "author")
                 endIf
+                AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
             endIf
             i += 1
         endWhile
@@ -64,7 +66,7 @@ endFunction
 
 event OnOptionSelect(int optionId)
     if IsSkyrimVR && optionId == oid_Record ; SkyrimVR
-        if ! McmRecorder.IsRecording()
+        if ! McmRecorder_Recorder.IsRecording()
             McmRecorder_Recorder.BeginRecording(GetRandomRecordingName())
             ForcePageReset()
         else
@@ -123,7 +125,7 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     if confirmation
         UnregisterForMenu("Journal Menu")  
         RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
-        string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepNames(recordingName)
+        string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
         string text = recordingDescription + "\n"
         int i = 0
         while i < stepNames.Length && i < 11

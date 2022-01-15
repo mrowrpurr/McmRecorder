@@ -13,3 +13,7 @@ string function ToJson(int jcontainer) global
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)
 endFunction
+
+function ConsoleOut(string text) global
+    MiscUtil.PrintConsole(text)
+endFunction

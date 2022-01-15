@@ -86,25 +86,3 @@ endFunction
 event OnUpdate()
     AutorunRecordings()
 endEvent
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Recording
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Returns true if a recording is currently in progress.
-;
-; Note: this is for recording not playback. Check `IsPlayingRecording()` for playback.
-bool function IsRecording() global
-    return McmRecorder_Recorder.GetCurrentRecordingName()
-endFunction
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Playback
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Returns true if a recording is currently being played.
-;
-; Note: this will also return true if any step or action is being played.
-bool function IsPlayingRecording() global
-    return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
-endFunction

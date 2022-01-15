@@ -4,7 +4,7 @@ scriptName McmRecorder_McmFields hidden
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
 function TrackField(string modName, string pageName, string optionType, int optionId, string text, string strValue, float fltValue, string stateName, bool force = false) global
-	if force || McmRecorder.IsRecording() || McmRecorder.IsPlayingRecording()
+	if force || McmRecorder_Recorder.IsRecording() || McmRecorder_Player.IsPlayingRecording()
         int optionsOnModPageForType = OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int option = JMap.object()
         JArray.addObj(optionsOnModPageForType, option)

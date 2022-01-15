@@ -1,6 +1,10 @@
 scriptName McmRecorder_Player hidden
 {Responsible for playback of recordings or can trigger individual actions}
 
+bool function IsPlayingRecording() global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
+endFunction
+
 function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0) global
     ClearModsPlayed()
     SetCurrentPlayingRecordingModName("")

@@ -19,7 +19,14 @@ string[] function GetRecordingNames() global
         return ret
     endIf
 
-    string[] fileNames = JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordings()))
+    string[] fileNames
+    
+    if McmRecorder_Config.IsSkyrimVR()
+        fileNames = JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordings()))
+    else
+        fileNames = MiscUtil.FilesInFolder(PathToRecordings())
+    endIf
+    
     int i = 0
     while i < fileNames.Length
         fileNames[i] = StringUtil.Substring(fileNames[i], 0, StringUtil.Find(fileNames[i], ".json"))
@@ -28,8 +35,12 @@ string[] function GetRecordingNames() global
     return fileNames
 endFunction
 
-string[] function GetRecordingStepNames(string recordingName) global
-    return JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordingFolder(recordingName)))
+string[] function GetRecordingStepFilenames(string recordingName) global
+    if McmRecorder_Config.IsSkyrimVR()
+        return JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordingFolder(recordingName)))
+    else
+        return MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
+    endIf 
 endFunction
 
 int function GetRecordingInfo(string recordingName) global
@@ -42,7 +53,7 @@ endFunction
 
 string function GetRecordingDescription(string recordingName) global
     int info = GetRecordingInfo(recordingName)
-    string[] stepNames = GetRecordingStepNames(recordingName)
+    string[] stepNames = GetRecordingStepFilenames(recordingName)
 
     string recordingDescription = recordingName
     if JMap.getStr(info, "version")
@@ -100,7 +111,12 @@ endFunction
 
 string function GetFileNameForRecordingAction(string recordingName, string modName) global
     string recordingFolder = PathToRecordingFolder(recordingName)
-    int recordingStepNumber = JMap.allKeysPArray(JValue.readFromDirectory(recordingFolder)).Length
+    int recordingStepNumber
+    if McmRecorder_Config.IsSkyrimVR()
+        recordingStepNumber = JMap.allKeysPArray(JValue.readFromDirectory(recordingFolder)).Length
+    else
+        recordingStepNumber = MiscUtil.FilesInFolder(recordingFolder).Length
+    endIf
     if modName != McmRecorder_Recorder.GetCurrentRecordingModName()
         recordingStepNumber += 1
         McmRecorder_Recorder.SetCurrentRecordingModName(modName)
