@@ -1198,8 +1198,6 @@ function SetToggleOptionValue(Int a_option, Bool a_checked, Bool a_noUpdate)
 endFunction
 
 Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float a_numValue, Int a_flags, string stateName = "")
-	McmRecorder_Logging.ConsoleOut("[ADD OPTION] " + a_optionType + " " + a_text + " " + a_strValue + " " + a_numValue + " STATE: " + stateName)
-
 	if _state != self.STATE_RESET
 		self.Error("Cannot add option " + a_text + " outside of OnPageReset()")
 		return -1

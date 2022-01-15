@@ -34,7 +34,7 @@ string property CurrentlyInstalledVersion auto
 
 ; Returns the installed version of MCM Recorder
 string function GetVersion() global
-    return "1.0.4"
+    return "1.0.5"
 endFunction
 
 event OnInit()
