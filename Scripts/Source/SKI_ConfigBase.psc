@@ -823,6 +823,9 @@ function SetOptionNumValue(Int a_index, Float a_numValue, Bool a_noUpdate)
 endFunction
 
 function ClearOptionBuffers()
+	if McmRecorder_Player.IsPlayingRecording() || McmRecorder_Recorder.IsRecording()
+		McmRecorder_McmFields.ResetMcmOptions()
+	endIf
 
 	Int t = self.OPTION_TYPE_EMPTY
 	Int i = 0

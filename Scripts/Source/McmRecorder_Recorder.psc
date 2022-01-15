@@ -42,7 +42,7 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         endIf
         debugPrefix += " (" + selector + ")"
         if selectorIndex > -1
-            debugPrefix += " [" + selector + "]"
+            debugPrefix += " [" + selectorIndex + "]"
         endIf
 
         if optionType == "clickable"
@@ -88,11 +88,11 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         elseIf optionType == "keymap"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setInt(mcmAction, "shortcut", fltValue as int)
-            McmRecorder_Logging.ConsoleOut(debugPrefix + " shortcut " + fltValue)
+            McmRecorder_Logging.ConsoleOut(debugPrefix + " shortcut " + fltValue as int)
         elseIf optionType == "color"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setInt(mcmAction, "color", fltValue as int)
-            McmRecorder_Logging.ConsoleOut(debugPrefix + " color " + fltValue)
+            McmRecorder_Logging.ConsoleOut(debugPrefix + " color " + fltValue as int)
         elseIf optionType == "input"
             JMap.setStr(mcmAction, "option", selector)
             JMap.setStr(mcmAction, "text", strValue)
