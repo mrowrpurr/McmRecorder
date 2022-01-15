@@ -14,9 +14,15 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         int option = McmRecorder_McmFields.GetConfigurationOptionById(modName, pageName, optionId)
 
         if ! option
+            McmRecorder_Logging.ConsoleOut("Could not get configuration option for " + modName + " " + pageName + " optionId " + optionId)
+            ; McmRecorder_Logging.DumpAll()
             Debug.MessageBox("[McmRecorder] Problem! You clicked on an MCM field which we were not able to detect.")
             Debug.Notification("[McmRecorder] Problem! You clicked on an MCM field which we were not able to detect.")
             return
+        endIf
+
+        if optionType == "menu" && fltValue == -1
+            return ; The menu was opened but then closed without choosing an option. We don't reproduce this behavior.
         endIf
 
         int mcmAction = JMap.object()
@@ -97,8 +103,6 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
             JMap.setStr(mcmAction, "option", selector)
             JMap.setStr(mcmAction, "text", strValue)
             McmRecorder_Logging.ConsoleOut(debugPrefix + " input '" + strValue + "'")
-        else
-            Debug.MessageBox("TODO: support " + optionType)
         endIf
 
         McmRecorder_RecordingFiles.SaveCurrentRecording(GetCurrentRecordingName(), modName)

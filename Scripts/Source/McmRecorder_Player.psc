@@ -206,9 +206,9 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " input '" + inputValue + "'")
                 mcm.OnInputAcceptST(inputValue)
             elseIf optionType == "slider"
-                float sliderValue = sliderValue
+                float sliderValue = JMap.getFlt(actionInfo, "slider")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " slider " + sliderValue)
-                mcm.OnSliderAcceptST(JMap.getFlt(actionInfo, "slider"))
+                mcm.OnSliderAcceptST(sliderValue)
             elseIf optionType == "toggle"
                 string turnOnOrOff = JMap.getStr(actionInfo, "toggle")
                 bool currentlyEnabledOnPage = JMap.getFlt(option, "fltValue") == 1

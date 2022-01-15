@@ -17,10 +17,6 @@ string function JdbPath_McmOptions() global
     return ".mcmRecorder.mcmOptions"
 endFunction
 
-string function JdbPath_ModConfigurationOptionsForPage(string modName, string pageName) global
-    return JdbPath_McmOptions() + "." + JdbPathPart(modName) + "." + JdbPathPart(pageName)
-endFunction
-
 string function JdbPath_IsPlayingRecording() global
     return ".mcmRecorder.isPlayingRecording"
 endFunction

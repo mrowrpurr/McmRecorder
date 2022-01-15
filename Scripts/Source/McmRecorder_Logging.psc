@@ -18,7 +18,7 @@ function ConsoleOut(string text) global
     MiscUtil.PrintConsole(text)
 endFunction
 
-function DumpAll(string filename = "McmRecorder_Debug.json") global
+function DumpAll(string filename = "Data/McmRecorder/.debug/McmRecorderDataDump.json") global
     JValue.writeToFile(JDB.solveObj(".mcmRecorder"), filename)
     ConsoleOut("[DEBUG] Written to " + filename)
 endFunction

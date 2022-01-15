@@ -4,6 +4,8 @@ scriptName McmRecorder_McmFields hidden
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
 function TrackField(string modName, string pageName, string optionType, int optionId, string text, string strValue, float fltValue, string stateName, bool force = false) global
+    McmRecorder_Logging.ConsoleOut("[Track Field] " + modName + " " + pageName + " " + optionType + " " + optionId + " " + text + " " + stateName)
+
 	if force || McmRecorder_Recorder.IsRecording() || McmRecorder_Player.IsPlayingRecording()
         int optionsOnModPageForType = OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int option = JMap.object()
@@ -16,6 +18,8 @@ function TrackField(string modName, string pageName, string optionType, int opti
         JMap.setStr(option, "strValue", strValue)
         JMap.setFlt(option, "fltValue", fltvalue)
 	endIf
+
+    McmRecorder_Logging.DumpAll() ; TODO REMOVE ME
 endFunction
 
 function ResetMcmOptions() global
@@ -44,14 +48,34 @@ int function OptionsForModPage_ByOptionType(string modName, string pageName, str
     return typeMap
 endFunction
 
+int function AllMcmOptions() global
+    int options = JDB.solveObj(McmRecorder_JDB.JdbPath_McmOptions())
+    if ! options
+        options = JMap.object()
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_McmOptions(), options, createMissingKeys = true)
+    endIf
+    return options
+endFunction
+
+int function OptionsForMod(string modName) global
+    int allOptions = AllMcmOptions()
+    int options = JMap.getObj(allOptions, modName)
+    if ! options
+        options = JMap.object()
+        JMap.setObj(allOptions, modName, options)
+    endIf
+    return options
+endFunction
+
 int function OptionsForModPage(string modName, string pageName) global
+    int modOptions = OptionsForMod(modName)
     if ! pageName
         pageName = "SKYUI_DEFAULT_PAGE"
     endIf
-    int options = JDB.solveObj(McmRecorder_JDB.JdbPath_ModConfigurationOptionsForPage(modName, pageName))
+    int options = JMap.getObj(modOptions, pageName)
     if ! options
         options = JMap.object()
-        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_ModConfigurationOptionsForPage(modName, pageName), options, createMissingKeys = true)
+        JMap.setObj(modOptions, pageName, options)
         JMap.setObj(options, "byId", JMap.object())
         JMap.setObj(options, "byType", JMap.object())
     endIf
