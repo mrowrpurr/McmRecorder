@@ -1,10 +1,3 @@
-;/ Decompiled by Champollion V1.0.1
-Source   : SKI_ConfigBase.psc
-Modified : 2021-08-22 23:35:00
-Compiled : 2021-10-12 06:59:47
-User     : odie
-Computer : DESKTOP-1OLNAKU
-/;
 scriptName SKI_ConfigBase extends SKI_QuestBase
 
 ;-- Properties --------------------------------------
@@ -190,7 +183,7 @@ Int _cursorPosition = 0
 ;-- Functions ---------------------------------------
 
 function SetTitleText(String a_text)
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeString(self.JOURNAL_MENU, self.MENU_ROOT + ".setTitleText", a_text)
 	endIf
 endFunction
@@ -364,10 +357,10 @@ function SetInputText(String a_text)
 		self.GotoState(optionState)
 		self.OnInputAcceptST(a_text)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
 	else
 		self.OnOptionInputAccept(_activeOption, a_text)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "input", _activeOption, strValue = a_text, recordStringValue = true, recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -404,10 +397,10 @@ function SelectOption(Int a_index)
 		self.GotoState(optionState)
 		self.OnSelectST()
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "clickable", (a_index + _currentPageNum * 256), stateName = optionState)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "clickable", (a_index + _currentPageNum * 256), stateName = optionState)
 	else
 		Int option = a_index + _currentPageNum * 256
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "clickable", option)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "clickable", option)
 		self.OnOptionSelect(option)
 	endIf
 endFunction
@@ -437,10 +430,10 @@ function SetOptionFlags(Int a_option, Int a_flags, Bool a_noUpdate)
 	Int[] params = new Int[2]
 	params[0] = index
 	params[1] = a_flags
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeIntA(self.JOURNAL_MENU, self.MENU_ROOT + ".setOptionFlags", params)
 	endIf
-	if !a_noUpdate && ! McmRecorder.IsPlayingRecording()
+	if !a_noUpdate && ! McmRecorder_Player.IsPlayingRecording()
 		ui.Invoke(self.JOURNAL_MENU, self.MENU_ROOT + ".invalidateOptionData")
 	endIf
 endFunction
@@ -448,7 +441,7 @@ endFunction
 function SetPage(String a_page, Int a_index)
 	_currentPage = a_page
 	_currentPageNum = 1 + a_index
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		if a_page != ""
 			self.SetTitleText(a_page)
 		else
@@ -549,10 +542,10 @@ function SetColorValue(Int a_color)
 		self.GotoState(optionState)
 		self.OnColorAcceptST(a_color)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, stateName = optionState, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, stateName = optionState, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
 	else
 		self.OnOptionColorAccept(_activeOption, a_color)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "color", _activeOption, recordOptionType = true, fltValue = a_color, recordFloatValue = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -569,8 +562,7 @@ endFunction
 function ForcePageReset()
 {Forces a full reset of the current page}
 
-	if McmRecorder.IsPlayingRecording()
-		McmRecorder.ResetMcmOptions()
+	if McmRecorder_Player.IsPlayingRecording()
 		CloseConfig()
 		OpenConfig()
 		Debug.Trace("[McmRecorder] ForcePageReset() for page " + CurrentPage)
@@ -595,7 +587,7 @@ function HighlightOption(Int a_index)
 			self.OnOptionHighlight(option)
 		endIf
 	endIf
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeString(self.JOURNAL_MENU, self.MENU_ROOT + ".setInfoText", _infoText)
 	endIf
 endFunction
@@ -608,11 +600,11 @@ function SetOptionStrValue(Int a_index, String a_strValue, Bool a_noUpdate)
 	endIf
 	String menu = self.JOURNAL_MENU
 	String root = self.MENU_ROOT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.SetInt(menu, root + ".optionCursorIndex", a_index)
 		ui.SetString(menu, root + ".optionCursor.strValue", a_strValue)
 	endIf
-	if !a_noUpdate && !McmRecorder.IsPlayingRecording()
+	if !a_noUpdate && !McmRecorder_Player.IsPlayingRecording()
 		ui.Invoke(menu, root + ".invalidateOptionData")
 	endIf
 endFunction
@@ -672,7 +664,7 @@ function RequestInputDialogData(Int a_index)
 		self.OnOptionInputOpen(_activeOption)
 	endIf
 	_state = self.STATE_DEFAULT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeString(self.JOURNAL_MENU, self.MENU_ROOT + ".setInputDialogParams", _inputStartText)
 	endIf
 endFunction
@@ -691,10 +683,10 @@ function SetMenuIndex(Int a_index)
 		self.GotoState(optionState)
 		self.OnMenuAcceptST(a_index)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, stateName = optionState, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, stateName = optionState, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
 	else
 		self.OnOptionMenuAccept(_activeOption, a_index)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "menu", _activeOption, fltValue = a_index, recordFloatValue = true, recordOptionType = true, menuOptions = MostRecentlyConfiguredMenuDialogOptions)
 	endIf
 	_activeOption = -1
 endFunction
@@ -713,10 +705,10 @@ function SetSliderValue(Float a_value)
 		self.GotoState(optionState)
 		self.OnSliderAcceptST(a_value)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, stateName = optionState, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, stateName = optionState, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
 	else
 		self.OnOptionSliderAccept(_activeOption, a_value)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "slider", _activeOption, fltValue = a_value, recordFloatValue = true, recordOptionType = true)
 	endIf
 	_activeOption = -1
 endFunction
@@ -753,7 +745,7 @@ function RequestMenuDialogData(Int a_index)
 		self.OnOptionMenuOpen(_activeOption)
 	endIf
 	_state = self.STATE_DEFAULT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeIntA(self.JOURNAL_MENU, self.MENU_ROOT + ".setMenuDialogParams", _menuParams)
 	endIf
 endFunction
@@ -783,7 +775,7 @@ function RequestSliderDialogData(Int a_index)
 		self.OnOptionSliderOpen(_activeOption)
 	endIf
 	_state = self.STATE_DEFAULT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeFloatA(self.JOURNAL_MENU, self.MENU_ROOT + ".setSliderDialogParams", _sliderParams)
 	endIf
 endFunction
@@ -802,12 +794,12 @@ function SetOptionValues(Int a_index, String a_strValue, Float a_numValue, Bool 
 	endIf
 	String menu = self.JOURNAL_MENU
 	String root = self.MENU_ROOT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.SetInt(menu, root + ".optionCursorIndex", a_index)
 		ui.SetString(menu, root + ".optionCursor.strValue", a_strValue)
 		ui.SetFloat(menu, root + ".optionCursor.numValue", a_numValue)
 	endIf
-	if !a_noUpdate && !McmRecorder.IsPlayingRecording()
+	if !a_noUpdate && !McmRecorder_Player.IsPlayingRecording()
 		ui.Invoke(menu, root + ".invalidateOptionData")
 	endIf
 endFunction
@@ -820,16 +812,19 @@ function SetOptionNumValue(Int a_index, Float a_numValue, Bool a_noUpdate)
 	endIf
 	String menu = self.JOURNAL_MENU
 	String root = self.MENU_ROOT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.SetInt(menu, root + ".optionCursorIndex", a_index)
 		ui.SetFloat(menu, root + ".optionCursor.numValue", a_numValue)
 	endIf
-	if !a_noUpdate && !McmRecorder.IsPlayingRecording()
+	if !a_noUpdate && !McmRecorder_Player.IsPlayingRecording()
 		ui.Invoke(menu, root + ".invalidateOptionData")
 	endIf
 endFunction
 
 function ClearOptionBuffers()
+	if McmRecorder_Player.IsPlayingRecording() || McmRecorder_Recorder.IsRecording()
+		McmRecorder_McmFields.MarkMcmOptionsForReset()
+	endIf
 
 	Int t = self.OPTION_TYPE_EMPTY
 	Int i = 0
@@ -846,7 +841,7 @@ function ClearOptionBuffers()
 endFunction
 
 function WriteOptionBuffers()
-	if McmRecorder.IsPlayingRecording()
+	if McmRecorder_Player.IsPlayingRecording()
 		return
 	endIf
 
@@ -862,7 +857,7 @@ function WriteOptionBuffers()
 		endIf
 		i += 1
 	endWhile
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeIntA(menu, root + ".setOptionFlagsBuffer", _optionFlagsBuf)
 		ui.InvokeStringA(menu, root + ".setOptionTextBuffer", _textBuf)
 		ui.InvokeStringA(menu, root + ".setOptionStrValueBuffer", _strValueBuf)
@@ -910,7 +905,7 @@ endFunction
 
 function UnloadCustomContent()
 
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.Invoke(self.JOURNAL_MENU, self.MENU_ROOT + ".unloadCustomContent")
 	endIf
 endFunction
@@ -924,13 +919,13 @@ function OpenConfig()
 	_stateOptionMap = new String[128]
 	self.SetPage("", -1)
 	self.OnConfigOpen()
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeStringA(self.JOURNAL_MENU, self.MENU_ROOT + ".setPageNames", Pages)
 	endIf
 endFunction
 
 Bool function ShowMessage(String a_message, Bool a_withCancel, String a_acceptLabel, String a_cancelLabel)
-	if McmRecorder.IsPlayingRecording()
+	if McmRecorder_Player.IsPlayingRecording()
 		return true ; Automatically accept every dialog without actually showing it :)
 	endIf
 
@@ -949,7 +944,7 @@ Bool function ShowMessage(String a_message, Bool a_withCancel, String a_acceptLa
 		params[2] = ""
 	endIf
 	self.RegisterForModEvent("SKICP_messageDialogClosed", "OnMessageDialogClose")
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeStringA(self.JOURNAL_MENU, self.MENU_ROOT + ".showMessageDialog", params)
 	endIf
 	while _waitForMessage
@@ -968,7 +963,7 @@ function SetMenuDialogOptions(String[] a_options)
 		self.Error("Cannot set menu dialog params while outside OnOptionMenuOpen()")
 		return 
 	endIf
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeStringA(self.JOURNAL_MENU, self.MENU_ROOT + ".setMenuDialogOptions", a_options)
 	endIf
 endFunction
@@ -1005,7 +1000,7 @@ function LoadCustomContent(String a_source, Float a_x, Float a_y)
 	Float[] params = new Float[2]
 	params[0] = a_x
 	params[1] = a_y
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeFloatA(self.JOURNAL_MENU, self.MENU_ROOT + ".setCustomContentParams", params)
 		ui.InvokeString(self.JOURNAL_MENU, self.MENU_ROOT + ".loadCustomContent", a_source)
 	endIf
@@ -1027,7 +1022,7 @@ function RequestColorDialogData(Int a_index)
 		self.OnOptionColorOpen(_activeOption)
 	endIf
 	_state = self.STATE_DEFAULT
-	if ! McmRecorder.IsPlayingRecording()
+	if ! McmRecorder_Player.IsPlayingRecording()
 		ui.InvokeIntA(self.JOURNAL_MENU, self.MENU_ROOT + ".setColorDialogParams", _colorParams)
 	endIf
 endFunction
@@ -1178,11 +1173,11 @@ function RemapKey(Int a_index, Int a_keyCode, String a_conflictControl, String a
 		self.GotoState(optionState)
 		self.OnKeyMapChangeST(a_keyCode, a_conflictControl, a_conflictName)
 		self.GotoState(oldState)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "keymap", (a_index + _currentPageNum * 256), stateName = optionState, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "keymap", (a_index + _currentPageNum * 256), stateName = optionState, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
 	else
 		Int option = a_index + _currentPageNum * 256
 		self.OnOptionKeyMapChange(option, a_keyCode, a_conflictControl, a_conflictName)
-		McmRecorder.RecordAction(self, ModName, PageNameOrDefault, "keymap", option, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
+		McmRecorder_Recorder.RecordAction(self, ModName, PageNameOrDefault, "keymap", option, recordOptionType = true, fltValue = a_keyCode, recordFloatValue = true)
 	endIf
 endFunction
 
@@ -1222,35 +1217,18 @@ Int function AddOption(Int a_optionType, String a_text, String a_strValue, Float
 	endIf
 
 	int optionId = pos + _currentPageNum * 256
-	if McmRecorder.IsPlayingRecording() || McmRecorder.IsRecording()
-		string optionType
-		if a_optionType == 0
-			; Empty
-		elseIf a_optionType == 1
-			; Header
-		elseIf a_optionType == 2
-			optionType = "text"
-		elseIf a_optionType == 3
-			optionType = "toggle"
-		elseIf a_optionType == 4
-			optionType = "slider"
-		elseIf a_optionType == 5
-			optionType = "menu"
-		elseIf a_optionType == 6
-			optionType = "color"
-		elseIf a_optionType == 7
-			optionType = "keymap"
-		elseIf a_optionType == 7 ; What is 7 ?? ?? ?? ?? TODO ?? ?? ?? ?? ??
-			optionType = "input"
-		elseIf a_optionType == 8 ; What is 7 ??
-			optionType = "input"
-		else
-			Debug.Trace("[MCM Recorder] UNKNOWN or UNSUPPORTED Option Type " + a_optionType + " text: " + a_text + " value: " + a_strValue)
-		endIf
-		if optionType
-			McmRecorder.AddConfigurationOption(ModName, PageNameOrDefault, optionId, optionType, a_text, a_strValue, a_numValue, stateName)
-		endIf
-	endIf
+
+	string optionTypeName = McmRecorder_McmFields.GetOptionTypeName(a_optionType)
+	McmRecorder_McmFields.TrackField(    \
+		modName    = ModName,            \
+		pageName   = PageNameOrDefault,  \
+		optionType = optionTypeName,     \
+		optionId   = optionId,           \
+		text       = a_text,             \
+		strValue   = a_strValue,         \
+		fltValue   = a_numValue,         \
+		stateName  = stateName           \
+	)
 	return optionId
 endFunction
 
