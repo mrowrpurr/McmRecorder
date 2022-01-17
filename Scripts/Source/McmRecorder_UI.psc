@@ -4,6 +4,18 @@ function Notification(string text) global
     Debug.Notification("[McmRecorder] " + text)
 endFunction
 
+string function Options_Continue() global
+    return "Continue"
+endFunction
+
+string function Options_TryAgain() global
+    return "Try again"
+endFunction
+
+string function Options_SkipThisMod() global
+    return "Skip this mod"
+endFunction
+
 string function GetUserResponseForNotFoundSelector(string modName, string pageName, string selector) global
     string description = "Could not find MCM option:\n\nMod name: " + modName
     if pageName
@@ -18,11 +30,11 @@ string function GetUserResponseForNotFoundSelector(string modName, string pageNa
     recorder.McmRecorder_MessageText.SetName(description)
     int response = recorder.McmRecorder_Message_SelectorNotFound.Show()
     if response == 0
-        return "Continue"
+        return Options_Continue()
     elseIf response == 1 
-        return "Try again"
+        return Options_TryAgain()
     elseIf response == 2
-        return "Skip this mod"
+        return Options_SkipThisMod()
     endIf
 endFunction
 
@@ -35,8 +47,8 @@ string function GetUserResponseForNotFoundMod(string modName) global
     recorder.McmRecorder_MessageText.SetName(description)
     int response = recorder.McmRecorder_Message_ModNotFound.Show()
     if response == 0
-        return "Try again"
+        return Options_TryAgain()
     elseIf response == 1
-        return "Skip this mod"
+        return Options_SkipThisMod()
     endIf
 endFunction

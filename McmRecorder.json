@@ -1,0 +1,10 @@
+{
+    "logging": {
+        "console": "true",
+        "notifications": "true",
+        "files": "false"
+    },
+    "defaults": {
+        "mcmLoad": 5.0
+    }
+}
