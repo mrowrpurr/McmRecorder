@@ -25,12 +25,12 @@ endEvent
 event OnConfigOpen()
     if IsSkyrimVR ; && Game.GetModByName("") != 255 Check for VRIK
         Pages = new string[3]
-        Pages[0] = "Recordings"
+        Pages[0] = "MCM Recordings"
         Pages[1] = "Keyboard Shortcuts"
         Pages[2] = "VR Gestures"
     else
         Pages = new string[2]
-        Pages[0] = "Recordings"
+        Pages[0] = "MCM Recordings"
         Pages[1] = "Keyboard Shortcuts"
     endIf
 endEvent
@@ -232,7 +232,9 @@ event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, st
         int shortcut = JMap.getObj(recordingInfo, "shortcut")
         JMap.setInt(shortcut, "key", keyCode)
         SetKeyMapOptionValue(optionId, keyCode, false)
+        Recorder.StopListeningForKeyboardShortcuts()
         McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+        Recorder.StartListenForKeyboardShortcuts()
     endIf
 endEvent
 

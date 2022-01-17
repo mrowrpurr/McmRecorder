@@ -31,3 +31,54 @@ int function GetShortcutsInfos() global
     endWhile
     return shortcutInfos
 endFunction
+
+int[] function GetAllKeyboardShortcutKeys() global
+    int[] keycodes
+    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    int shortcutInfos = JArray.object()
+    int i = 0
+    while i < recordingNames.Length
+        string recordingName = recordingNames[i]
+        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int shortcut = JMap.getObj(recordingInfo, "shortcut")
+        if shortcut
+            int keycode = JMap.getInt(shortcut, "key")
+            if keycodes.Find(keycode) == -1
+                keycodes = Utility.ResizeIntArray(keycodes, keycodes.Length + 1)
+                keycodes[keycodes.Length - 1] = keycode
+            endIf
+        endIf
+        i += 1
+    endWhile
+    return keycodes
+endFunction
+
+function RunKeyboardShortcutIfAny(int pressedKey) global
+    bool ctrlPressed = Input.IsKeyPressed(29)  || Input.IsKeyPressed(157)
+    bool altPressed  = Input.IsKeyPressed(56)  || Input.IsKeyPressed(184)
+    bool shiftPressed = Input.IsKeyPressed(42) || Input.IsKeyPressed(54)
+    bool found
+    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    int shortcutInfos = JArray.object()
+    int i = 0
+    while i < recordingNames.Length && (!found)
+        string recordingName = recordingNames[i]
+        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int shortcut = JMap.getObj(recordingInfo, "shortcut")
+        if shortcut
+            int keycode = JMap.getInt(shortcut, "key")
+            bool ctrl = JMap.getStr(shortcut, "ctrl") == "true"
+            bool alt = JMap.getStr(shortcut, "alt") == "true"
+            bool shift = JMap.getStr(shortcut, "shift") == "true"
+            if pressedKey == keycode && \
+                ctrlPressed == ctrl && \
+                altPressed == alt && \
+                shiftPressed == shift
+                McmRecorder_Logging.ConsoleOut("[Keyboard Shortcut] " + recordingName + " Key:" + keycode + " Ctrl:" + ctrl + " Alt:" + alt + " Shift:" + shift)
+                McmRecorder_Player.PlayRecording(recordingName)
+                found = true
+            endIf
+        endIf
+        i += 1
+    endWhile
+endFunction

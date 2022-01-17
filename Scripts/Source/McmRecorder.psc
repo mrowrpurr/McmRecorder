@@ -41,10 +41,36 @@ event OnInit()
     CurrentlyInstalledVersion = GetVersion()
     skiConfigManager = Quest.GetQuest("SKI_ConfigManagerInstance") as SKI_ConfigManager
     RegisterForSingleUpdate(5)
+    StartListenForKeyboardShortcuts()
 endEvent
 
 event SaveGameLoaded()
     RegisterForSingleUpdate(5)
+    StartListenForKeyboardShortcuts()
+endEvent
+
+function StartListenForKeyboardShortcuts()
+    int[] keycodes = McmRecorder_KeyboardShortcuts.GetAllKeyboardShortcutKeys()
+    int i = 0
+    while i < keycodes.Length
+        RegisterForKey(keycodes[i])
+        i += 1
+    endWhile
+endFunction
+
+function StopListeningForKeyboardShortcuts()
+    int[] keycodes = McmRecorder_KeyboardShortcuts.GetAllKeyboardShortcutKeys()
+    int i = 0
+    while i < keycodes.Length
+        UnregisterForKey(keycodes[i])
+        i += 1
+    endWhile
+endFunction
+
+event OnKeyDown(int keycode)
+    if ! McmRecorder_Player.IsPlayingRecording()
+        McmRecorder_KeyboardShortcuts.RunKeyboardShortcutIfAny(keycode)
+    endIf
 endEvent
 
 ; **DO NOT USE THIS**
