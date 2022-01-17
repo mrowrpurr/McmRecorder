@@ -45,6 +45,14 @@ string function JdbPath_AutorunHistory() global
     return ".mcmRecorder.autorunHistory"
 endFunction
 
+string function JdbPath_MCM_KeyboardShortcuts_ShortcutInfos() global
+    return ".mcmRecorder.mcm.keyboardShortcuts.shortcutInfos"
+endFunction
+
+string function JdbPath_MCM_KeyboardShortcuts_ShortcutOptions() global
+    return ".mcmRecorder.mcm.keyboardShortcuts.shortcutOptions"
+endFunction
+
 string function JdbPathPart(string part) global
     string[] parts = StringUtil.Split(part, ".")
     string sanitized = ""

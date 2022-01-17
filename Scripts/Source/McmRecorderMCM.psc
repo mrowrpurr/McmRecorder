@@ -6,7 +6,9 @@ McmRecorder Recorder
 int oid_Record
 int oid_Stop
 int[] oids_Recordings
+int oid_KeyboardShortcuts_RecordingSelectionMenu
 
+string[] menuOptions
 string[] recordings
 bool isPlayingRecording
 string currentlyPlayingRecordingName
@@ -20,10 +22,30 @@ event OnConfigInit()
     IsSkyrimVR = Game.GetModByName("SkyrimVR.esm") != 255
 endEvent
 
-; event OnConfigOpen()
-; endEvent
+event OnConfigOpen()
+    if IsSkyrimVR ; && Game.GetModByName("") != 255 Check for VRIK
+        Pages = new string[3]
+        Pages[0] = "Recordings"
+        Pages[1] = "Keyboard Shortcuts"
+        Pages[2] = "VR Gestures"
+    else
+        Pages = new string[2]
+        Pages[0] = "Recordings"
+        Pages[1] = "Keyboard Shortcuts"
+    endIf
+endEvent
 
 event OnPageReset(string page)
+    if page == "Keyboard Shortcuts"
+        Render_KeyboardShortcuts()
+    elseIf page == "VR Gestures"
+        Render_VRGestures()
+    else
+        Render_Recordings()
+    endIf
+endEvent
+
+function Render_Recordings()
     if McmRecorder_Recorder.IsRecording()
         oid_Stop = AddTextOption("Currently Recording!", "STOP RECORDING", OPTION_FLAG_NONE)
         AddTextOption(McmRecorder_Recorder.GetCurrentRecordingName(), "", OPTION_FLAG_DISABLED)
@@ -36,7 +58,82 @@ event OnPageReset(string page)
         AddEmptyOption()
     endIf
     ListRecordings()
-endEvent
+endFunction
+
+function Render_KeyboardShortcuts()
+    if McmRecorder_Recorder.AnyRecordings()
+        ; Recording Choice Dropdown
+        AddTextOption("Choose a recording to set keyboard shortcut", "", OPTION_FLAG_DISABLED)
+        AddEmptyOption()
+        oid_KeyboardShortcuts_RecordingSelectionMenu = AddMenuOption("", "[Choose Recording]", OPTION_FLAG_NONE)
+        AddEmptyOption()
+
+        ; Existing keyboard shortcuts
+        Render_KeyboardShortcutInfos(McmRecorder_KeyboardShortcuts.GetShortcutsInfos())
+    else
+        AddTextOption("No recordings available", "", OPTION_FLAG_DISABLED)
+    endIf
+endFunction
+
+function Render_KeyboardShortcutInfos(int shortcutInfos)
+    int shortcutOptions = JIntMap.object()
+    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_MCM_KeyboardShortcuts_ShortcutOptions(), shortcutOptions, createMissingKeys = true)
+    int shortcutInfosCount = JArray.count(shortcutInfos)
+    if shortcutInfosCount > 0
+        AddEmptyOption()
+        AddEmptyOption()
+        int i = 0
+        while i < shortcutInfosCount
+
+            int shortcutInfo = JArray.getObj(shortcutInfos, i)
+            string recordingName = JMap.getStr(shortcutInfo, "recordingName")
+            int shortcut = JMap.getObj(shortcutInfo, "shortcut")
+            int keycode = JMap.getInt(shortcut, "key")
+
+            int keymap = JMap.object()
+            JMap.setStr(keymap, "action", "keymap")
+            JMap.setObj(keymap, "shortcutInfo", shortcutInfo)
+
+            int ctrl = JMap.object()
+            JMap.setStr(ctrl, "action", "ctrl")
+            JMap.setObj(ctrl, "shortcutInfo", shortcutInfo)
+
+            int alt = JMap.object()
+            JMap.setStr(alt, "action", "alt")
+            JMap.setObj(alt, "shortcutInfo", shortcutInfo)
+
+            int shift = JMap.object()
+            JMap.setStr(shift, "action", "shift")
+            JMap.setObj(shift, "shortcutInfo", shortcutInfo)
+
+            int delete = JMap.object()
+            JMap.setStr(delete, "action", "delete")
+            JMap.setObj(delete, "shortcutInfo", shortcutInfo)
+
+            JIntMap.setObj(shortcutOptions, AddKeyMapOption(recordingName, keycode, OPTION_FLAG_NONE), keymap)
+            JIntMap.setObj(shortcutOptions, AddTextOption("Click to delete Recording", "DELETE", OPTION_FLAG_NONE), delete)
+            JIntMap.setObj(shortcutOptions, AddToggleOption("Ctrl", JMap.getStr(shortcut, "ctrl") == "true", OPTION_FLAG_NONE), ctrl)
+            AddEmptyOption()
+            JIntMap.setObj(shortcutOptions, AddToggleOption("Alt", JMap.getStr(shortcut, "alt") == "true", OPTION_FLAG_NONE), alt)
+            AddEmptyOption()
+            JIntMap.setObj(shortcutOptions, AddToggleOption("Shift", JMap.getStr(shortcut, "shift") == "true", OPTION_FLAG_NONE), shift)
+            AddEmptyOption()
+            AddEmptyOption()
+            AddEmptyOption()
+            i += 1
+        endWhile
+    endIf
+endFunction
+
+int function GetShortcutInfoAndActionForOptionsID(int optionId)
+    int shortcutOptions = JDB.solveObj(McmRecorder_JDB.JdbPath_MCM_KeyboardShortcuts_ShortcutOptions())
+    if shortcutOptions
+        return JIntMap.getObj(shortcutOptions, optionId)
+    endIf
+endFunction
+
+function Render_VRGestures()
+endFunction
 
 function ListRecordings()
     recordings = McmRecorder_RecordingFiles.GetRecordingNames()
@@ -80,6 +177,62 @@ event OnOptionSelect(int optionId)
         int recordingIndex = oids_Recordings.Find(optionId)
         string recordingName = recordings[recordingIndex]
         PromptToRunRecordingOrPreviewSteps(recordingName)
+    else
+        int shortcutInfoAndAction = GetShortcutInfoAndActionForOptionsID(optionId)
+        if shortcutInfoAndAction
+            string clickAction = JMap.getStr(shortcutInfoAndAction, "action")
+            int shortcutInfo = JMap.getObj(shortcutInfoAndAction, "shortcutInfo")
+            string recordingName = JMap.getStr(shortcutInfo, "recordingName")
+            int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+            int shortcut = JMap.getObj(recordingInfo, "shortcut")
+            if clickAction == "ctrl"
+                if JMap.getStr(shortcut, "ctrl") == "true"
+                    JMap.removeKey(shortcut, "ctrl")
+                    SetToggleOptionValue(optionId, false, false)
+                else
+                    JMap.setStr(shortcut, "ctrl", "true")
+                    SetToggleOptionValue(optionId, true, false)
+                endIf
+                McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+            elseIf clickAction == "alt"
+                if JMap.getStr(shortcut, "alt") == "true"
+                    JMap.removeKey(shortcut, "alt")
+                    SetToggleOptionValue(optionId, false, false)
+                else
+                    JMap.setStr(shortcut, "alt", "true")
+                    SetToggleOptionValue(optionId, true, false)
+                endIf
+                McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+            elseIf clickAction == "shift"
+                if JMap.getStr(shortcut, "shift") == "true"
+                    JMap.removeKey(shortcut, "shift")
+                    SetToggleOptionValue(optionId, false, false)
+                else
+                    JMap.setStr(shortcut, "shift", "true")
+                    SetToggleOptionValue(optionId, true, false)
+                endIf
+                McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+            elseIf clickAction == "delete"
+                if ShowMessage("Are you sure you would like to delete this shortcut?", true, "Yes", "Cancel")
+                    JMap.removeKey(recordingInfo, "shortcut")
+                    ForcePageReset()
+                    McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+                endIf
+            endIf
+        endIf
+    endIf
+endEvent
+
+event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, string conflictName)
+    int shortcutInfoAndAction = GetShortcutInfoAndActionForOptionsID(optionId)
+    if shortcutInfoAndAction
+        int shortcutInfo = JMap.getObj(shortcutInfoAndAction, "shortcutInfo")
+        string recordingName = JMap.getStr(shortcutInfo, "recordingName")
+        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int shortcut = JMap.getObj(recordingInfo, "shortcut")
+        JMap.setInt(shortcut, "key", keyCode)
+        SetKeyMapOptionValue(optionId, keyCode, false)
+        McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
     endIf
 endEvent
 
@@ -92,6 +245,37 @@ endEvent
 event OnOptionInputOpen(int optionId)
     if optionId == oid_Record
         SetInputDialogStartText(GetRandomRecordingName())
+    endIf
+endEvent
+
+event OnOptionMenuOpen(int optionId)
+    if optionId == oid_KeyboardShortcuts_RecordingSelectionMenu
+        menuOptions = new string[1]
+        string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+        int recordingsWithoutShortcutsCount = 0
+        int i = 0
+        while i < recordingNames.Length
+            string recordingName = recordingNames[i]
+            if ! JMap.getObj(McmRecorder_RecordingInfo.Get(recordingName), "shortcut")
+                recordingsWithoutShortcutsCount += 1
+                menuOptions = Utility.ResizeStringArray(menuOptions, recordingsWithoutShortcutsCount)
+                menuOptions[menuOptions.Length - 1] = recordingName
+            endIf
+            i += 1
+        endWhile
+        SetMenuDialogOptions(menuOptions)
+    endIf
+endEvent
+
+event OnOptionMenuAccept(int optionId, int index)
+    if index == -1
+        return
+    endIf
+
+    if optionId == oid_KeyboardShortcuts_RecordingSelectionMenu
+        string recordingName = menuOptions[index]
+        McmRecorder_KeyboardShortcuts.AddRecording(recordingName)
+        ForcePageReset()
     endIf
 endEvent
 
