@@ -75,7 +75,13 @@ function RunKeyboardShortcutIfAny(int pressedKey) global
                 altPressed == alt && \
                 shiftPressed == shift
                 McmRecorder_Logging.ConsoleOut("[Keyboard Shortcut] " + recordingName + " Key:" + keycode + " Ctrl:" + ctrl + " Alt:" + alt + " Shift:" + shift)
+                bool notifications = McmRecorder_Config.ShowNotifications()
+                bool messageboxes = McmRecorder_Config.ShowMessageBoxes()
+                McmRecorder_Config.SetShowNotifications(false)
+                McmRecorder_Config.SetShowMessageBoxes(false)
                 McmRecorder_Player.PlayRecording(recordingName)
+                McmRecorder_Config.SetShowNotifications(notifications)
+                McmRecorder_Config.SetShowMessageBoxes(messageboxes)
                 found = true
             endIf
         endIf

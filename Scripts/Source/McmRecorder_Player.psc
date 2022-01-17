@@ -40,7 +40,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         JValue.release(recordingActions)
         fileIndex += 1
     endWhile
-    Debug.MessageBox("MCM recording " + recordingName + " has finished playing.")
+    McmRecorder_UI.MessageBox("MCM recording " + recordingName + " has finished playing.")
 
     JValue.release(steps)
     SetIsPlayingRecording(false)
@@ -150,7 +150,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     elseIf JMap.hasKey(actionInfo, "slider")
         optionType = "slider"
     else
-        Debug.MessageBox("MCM recording step " + stepName + " has action of unknown or unsupported type: '" + optionType + "'\n" + McmRecorder_Logging.ToJson(actionInfo))
+        McmRecorder_UI.MessageBox("MCM recording step " + stepName + " has action of unknown or unsupported type: '" + optionType + "'\n" + McmRecorder_Logging.ToJson(actionInfo))
         return
     endIf
 
@@ -189,7 +189,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
-                    Debug.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
+                    McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
                     mcm.OnMenuAcceptST(itemIndex)
                 endIf
@@ -232,7 +232,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
-                    Debug.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
+                    McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
                     mcm.OnOptionMenuAccept(optionId, itemIndex)
                 endIf

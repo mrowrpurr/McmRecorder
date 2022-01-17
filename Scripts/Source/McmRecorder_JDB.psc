@@ -53,6 +53,14 @@ string function JdbPath_MCM_KeyboardShortcuts_ShortcutOptions() global
     return ".mcmRecorder.mcm.keyboardShortcuts.shortcutOptions"
 endFunction
 
+string function JdbPath_Config_ShowNotifications() global
+    return ".mcmRecorder.config.notifications"
+endFunction
+
+string function JdbPath_Config_ShowMessageBoxes() global
+    return ".mcmRecorder.config.messageboxes"
+endFunction
+
 string function JdbPathPart(string part) global
     string[] parts = StringUtil.Split(part, ".")
     string sanitized = ""

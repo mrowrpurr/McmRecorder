@@ -1,7 +1,15 @@
 scriptName McmRecorder_UI
 
 function Notification(string text) global
-    Debug.Notification("[McmRecorder] " + text)
+    if McmRecorder_Config.ShowNotifications()
+        Debug.Notification("[McmRecorder] " + text)
+    endIf
+endFunction
+
+function MessageBox(string text) global
+    if McmRecorder_Config.ShowMessageBoxes()
+        Debug.MessageBox(text)
+    endIf
 endFunction
 
 string function Options_Continue() global

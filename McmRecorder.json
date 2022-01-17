@@ -1,8 +1,8 @@
 {
-    "logging": {
+    "notifications": {
         "console": "true",
-        "notifications": "true",
-        "files": "false"
+        "upper-left": "true",
+        "popup": "true"
     },
     "defaults": {
         "mcmLoad": 5.0
