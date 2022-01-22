@@ -42,11 +42,12 @@ function WelcomeMessage(string recordingName) global
 endFunction
 
 function OpenSystemMenuDuringRecordingMessage(string recordingName) global
-    int stepCount = JArray.count(McmRecorder_Player.GetCurrentlyPlayingSteps())
+    int stepCount = JMap.count(McmRecorder_Player.GetCurrentlyPlayingSteps())
     int stepIndex = McmRecorder_Player.GetCurrentlyPlayingStepIndex()
     string stepName = McmRecorder_Player.GetCurrentlyPlayingStepFilename()
-    string text = recordingName + " setup currently in progress.\n\nOpening MCM menu during playback is not recommended."
-    text += "\n\nCurrently playing step " + stepName + "("+ (stepIndex + 1) + " / " + stepCount + ")"
+    string text = recordingName + " setup currently in progress."
+    text += "\n\nCurrently playing step " + stepName + " ("+ (stepIndex + 1) + "/" + stepCount + ")"
+    text += "\n\nPlease exit the menu to allow this recording to continue."
     MessageBox(text)
 endFunction
 
