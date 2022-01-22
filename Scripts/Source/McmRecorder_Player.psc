@@ -11,14 +11,17 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     SetCurrentPlayingRecordingModPageName("")
 
     SetIsPlayingRecording(true)
+    SetCurrentlyPlayingRecordingName(recordingName)
 
-    int recording = McmRecorder_RecordingInfo.get(recordingName)
+    McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
+    recorder.ListenForSystemMenuOpen()
+
     int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
     JValue.retain(steps)
 
     string[] stepFiles = JMap.allKeysPArray(steps)
 
-    McmRecorder_UI.WelcomeMessage(recording)
+    McmRecorder_UI.WelcomeMessage(recordingName)
 
     McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
 
@@ -44,7 +47,8 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         fileIndex += 1
     endWhile
 
-    McmRecorder_UI.FinishedMessage(recording)
+    recorder.StopListeningForSystemMenuOpen()
+    McmRecorder_UI.FinishedMessage(recordingName)
 
     JValue.release(steps)
     SetIsPlayingRecording(false)
@@ -294,6 +298,14 @@ endFunction
 
 function SetIsPlayingRecording(bool running = true) global
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_IsPlayingRecording(), running as int, createMissingKeys = true)
+endFunction
+
+function SetCurrentlyPlayingRecordingName(string recordingName) global
+    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingName(), recordingName, createMissingKeys = true)
+endFunction
+
+string function GetCurrentlyPlayingRecordingName() global
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingName())
 endFunction
 
 string function GetCurrentPlayingRecordingModName() global

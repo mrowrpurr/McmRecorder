@@ -1,5 +1,8 @@
-- [ ] Welcome Message
-- [ ] Complete Message
+- [x] Welcome Message
+- [x] Complete Message
+
+- [ ] PW's not working mods
+
 - [ ] Pause while running
 
 - [x] Extract all global functions to a private API (keep them there for now)
@@ -16,7 +19,6 @@
 - [ ] Cancel while running
 - [ ] Choose whether to run a step or not!
 - [ ] Choose a BATCH of steps to run!
-- [ ] PW's not working mods
 - [ ] Look into supporting MCMs which were built using MCM Helper (reportedly these don't work)
 
 - Track the Nth index for selectors which have duplicates on the page

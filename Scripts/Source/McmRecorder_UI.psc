@@ -24,17 +24,17 @@ string function Options_SkipThisMod() global
     return "Skip this mod"
 endFunction
 
-function FinishedMessage(int recording) global
-    string recordingName = McmRecorder_RecordingInfo.GetName(recording)
+function FinishedMessage(string recordingName) global
+    int recording = McmRecorder_RecordingInfo.Get(recordingName)
     string finishedMessage = McmRecorder_RecordingInfo.GetCompleteMessage(recording)
     if ! finishedMessage
-        finishedMessage = recordingName + " setup complete."
+        finishedMessage = recordingName + " has finished playing."
     endIf
     MessageBox(finishedMessage)
 endFunction
 
-function WelcomeMessage(int recording) global
-    string recordingName = McmRecorder_RecordingInfo.GetName(recording)
+function WelcomeMessage(string recordingName) global
+    int recording = McmRecorder_RecordingInfo.Get(recordingName)
     string welcomeMessage = McmRecorder_RecordingInfo.GetWelcomeMessage(recording)
     if welcomeMessage
         MessageBox(welcomeMessage)

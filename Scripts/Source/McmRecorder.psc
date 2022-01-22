@@ -34,7 +34,7 @@ string property CurrentlyInstalledVersion auto
 
 ; Returns the installed version of MCM Recorder
 string function GetVersion() global
-    return "1.0.5"
+    return "1.0.6"
 endFunction
 
 event OnInit()
@@ -111,4 +111,25 @@ endFunction
 
 event OnUpdate()
     AutorunRecordings()
+endEvent
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Pause and Cancel Running Recording
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+function ListenForSystemMenuOpen()
+    UnregisterForMenu("Journal Menu")  
+    RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
+endFunction
+
+function StopListeningForSystemMenuOpen()
+    UnregisterForMenu("Journal Menu")  
+endFunction
+
+event OnMenuOpen(string menuName)
+    if menuName == "Journal Menu"
+        if McmRecorder_Player.IsPlayingRecording()
+            Debug.MessageBox("MCM Recorder " + McmRecorder_Player.GetCurrentlyPlayingRecordingName() + " playback in progress. Opening MCM menu not recommended!")            
+        endIf
+    endIf
 endEvent

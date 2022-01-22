@@ -25,6 +25,10 @@ string function JdbPath_IsPlayingRecording() global
     return ".mcmRecorder.isPlayingRecording"
 endFunction
 
+string function JdbPath_PlayingRecordingName() global
+    return ".mcmRecorder.playingRecording.name"
+endFunction
+
 string function JdbPath_PlayingRecordingModName() global
     return ".mcmRecorder.playingRecording.modName"
 endFunction

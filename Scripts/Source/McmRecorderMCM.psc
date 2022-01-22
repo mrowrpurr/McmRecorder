@@ -286,14 +286,6 @@ string function GetRandomRecordingName()
     return "Recording_" + currentTimeParts[0] + "_" + currentTimeParts[1]
 endFunction
 
-event OnMenuOpen(string menuName)
-    if menuName == "Journal Menu"
-        if isPlayingRecording
-            Debug.MessageBox("MCM Recorder " + currentlyPlayingRecordingName + " playback in progress. Opening MCM menu not recommended!")            
-        endIf
-    endIf
-endEvent
-
 ; TODO move to the McmRecorder maybe a global script for prompts
 function PromptToRunRecordingOrPreviewSteps(string recordingName)
     string recordingDescription = McmRecorder_RecordingFiles.GetRecordingDescription(recordingName)
@@ -309,8 +301,6 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     endIf
 
     if confirmation
-        UnregisterForMenu("Journal Menu")  
-        RegisterForMenu("Journal Menu") ; Track when the menu opens so we can show a mesasge if a recording is playing
         string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
         string text = recordingDescription + "\n"
         int i = 0
