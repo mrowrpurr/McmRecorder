@@ -3,6 +3,38 @@ scriptName McmRecorder_McmFields hidden
 
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
+function StartTrackingFieldsForMcm(SKI_ConfigBase mcm, string page = "") global
+    Debug.MessageBox("START TRACKING FIELDS FOR MCM: " + mcm.ModName)
+    ResetMcmOptions()
+    McmRecorder_Recorder.SetCurrentRecordingModName(mcm.ModName)
+    McmRecorder_Recorder.SetCurrentRecordingModPageName(page)
+    McmRecorder.GetMcmRecorderInstance().StartWatchingMcmForFieldsAdded(mcm)
+endFunction
+
+function UpdateTrackedFieldsForMcm(SKI_ConfigBase mcm) global
+    ; string pageName = 
+    McmRecorder_Logging.ConsoleOut(mcm.OptionBuffer_TypeWithFlags)
+endFunction
+
+; OptionBuffer_TypeWithFlags
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 function TrackField(string modName, string pageName, string optionType, int optionId, string text, string strValue, float fltValue, string stateName, bool force = false) global
     if McmOptionsShouldBeReset()
         ResetMcmOptions()
@@ -20,6 +52,9 @@ function TrackField(string modName, string pageName, string optionType, int opti
         JMap.setStr(option, "strValue", strValue)
         JMap.setFlt(option, "fltValue", fltvalue)
 	endIf
+
+    MiscUtil.PrintConsole("TrackField " + modName + " " + pageName + " " + optionType + " " + text)
+    McmRecorder_Logging.DumpAll()
 endFunction
 
 function MarkMcmOptionsForReset() global

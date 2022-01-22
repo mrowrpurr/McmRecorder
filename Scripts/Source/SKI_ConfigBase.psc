@@ -157,6 +157,24 @@ Int property STATE_DEFAULT
 	endFunction
 endproperty
 
+
+;;;;; EXPOSE THE BUFFERS FOR READING ;;;;;;
+
+int[] property OptionBuffer_TypeWithFlags
+	int[] function get()
+		return _optionFlagsBuf
+	endFunction
+endproperty
+
+string[] property OptionBuffer_Text
+	string[] function get()
+		return _textBuf
+	endFunction
+endProperty
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;-- Variables ---------------------------------------
 Bool _messageResult = false
 String _infoText
@@ -167,7 +185,7 @@ SKI_ConfigManager _configManager
 Int[] _optionFlagsBuf
 String[] _strValueBuf
 String _inputStartText
-Int property _activeOption = -1 auto
+Int property _activeOption = -1 auto ; Make sure that this was a PROPERTY - let's not change ANY of these
 Int _state = 0
 String _currentPage = ""
 Bool _initialized = false
@@ -179,6 +197,8 @@ String[] _stateOptionMap
 Bool _waitForMessage = false
 Float[] _numValueBuf
 Int _cursorPosition = 0
+
+
 
 ;-- Functions ---------------------------------------
 
@@ -883,6 +903,8 @@ function SetSliderOptionValue(Int a_option, Float a_value, String a_formatString
 endFunction
 
 function AddOptionST(String a_stateName, Int a_optionType, String a_text, String a_strValue, Float a_numValue, Int a_flags)
+	McmRecorder_Logging.ConsoleOut("ADD OPTION ST " + a_stateName)
+
 	if _stateOptionMap.find(a_stateName, 0) != -1
 		self.Error("State option name " + a_stateName + " is already in use")
 		return 

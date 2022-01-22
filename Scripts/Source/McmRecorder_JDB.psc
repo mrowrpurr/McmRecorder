@@ -9,6 +9,10 @@ string function JdbPath_CurrentRecordingModName() global
     return ".mcmRecorder.currentRecording.currentModName"
 endFunction
 
+string function JdbPath_CurrentRecordingModPageName() global
+    return ".mcmRecorder.currentRecording.currentPageName"
+endFunction
+
 string function JdbPath_CurrentRecordingRecordingStep() global
     return ".mcmRecorder.currentRecording.currentModStep"
 endFunction

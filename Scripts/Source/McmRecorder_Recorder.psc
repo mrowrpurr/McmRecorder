@@ -149,11 +149,19 @@ function SetCurrentRecordingName(string recodingName) global
 endFunction
 
 string function GetCurrentRecordingModName() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_CurrentRecordingMOdName())
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_CurrentRecordingModName())
 endFunction
 
 function SetCurrentRecordingModName(string modName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentRecordingModName(), modName , createMissingKeys = true)
+endFunction
+
+string function GetCurrentRecordingModPageName() global
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_CurrentRecordingModPageName())
+endFunction
+
+function SetCurrentRecordingModPageName(string modName) global
+    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentRecordingModPageName(), modName , createMissingKeys = true)
 endFunction
 
 int function GetCurrentRecordingSteps() global

@@ -267,13 +267,13 @@ function OnMenuOpen(String a_menuName)
 endFunction
 
 function OnModSelect(String a_eventName, String a_strArg, Float a_numArg, Form a_sender)
-
 	Int configIndex = a_numArg as Int
 	if configIndex > -1
 		if _activeConfig
 			_activeConfig.CloseConfig()
 		endIf
 		_activeConfig = _modConfigs[configIndex]
+		McmRecorder_McmFields.StartTrackingFieldsForMcm(_activeConfig)
 		_activeConfig.OpenConfig()
 	endIf
 	ui.InvokeBool(self.JOURNAL_MENU, self.MENU_ROOT + ".unlock", true)
@@ -327,6 +327,7 @@ function OnPageSelect(String a_eventName, String a_strArg, Float a_numArg, Form 
 
 	String page = a_strArg
 	Int index = a_numArg as Int
+	McmRecorder_McmFields.StartTrackingFieldsForMcm(_activeConfig, page)
 	_activeConfig.SetPage(page, index)
 	ui.InvokeBool(self.JOURNAL_MENU, self.MENU_ROOT + ".unlock", true)
 endFunction
