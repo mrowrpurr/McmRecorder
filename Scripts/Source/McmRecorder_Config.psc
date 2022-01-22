@@ -12,7 +12,7 @@ bool function IsSkyrimVR() global
 endFunction
 
 bool function ShowNotifications() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_Config_ShowNotifications()) == "true"
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_Config_ShowNotifications()) != "false"
 endFunction
 
 bool function SetShowNotifications(bool value) global
@@ -24,7 +24,7 @@ bool function SetShowNotifications(bool value) global
 endFunction
 
 bool function ShowMessageBoxes() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_Config_ShowMessageBoxes()) == "true"
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_Config_ShowMessageBoxes()) != "false"
 endFunction
 
 bool function SetShowMessageBoxes(bool value) global

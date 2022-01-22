@@ -24,6 +24,23 @@ string function Options_SkipThisMod() global
     return "Skip this mod"
 endFunction
 
+function FinishedMessage(int recording) global
+    string recordingName = McmRecorder_RecordingInfo.GetName(recording)
+    string finishedMessage = McmRecorder_RecordingInfo.GetCompleteMessage(recording)
+    if ! finishedMessage
+        finishedMessage = recordingName + " setup complete."
+    endIf
+    MessageBox(finishedMessage)
+endFunction
+
+function WelcomeMessage(int recording) global
+    string recordingName = McmRecorder_RecordingInfo.GetName(recording)
+    string welcomeMessage = McmRecorder_RecordingInfo.GetWelcomeMessage(recording)
+    if welcomeMessage
+        MessageBox(welcomeMessage)
+    endIf
+endFunction
+
 string function GetUserResponseForNotFoundSelector(string modName, string pageName, string selector) global
     string description = "Could not find MCM option:\n\nMod name: " + modName
     if pageName

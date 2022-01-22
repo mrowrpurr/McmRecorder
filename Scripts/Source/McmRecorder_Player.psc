@@ -12,10 +12,13 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
 
     SetIsPlayingRecording(true)
 
+    int recording = McmRecorder_RecordingInfo.get(recordingName)
     int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
     JValue.retain(steps)
 
     string[] stepFiles = JMap.allKeysPArray(steps)
+
+    McmRecorder_UI.WelcomeMessage(recording)
 
     McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
 
@@ -40,7 +43,8 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         JValue.release(recordingActions)
         fileIndex += 1
     endWhile
-    McmRecorder_UI.MessageBox("MCM recording " + recordingName + " has finished playing.")
+
+    McmRecorder_UI.FinishedMessage(recording)
 
     JValue.release(steps)
     SetIsPlayingRecording(false)
