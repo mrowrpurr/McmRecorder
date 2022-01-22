@@ -175,22 +175,3 @@ endFunction
 event OnRecordingModEvent(string eventName, string recordingName, float fltArg, Form sender)
     McmRecorder_Player.PlayRecording(recordingName, verbose = false)
 endEvent
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Watching MCM pages for fields to be added
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-SKI_ConfigBase property CurrentlyOpenMCM auto
-
-function StartWatchingMcmForFieldsAdded(SKI_ConfigBase mcm)
-    CurrentlyOpenMCM = mcm
-    ; RegisterForSingleUpdate(0.05)
-    RegisterForSingleUpdate(2)
-endFunction
-
-event OnUpdate()
-    if CurrentlyOpenMCM
-        McmRecorder_McmFields.UpdateTrackedFieldsForMcm(CurrentlyOpenMCM)
-        RegisterForSingleUpdate(2)
-    endIf
-endEvent

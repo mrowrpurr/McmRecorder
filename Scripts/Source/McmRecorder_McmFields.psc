@@ -4,16 +4,10 @@ scriptName McmRecorder_McmFields hidden
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
 function StartTrackingFieldsForMcm(SKI_ConfigBase mcm, string page = "") global
-    Debug.MessageBox("START TRACKING FIELDS FOR MCM: " + mcm.ModName)
     ResetMcmOptions()
     McmRecorder_Recorder.SetCurrentRecordingModName(mcm.ModName)
     McmRecorder_Recorder.SetCurrentRecordingModPageName(page)
-    McmRecorder.GetMcmRecorderInstance().StartWatchingMcmForFieldsAdded(mcm)
-endFunction
-
-function UpdateTrackedFieldsForMcm(SKI_ConfigBase mcm) global
-    ; string pageName = 
-    McmRecorder_Logging.ConsoleOut(mcm.OptionBuffer_TypeWithFlags)
+    McmRecorder_McmWatcher.BeginWatchingMcm(mcm)
 endFunction
 
 ; OptionBuffer_TypeWithFlags
