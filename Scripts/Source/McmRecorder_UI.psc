@@ -1,7 +1,53 @@
 scriptName McmRecorder_UI
 
 function Notification(string text) global
-    Debug.Notification("[McmRecorder] " + text)
+    if McmRecorder_Config.ShowNotifications()
+        Debug.Notification("[McmRecorder] " + text)
+    endIf
+endFunction
+
+function MessageBox(string text) global
+    if McmRecorder_Config.ShowMessageBoxes()
+        Debug.MessageBox(text)
+    endIf
+endFunction
+
+string function Options_Continue() global
+    return "Continue"
+endFunction
+
+string function Options_TryAgain() global
+    return "Try again"
+endFunction
+
+string function Options_SkipThisMod() global
+    return "Skip this mod"
+endFunction
+
+function FinishedMessage(string recordingName) global
+    int recording = McmRecorder_RecordingInfo.Get(recordingName)
+    string finishedMessage = McmRecorder_RecordingInfo.GetCompleteMessage(recording)
+    if ! finishedMessage
+        finishedMessage = recordingName + " has finished playing."
+    endIf
+    MessageBox(finishedMessage)
+endFunction
+
+function WelcomeMessage(string recordingName) global
+    int recording = McmRecorder_RecordingInfo.Get(recordingName)
+    string welcomeMessage = McmRecorder_RecordingInfo.GetWelcomeMessage(recording)
+    if welcomeMessage
+        MessageBox(welcomeMessage)
+    endIf
+endFunction
+
+function OpenSystemMenuDuringRecordingMessage(string recordingName) global
+    int stepCount = JArray.count(McmRecorder_Player.GetCurrentlyPlayingSteps())
+    int stepIndex = McmRecorder_Player.GetCurrentlyPlayingStepIndex()
+    string stepName = McmRecorder_Player.GetCurrentlyPlayingStepFilename()
+    string text = recordingName + " setup currently in progress.\n\nOpening MCM menu during playback is not recommended."
+    text += "\n\nCurrently playing step " + stepName + "("+ (stepIndex + 1) + " / " + stepCount + ")"
+    MessageBox(text)
 endFunction
 
 string function GetUserResponseForNotFoundSelector(string modName, string pageName, string selector) global
@@ -18,11 +64,11 @@ string function GetUserResponseForNotFoundSelector(string modName, string pageNa
     recorder.McmRecorder_MessageText.SetName(description)
     int response = recorder.McmRecorder_Message_SelectorNotFound.Show()
     if response == 0
-        return "Continue"
+        return Options_Continue()
     elseIf response == 1 
-        return "Try again"
+        return Options_TryAgain()
     elseIf response == 2
-        return "Skip this mod"
+        return Options_SkipThisMod()
     endIf
 endFunction
 
@@ -35,8 +81,8 @@ string function GetUserResponseForNotFoundMod(string modName) global
     recorder.McmRecorder_MessageText.SetName(description)
     int response = recorder.McmRecorder_Message_ModNotFound.Show()
     if response == 0
-        return "Try again"
+        return Options_TryAgain()
     elseIf response == 1
-        return "Skip this mod"
+        return Options_SkipThisMod()
     endIf
 endFunction

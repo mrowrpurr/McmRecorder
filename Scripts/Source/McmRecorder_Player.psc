@@ -5,27 +5,43 @@ bool function IsPlayingRecording() global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
 endFunction
 
-function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0) global
+function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true) global
     ClearModsPlayed()
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
     SetIsPlayingRecording(true)
+    SetCurrentlyPlayingRecordingName(recordingName)
+
+    McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
+    recorder.ListenForSystemMenuOpen()
 
     int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
-    JValue.retain(steps)
+    SetCurrentlyPlayingSteps(steps)
 
     string[] stepFiles = JMap.allKeysPArray(steps)
 
-    McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
+    if verbose
+        McmRecorder_UI.WelcomeMessage(recordingName)
+        McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
+    endIf
 
     int fileIndex = 0
     while fileIndex < stepFiles.Length
+        ; File for a given step
         string filename = stepFiles[fileIndex]
         int recordingActions = JMap.getObj(steps, filename)
         JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
-        McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
+
+        ; Set the current step being run...
+        SetCurrentlyPlayingStepFilename(filename)
+        SetCurrentlyPlayingStepIndex(fileIndex)
+
+        ; Show notification for the current step being run
+        if verbose
+            McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
+        endIf
 
         int i = 0
         while i < actionCount
@@ -40,9 +56,13 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         JValue.release(recordingActions)
         fileIndex += 1
     endWhile
-    Debug.MessageBox("MCM recording " + recordingName + " has finished playing.")
 
-    JValue.release(steps)
+    recorder.StopListeningForSystemMenuOpen()
+
+    if verbose
+        McmRecorder_UI.FinishedMessage(recordingName)
+    endIf
+
     SetIsPlayingRecording(false)
 endFunction
 
@@ -150,7 +170,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     elseIf JMap.hasKey(actionInfo, "slider")
         optionType = "slider"
     else
-        Debug.MessageBox("MCM recording step " + stepName + " has action of unknown or unsupported type: '" + optionType + "'\n" + McmRecorder_Logging.ToJson(actionInfo))
+        McmRecorder_UI.MessageBox("MCM recording step " + stepName + " has action of unknown or unsupported type: '" + optionType + "'\n" + McmRecorder_Logging.ToJson(actionInfo))
         return
     endIf
 
@@ -189,7 +209,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
-                    Debug.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
+                    McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
                     mcm.OnMenuAcceptST(itemIndex)
                 endIf
@@ -232,7 +252,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
-                    Debug.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
+                    McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
                     mcm.OnOptionMenuAccept(optionId, itemIndex)
                 endIf
@@ -290,6 +310,38 @@ endFunction
 
 function SetIsPlayingRecording(bool running = true) global
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_IsPlayingRecording(), running as int, createMissingKeys = true)
+endFunction
+
+function SetCurrentlyPlayingRecordingName(string recordingName) global
+    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingName(), recordingName, createMissingKeys = true)
+endFunction
+
+string function GetCurrentlyPlayingRecordingName() global
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingName())
+endFunction
+
+function SetCurrentlyPlayingSteps(int steps) global
+    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingSteps(), steps, createMissingKeys = true)
+endFunction
+
+int function GetCurrentlyPlayingSteps() global
+    return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingSteps())
+endFunction
+
+function SetCurrentlyPlayingStepFilename(string stepFilename) global
+    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingStepFilename(), stepFilename, createMissingKeys = true)
+endFunction
+
+string function GetCurrentlyPlayingStepFilename() global
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingStepFilename())
+endFunction
+
+function SetCurrentlyPlayingStepIndex(int stepIndex) global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingStepIndex(), stepIndex, createMissingKeys = true)
+endFunction
+
+int function GetCurrentlyPlayingStepIndex() global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingStepIndex())
 endFunction
 
 string function GetCurrentPlayingRecordingModName() global

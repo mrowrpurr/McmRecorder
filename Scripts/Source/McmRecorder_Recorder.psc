@@ -5,6 +5,14 @@ bool function IsRecording() global
     return GetCurrentRecordingName()
 endFunction
 
+bool function AnyRecordings() global
+    return RecordingsCount() > 0
+endFunction
+
+int function RecordingsCount() global
+    return McmRecorder_RecordingFiles.GetRecordingNames().Length
+endFunction
+
 function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global
     if IsRecording() && modName != "MCM Recorder"
         if modName != GetCurrentRecordingModName()
@@ -119,7 +127,7 @@ function BeginRecording(string recordingName) global
     JMap.setStr(metaFile, "version", "1.0.0")
     JMap.setStr(metaFile, "author", authorName)
     JMap.setStr(metaFile, "autorun", "false")
-    McmRecorder_RecordingFiles.WriteMetafile(recordingName, metaFile)
+    McmRecorder_RecordingFiles.SaveRecordingInfoFile(recordingName, metaFile)
 endFunction
 
 function ContinueRecording(string recordingName) global

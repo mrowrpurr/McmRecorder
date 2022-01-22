@@ -5,7 +5,7 @@ function SaveCurrentRecording(string recordingName, string modName) global
     JValue.writeToFile(McmRecorder_Recorder.GetCurrentRecordingSteps(), GetFileNameForRecordingAction(recordingName, modName))
 endFunction
 
-function WriteMetafile(string recordingName, int metaInfo) global
+function SaveRecordingInfoFile(string recordingName, int metaInfo) global
     JValue.writeToFile(metaInfo, PathToRecordingFolder(recordingName) + ".json")
 endFunction
 

@@ -11,7 +11,7 @@
     Final="false">
     <Variables>
         <Variable Name="ModName" Value="McmRecorder" />
-        <Variable Name="ModVersion" Value="1.0.5" />
+        <Variable Name="ModVersion" Value="1.0.6" />
         <Variable Name="ModsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Mods" />
         <Variable Name="ImportsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Imports" />
     </Variables>
@@ -21,6 +21,7 @@
         <Import>@ImportsFolder\PapyrusUtil\Scripts\Source</Import>
         <Import>@ImportsFolder\JContainers\Scripts\Source</Import>
         <Import>@ImportsFolder\UIExtensions\scripts\source</Import>
+        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\Vanilla VR\mods\VRIK Player Avatar\Scripts</Import>
         <Import>C:\Steam\steamapps\common\Skyrim Special Edition - Modding\Data\Scripts\Source</Import>
     </Imports>
     <Folders>
