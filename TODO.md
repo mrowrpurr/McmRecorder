@@ -1,3 +1,7 @@
+- [ ] Autorun after RaceMenu close
+
+- [ ] Trigger automatically via SKSE
+
 - [x] Welcome Message
 - [x] Complete Message
 
@@ -13,8 +17,7 @@
 - [x] Branch logic on VR and use PapyrusUtil for SSE <----
 - [ ] Add better VR support by customizing the MCM menu when you're in VR!
 - [ ] Set verbosity (whether messages show up )
-- [ ] Trigger automatically via SKSE
-- [ ] Keyboard shortcuts - include in the Recording.json
+- [x] Keyboard shortcuts - include in the Recording.json
 - [ ] VR guestures - include in the Recording.json
 - [ ] Cancel while running
 - [ ] Choose whether to run a step or not!

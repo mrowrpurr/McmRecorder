@@ -41,6 +41,15 @@ function WelcomeMessage(string recordingName) global
     endIf
 endFunction
 
+function OpenSystemMenuDuringRecordingMessage(string recordingName) global
+    int stepCount = JArray.count(McmRecorder_Player.GetCurrentlyPlayingSteps())
+    int stepIndex = McmRecorder_Player.GetCurrentlyPlayingStepIndex()
+    string stepName = McmRecorder_Player.GetCurrentlyPlayingStepFilename()
+    string text = recordingName + " setup currently in progress.\n\nOpening MCM menu during playback is not recommended."
+    text += "\n\nCurrently playing step " + stepName + "("+ (stepIndex + 1) + " / " + stepCount + ")"
+    MessageBox(text)
+endFunction
+
 string function GetUserResponseForNotFoundSelector(string modName, string pageName, string selector) global
     string description = "Could not find MCM option:\n\nMod name: " + modName
     if pageName

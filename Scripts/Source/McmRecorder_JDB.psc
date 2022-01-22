@@ -29,6 +29,18 @@ string function JdbPath_PlayingRecordingName() global
     return ".mcmRecorder.playingRecording.name"
 endFunction
 
+string function JdbPath_PlayingRecordingSteps() global
+    return ".mcmRecorder.playingRecording.steps"
+endFunction
+
+string function JdbPath_PlayingStepFilename() global
+    return ".mcmRecorder.playingRecording.stepFilename"
+endFunction
+
+string function JdbPath_PlayingStepIndex() global
+    return ".mcmRecorder.playingRecording.stepIndex"
+endFunction
+
 string function JdbPath_PlayingRecordingModName() global
     return ".mcmRecorder.playingRecording.modName"
 endFunction

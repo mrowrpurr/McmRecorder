@@ -40,8 +40,8 @@ endFunction
 event OnInit()
     CurrentlyInstalledVersion = GetVersion()
     skiConfigManager = Quest.GetQuest("SKI_ConfigManagerInstance") as SKI_ConfigManager
-    RegisterForSingleUpdate(5)
     StartListenForKeyboardShortcuts()
+    ListenForRaceMenuClose()
 endEvent
 
 event SaveGameLoaded()
@@ -94,6 +94,17 @@ endFunction
 ; Autorun
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+function ListenForRaceMenuClose()
+    RegisterForMenu("RaceSex Menu")
+endFunction
+
+event OnMenuClose(string menuName)
+    if menuName == "RaceSex Menu"
+        UnregisterForMenu("RaceSex Menu")
+        AutorunRecordings()
+    endIf
+endEvent
+
 function AutorunRecordings()
     string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
     int i = 0
@@ -108,10 +119,6 @@ function AutorunRecordings()
         i += 1
     endWhile
 endFunction
-
-event OnUpdate()
-    AutorunRecordings()
-endEvent
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Pause and Cancel Running Recording
@@ -129,7 +136,7 @@ endFunction
 event OnMenuOpen(string menuName)
     if menuName == "Journal Menu"
         if McmRecorder_Player.IsPlayingRecording()
-            Debug.MessageBox("MCM Recorder " + McmRecorder_Player.GetCurrentlyPlayingRecordingName() + " playback in progress. Opening MCM menu not recommended!")            
+            McmRecorder_UI.OpenSystemMenuDuringRecordingMessage(McmRecorder_Player.GetCurrentlyPlayingRecordingName())
         endIf
     endIf
 endEvent
