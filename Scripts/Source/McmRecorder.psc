@@ -44,6 +44,7 @@ event OnInit()
     ListenForRaceMenuClose()
     McmRecorder_VRIK.RegisterVrikGesturesForRecordings()
     ListenForRecordingSkseModEvents()
+    McmRecorder_McmWatcher.ListenForMcmsToWatch()
 endEvent
 
 event SaveGameLoaded()
@@ -51,6 +52,7 @@ event SaveGameLoaded()
     StartListenForKeyboardShortcuts()
     McmRecorder_VRIK.ListenForVriKGesturesForRecordings()
     ListenForRecordingSkseModEvents()
+    McmRecorder_McmWatcher.ListenForMcmsToWatch()
 endEvent
 
 function StartListenForKeyboardShortcuts()
