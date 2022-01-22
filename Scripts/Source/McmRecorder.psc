@@ -42,11 +42,13 @@ event OnInit()
     skiConfigManager = Quest.GetQuest("SKI_ConfigManagerInstance") as SKI_ConfigManager
     StartListenForKeyboardShortcuts()
     ListenForRaceMenuClose()
+    McmRecorder_VRIK.RegisterVrikGesturesForRecordings()
 endEvent
 
 event SaveGameLoaded()
     RegisterForSingleUpdate(5)
     StartListenForKeyboardShortcuts()
+    McmRecorder_VRIK.ListenForVriKGesturesForRecordings()
 endEvent
 
 function StartListenForKeyboardShortcuts()
@@ -139,4 +141,23 @@ event OnMenuOpen(string menuName)
             McmRecorder_UI.OpenSystemMenuDuringRecordingMessage(McmRecorder_Player.GetCurrentlyPlayingRecordingName())
         endIf
     endIf
+endEvent
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; VR Gestures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+function ListenForVriKGestureForRecording(string recordingName)
+    string modEventName = McmRecorder_VRIK.GetModEventNameForRecording(recordingName)
+    RegisterForModEvent(modEventName, "OnVrikGesture")
+endFunction
+
+function StopListeningForVriKGestureForRecording(string recordingName)
+    string modEventName = McmRecorder_VRIK.GetModEventNameForRecording(recordingName)
+    UnregisterForModEvent(modEventName)
+endFunction
+
+event OnVrikGesture(string eventName, string strArg, float fltArg, Form sender)
+    string recordingName = McmRecorder_VRIK.GetRecordingNameFromModEvent(eventName)
+    McmRecorder_Player.PlayRecording(recordingName, verbose = false)
 endEvent

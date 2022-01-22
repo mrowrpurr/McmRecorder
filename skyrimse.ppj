@@ -21,6 +21,7 @@
         <Import>@ImportsFolder\PapyrusUtil\Scripts\Source</Import>
         <Import>@ImportsFolder\JContainers\Scripts\Source</Import>
         <Import>@ImportsFolder\UIExtensions\scripts\source</Import>
+        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\Vanilla VR\mods\VRIK Player Avatar\Scripts</Import>
         <Import>C:\Steam\steamapps\common\Skyrim Special Edition - Modding\Data\Scripts\Source</Import>
     </Imports>
     <Folders>

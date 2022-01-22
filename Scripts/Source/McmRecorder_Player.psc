@@ -5,7 +5,7 @@ bool function IsPlayingRecording() global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
 endFunction
 
-function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0) global
+function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true) global
     ClearModsPlayed()
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
@@ -21,8 +21,10 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
 
     string[] stepFiles = JMap.allKeysPArray(steps)
 
-    McmRecorder_UI.WelcomeMessage(recordingName)
-    McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
+    if verbose
+        McmRecorder_UI.WelcomeMessage(recordingName)
+        McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
+    endIf
 
     int fileIndex = 0
     while fileIndex < stepFiles.Length
@@ -37,7 +39,9 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         SetCurrentlyPlayingStepIndex(fileIndex)
 
         ; Show notification for the current step being run
-        McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
+        if verbose
+            McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
+        endIf
 
         int i = 0
         while i < actionCount
@@ -54,7 +58,10 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     endWhile
 
     recorder.StopListeningForSystemMenuOpen()
-    McmRecorder_UI.FinishedMessage(recordingName)
+
+    if verbose
+        McmRecorder_UI.FinishedMessage(recordingName)
+    endIf
 
     SetIsPlayingRecording(false)
 endFunction

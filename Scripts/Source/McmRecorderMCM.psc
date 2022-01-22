@@ -14,16 +14,25 @@ bool isPlayingRecording
 string currentlyPlayingRecordingName
 bool openRunOrPreviewStepsPrompt
 
-bool IsSkyrimVR
+bool property IsSkyrimVR
+    bool function get()
+        return Game.GetModByName("SkyrimVR.esm") != 255
+    endFunction
+endProperty
+
+bool property IsVrikInstalled
+    bool function get()
+        return McmRecorder_VRIK.IsVrikInstalled()
+    endFunction
+endProperty
 
 event OnConfigInit()
     ModName = "MCM Recorder"
     Recorder = (self as Quest) as McmRecorder
-    IsSkyrimVR = Game.GetModByName("SkyrimVR.esm") != 255
 endEvent
 
 event OnConfigOpen()
-    if IsSkyrimVR ; && Game.GetModByName("") != 255 Check for VRIK
+    if IsSkyrimVR && IsVrikInstalled
         Pages = new string[3]
         Pages[0] = "MCM Recordings"
         Pages[1] = "Keyboard Shortcuts"
@@ -133,6 +142,34 @@ int function GetShortcutInfoAndActionForOptionsID(int optionId)
 endFunction
 
 function Render_VRGestures()
+    recordings = McmRecorder_RecordingFiles.GetRecordingNames()
+    if recordings.Length && ((! McmRecorder_Recorder.IsRecording()) || recordings.Length > 1)
+        SetCursorFillMode(TOP_TO_BOTTOM)
+        AddTextOption("Choose MCM Recordings", "", OPTION_FLAG_DISABLED)
+        AddTextOption("These will become available as VRIK Gestures", "", OPTION_FLAG_DISABLED)
+        AddTextOption("which can be configured via the VRIK MCM", "", OPTION_FLAG_DISABLED)
+        AddEmptyOption()
+        SetCursorFillMode(LEFT_TO_RIGHT)
+        oids_Recordings = Utility.CreateIntArray(recordings.Length)
+        int i = 0
+        while i < recordings.Length
+            string recordingName = recordings[i]
+            if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
+                string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
+                int recordingInfo = McmRecorder_RecordingFiles.GetRecordingInfo(recordingName)
+                bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recordingInfo)
+                oids_Recordings[i] = AddToggleOption(recordingName, isGesture, OPTION_FLAG_NONE)
+                string authorText = ""
+                if JMap.getStr(recordingInfo, "author")
+                    authorText = "by " + JMap.getStr(recordingInfo, "author")
+                endIf
+                AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
+            endIf
+            i += 1
+        endWhile
+    else
+        AddTextOption("There are no recordings", "", OPTION_FLAG_DISABLED)
+    endIf
 endFunction
 
 function ListRecordings()
@@ -176,7 +213,21 @@ event OnOptionSelect(int optionId)
     elseIf oids_Recordings.Find(optionId) > -1
         int recordingIndex = oids_Recordings.Find(optionId)
         string recordingName = recordings[recordingIndex]
-        PromptToRunRecordingOrPreviewSteps(recordingName)
+        if CurrentPage == "VR Gestures"
+            int recording = McmRecorder_RecordingInfo.Get(recordingName)
+            bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recording)
+            if isGesture
+                McmRecorder_RecordingInfo.SetIsVrGesture(recording, false)
+                SetToggleOptionValue(optionId, false, false)
+                McmRecorder_VRIK.UnregisterVrikGestureForRecording(recordingName)
+            else
+                McmRecorder_RecordingInfo.SetIsVrGesture(recording, true)
+                SetToggleOptionValue(optionId, true, false)
+                McmRecorder_VRIK.RegisterVrikGestureForRecording(recordingName)
+            endIf
+        else
+            PromptToRunRecordingOrPreviewSteps(recordingName)
+        endIf
     else
         int shortcutInfoAndAction = GetShortcutInfoAndActionForOptionsID(optionId)
         if shortcutInfoAndAction
