@@ -1,7 +1,6 @@
-- [ ] Autorun after RaceMenu close
-
 - [ ] Trigger automatically via SKSE
 
+- [x] Autorun after RaceMenu close
 - [x] Welcome Message
 - [x] Complete Message
 
@@ -18,7 +17,7 @@
 - [ ] Add better VR support by customizing the MCM menu when you're in VR!
 - [ ] Set verbosity (whether messages show up )
 - [x] Keyboard shortcuts - include in the Recording.json
-- [ ] VR guestures - include in the Recording.json
+- [x] VR guestures - include in the Recording.json
 - [ ] Cancel while running
 - [ ] Choose whether to run a step or not!
 - [ ] Choose a BATCH of steps to run!

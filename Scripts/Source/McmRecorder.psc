@@ -43,12 +43,14 @@ event OnInit()
     StartListenForKeyboardShortcuts()
     ListenForRaceMenuClose()
     McmRecorder_VRIK.RegisterVrikGesturesForRecordings()
+    ListenForRecordingSkseModEvents()
 endEvent
 
 event SaveGameLoaded()
     RegisterForSingleUpdate(5)
     StartListenForKeyboardShortcuts()
     McmRecorder_VRIK.ListenForVriKGesturesForRecordings()
+    ListenForRecordingSkseModEvents()
 endEvent
 
 function StartListenForKeyboardShortcuts()
@@ -159,5 +161,17 @@ endFunction
 
 event OnVrikGesture(string eventName, string strArg, float fltArg, Form sender)
     string recordingName = McmRecorder_VRIK.GetRecordingNameFromModEvent(eventName)
+    McmRecorder_Player.PlayRecording(recordingName, verbose = false)
+endEvent
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; VR Gestures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+function ListenForRecordingSkseModEvents()
+    RegisterForModEvent("McmRecorder_PlayRecording", "OnRecordingModEvent")
+endFunction
+
+event OnRecordingModEvent(string eventName, string recordingName, float fltArg, Form sender)
     McmRecorder_Player.PlayRecording(recordingName, verbose = false)
 endEvent
