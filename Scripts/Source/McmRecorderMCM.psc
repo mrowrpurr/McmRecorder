@@ -26,6 +26,18 @@ bool property IsVrikInstalled
     endFunction
 endProperty
 
+bool property HasJcontainersInstalled
+    bool function get()
+        return JContainers.APIVersion()
+    endFunction
+endProperty
+
+bool property HasPapyrusUtilInstalled
+    bool function get()
+        return PapyrusUtil.GetVersion() 
+    endFunction
+endProperty
+
 event OnConfigInit()
     ModName = "MCM Recorder"
     Recorder = (self as Quest) as McmRecorder
@@ -45,12 +57,26 @@ event OnConfigOpen()
 endEvent
 
 event OnPageReset(string page)
-    if page == "Keyboard Shortcuts"
-        Render_KeyboardShortcuts()
-    elseIf page == "VR Gestures"
-        Render_VRGestures()
+    bool papyrusUtilOK = HasPapyrusUtilInstalled
+    bool jcontainersOK = HasJcontainersInstalled
+
+    if papyrusUtilOK && jcontainersOK
+        if page == "Keyboard Shortcuts"
+            Render_KeyboardShortcuts()
+        elseIf page == "VR Gestures"
+            Render_VRGestures()
+        else
+            Render_Recordings()
+        endIf
     else
-        Render_Recordings()
+        if ! papyrusUtilOK
+            AddTextOption("<font color=\"#ff0000\">PapyrusUtil not found</font>", "<font color=\"#ff0000\">FAILED</font>", OPTION_FLAG_DISABLED)
+            AddTextOption("<font color=\"#ff0000\">(or incompatible version installed)</font>", "", OPTION_FLAG_DISABLED)
+        endIf
+        if ! jcontainersOK
+            AddTextOption("<font color=\"#ff0000\">JContainers not found</font>", "<font color=\"#ff0000\">FAILED</font>", OPTION_FLAG_DISABLED)
+            AddTextOption("<font color=\"#ff0000\">(or incompatible version installed)</font>", "", OPTION_FLAG_DISABLED)
+        endIf
     endIf
 endEvent
 
