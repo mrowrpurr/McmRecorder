@@ -7,6 +7,7 @@ endFunction
 
 function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true) global
     ClearModsPlayed()
+    McmRecorder_McmFields.ResetMcmOptions()
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
 
