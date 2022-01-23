@@ -1003,7 +1003,6 @@ endFunction
 string[] property MostRecentlyConfiguredMenuDialogOptions auto
 
 function SetMenuDialogOptions(String[] a_options)
-	Debug.MessageBox("Set Menu Dialog Options: " + a_options)
 	MostRecentlyConfiguredMenuDialogOptions = a_options
 
 	if _state != self.STATE_MENU
