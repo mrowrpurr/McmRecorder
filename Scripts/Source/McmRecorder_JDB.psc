@@ -1,6 +1,25 @@
 scriptName McmRecorder_JDB hidden
 {Get JDB paths for JDB data stored by MCM Recorder}
 
+string function JdbPathPart(string part) global
+    string[] parts = StringUtil.Split(part, ".")
+    string sanitized = ""
+    int i = 0
+    while i < parts.Length
+        if i == 0
+            sanitized += parts[i]
+        else
+            sanitized += "_" + parts[i]
+        endIf
+        i += 1
+    endWhile
+    return sanitized
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Current Recording
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 string function JdbPath_CurrentRecordingName() global
     return ".mcmRecorder.currentRecording.recordingName"
 endFunction
@@ -17,6 +36,10 @@ string function JdbPath_CurrentRecordingRecordingStep() global
     return ".mcmRecorder.currentRecording.currentModStep"
 endFunction
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; MCM Fields
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 string function JdbPath_McmOptions() global
     return ".mcmRecorder.mcmOptions"
 endFunction
@@ -24,6 +47,10 @@ endFunction
 string function JdbPath_McmOptions_MarkForReset() global
     return ".mcmRecorder.McmOptionsShouldBeReset"
 endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Playing Recording
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 string function JdbPath_IsPlayingRecording() global
     return ".mcmRecorder.isPlayingRecording"
@@ -61,9 +88,21 @@ string function JdbPath_CurrentlySkippingModName() global
     return ".mcmRecorder.playingRecording.modCurrentlySkipping"
 endFunction
 
+string function JdbPath_PlayingRecordingHasBeenCanceled() global
+    return ".mcmRecorder.playingRecording.canceled"
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Autorun
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 string function JdbPath_AutorunHistory() global
     return ".mcmRecorder.autorunHistory"
 endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Keyboard Shortcuts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 string function JdbPath_MCM_KeyboardShortcuts_ShortcutInfos() global
     return ".mcmRecorder.mcm.keyboardShortcuts.shortcutInfos"
@@ -73,25 +112,14 @@ string function JdbPath_MCM_KeyboardShortcuts_ShortcutOptions() global
     return ".mcmRecorder.mcm.keyboardShortcuts.shortcutOptions"
 endFunction
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; UNUSED (Configuration)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 string function JdbPath_Config_ShowNotifications() global
     return ".mcmRecorder.config.notifications"
 endFunction
 
 string function JdbPath_Config_ShowMessageBoxes() global
     return ".mcmRecorder.config.messageboxes"
-endFunction
-
-string function JdbPathPart(string part) global
-    string[] parts = StringUtil.Split(part, ".")
-    string sanitized = ""
-    int i = 0
-    while i < parts.Length
-        if i == 0
-            sanitized += parts[i]
-        else
-            sanitized += "_" + parts[i]
-        endIf
-        i += 1
-    endWhile
-    return sanitized
 endFunction

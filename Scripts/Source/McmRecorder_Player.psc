@@ -9,6 +9,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     McmRecorder_Logging.ConsoleOut("Playing recording: " + recordingName)
 
     ClearModsPlayed()
+    ResetCurrentPlaybackCancelation()
     McmRecorder_McmFields.ResetMcmOptions()
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
@@ -31,7 +32,8 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     endIf
 
     int fileIndex = 0
-    while fileIndex < stepFiles.Length
+    while fileIndex < stepFiles.Length && ! IsCurrentRecordingCanceled()
+
         ; File for a given step
         string filename = stepFiles[fileIndex]
         string stepName = StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json"))
@@ -51,7 +53,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         McmRecorder_Logging.ConsoleOut("Play Step: " + stepName)
 
         int i = 0
-        while i < actionCount
+        while i < actionCount && ! IsCurrentRecordingCanceled()
             int recordingAction = JArray.getObj(recordingActions, i)
             PlayAction(recordingAction, stepName, mcmLoadWaitTime = mcmLoadWaitTime)
             if waitTimeBetweenActions
@@ -67,9 +69,19 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     recorder.StopListeningForSystemMenuOpen()
 
     if verbose
-        McmRecorder_UI.FinishedMessage(recordingName)
+        if IsCurrentRecordingCanceled()
+            McmRecorder_UI.Notification("Canceled " + recordingName)
+        else
+            McmRecorder_UI.Notification("Finished " + recordingName)
+            McmRecorder_UI.FinishedMessage(recordingName)
+        endIf
     endIf
-    McmRecorder_Logging.ConsoleOut("Recording finished: " + recordingName)
+
+    if IsCurrentRecordingCanceled()
+        McmRecorder_Logging.ConsoleOut("Recording canceled: " + recordingName)
+    else
+        McmRecorder_Logging.ConsoleOut("Recording finished: " + recordingName)
+    endIf
 
     SetIsPlayingRecording(false)
     recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
@@ -181,9 +193,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
 
     int option = FindOption(mcmMenu, modName, pageName, optionType, selector, wildcard, index, side, searchTimeout, searchInterval, searchPageLoadTime)
 
+    if IsCurrentRecordingCanceled()
+        return
+    endIf
+
     if option
         ApplyActionToOption(option, mcmMenu, modName, pageName, actionInfo, stepName, stateName, optionType, selector, selectorType, index)
-    elseIf promptOnFailures
+    elseIf promptOnFailures && ! IsCurrentRecordingCanceled()
         string response = McmRecorder_UI.GetUserResponseForNotFoundSelector(modName, pageName, selector)
         if response == "Try again"
             PlayAction(actionInfo, stepName, promptOnFailures)
@@ -468,7 +484,7 @@ endFunction
 int function FindOption(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchTimeout, float searchInterval, float searchPageLoadTime) global
     int foundOption
     float startTime = Utility.GetCurrentRealTime()
-    while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout
+    while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout && ! IsCurrentRecordingCanceled()
         foundOption = AttemptFindOption(mcmMenu, modName, pageName, optionType, selector, wildcard, index, side, searchInterval, searchPageLoadTime)
         if ! foundOption ; Does this ever run?
             McmRecorder_UI.Notification(modName + ": " + pageName + " (search for " + selector + ")")
@@ -480,7 +496,7 @@ endFunction
 
 int function AttemptFindOption(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchInterval, float searchPageLoadTime) global
     float startTime = Utility.GetCurrentRealTime()
-    while (Utility.GetCurrentRealTime() - startTime) < searchPageLoadTime
+    while (Utility.GetCurrentRealTime() - startTime) < searchPageLoadTime && ! IsCurrentRecordingCanceled()
         int options = McmRecorder_McmFields.OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int optionsCount = JArray.count(options)
         int matchCount = 0
@@ -534,4 +550,16 @@ int function AttemptFindOption(SKI_ConfigBase mcmMenu, string modName, string pa
     endWhile
 
     return 0
+endFunction
+
+function CancelCurrentPlayback() global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled(), 1, createMissingKeys = true)
+endFunction
+
+function ResetCurrentPlaybackCancelation() global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled(), 0)
+endFunction
+
+bool function IsCurrentRecordingCanceled() global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled())
 endFunction

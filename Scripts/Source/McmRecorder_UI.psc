@@ -67,7 +67,7 @@ function OpenSystemMenuDuringRecordingMessage(string recordingName) global
     elseIf result == pause
         Debug.MessageBox("PAUSE")
     elseIf result == cancel
-        Debug.MessageBox("CANCEL")
+        McmRecorder_Player.CancelCurrentPlayback()
     endIf
 endFunction
 
