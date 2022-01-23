@@ -17,11 +17,12 @@
     </Variables>
     <Imports>
         <Import>@ModsFolder\SKSE64\Scripts\Source</Import>
-        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\VR is Virtual Reality\mods\SkyUI\scripts\Source</Import>
         <Import>@ImportsFolder\PapyrusUtil\Scripts\Source</Import>
         <Import>@ImportsFolder\JContainers\Scripts\Source</Import>
         <Import>@ImportsFolder\UIExtensions\scripts\source</Import>
         <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\Vanilla VR\mods\VRIK Player Avatar\Scripts</Import>
+        <Import>C:\Users\mrowr\Dropbox\Skyrim\Imports\MCM Helper\scripts\source</Import>
+        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\VR is Virtual Reality\mods\SkyUI\scripts\Source</Import>
         <Import>C:\Steam\steamapps\common\Skyrim Special Edition - Modding\Data\Scripts\Source</Import>
     </Imports>
     <Folders>

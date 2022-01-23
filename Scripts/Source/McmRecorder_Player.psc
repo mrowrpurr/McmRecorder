@@ -106,13 +106,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         endIf
     endIf
 
-    SKI_ConfigBase mcm = McmRecorder.GetMcmInstance(modName)
+    SKI_ConfigBase mcmMenu = McmRecorder.GetMcmInstance(modName)
 
-    if (! mcm) && mcmLoadWaitTime
+    if (! mcmMenu) && mcmLoadWaitTime
         McmRecorder_Logging.ConsoleOut("[Play Action] MCM not loaded: " + modName + " (waiting...)")
         float startTime = Utility.GetCurrentRealTime()
         float lastNotification = startTime
-        while (! mcm) && (Utility.GetCurrentRealTime() - startTime) < mcmLoadWaitTime
+        while (! mcmMenu) && (Utility.GetCurrentRealTime() - startTime) < mcmLoadWaitTime
             float now = Utility.GetCurrentRealTime()
             if (now - lastNotification) >= 5.0 ; Make configurable, 5 secs waiting for MCM to load
                 lastNotification = now
@@ -120,9 +120,9 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 McmRecorder_Logging.ConsoleOut("[Play Action] MCM not loaded: " + modName + " (waiting...)")
             endIf
             Utility.WaitMenuMode(1.0) ; hard coded for now
-            mcm = McmRecorder.GetMcmInstance(modName)
+            mcmMenu = McmRecorder.GetMcmInstance(modName)
         endWhile
-        if ! mcm
+        if ! mcmMenu
             if promptOnFailures
                 string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
                 if result == "Try again"
@@ -139,13 +139,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         endIf
     endIf
 
-    if ! mcm
+    if ! mcmMenu
         Debug.Trace("MCM recorder could not load MCM menu for " + modName)
         return
     endIf
 
     if modName != GetCurrentPlayingRecordingModName() || pageName != GetCurrentPlayingRecordingModPageName()
-        RefreshMcmPage(mcm, modName, pageName)
+        RefreshMcmPage(mcmMenu, modName, pageName)
     endIf
 
     SetCurrentPlayingRecordingModName(modName)
@@ -192,7 +192,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     float searchInterval = JMap.getFlt(actionInfo, "interval", 0.5) ; Default to try twice per second
     float searchPageLoadTime = JMap.getFlt(actionInfo, "pageload", 5.0) ; Allow pages up to 5 seconds for an option to appear
 
-    int option = FindOption(mcm, modName, pageName, optionType, selector, wildcard, index, side, searchTimeout, searchInterval, searchPageLoadTime)
+    int option = FindOption(mcmMenu, modName, pageName, optionType, selector, wildcard, index, side, searchTimeout, searchInterval, searchPageLoadTime)
 
     if option
         if ! stateName
@@ -200,91 +200,91 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         endIf
         int optionId = JMap.getInt(option, "id")
         if stateName
-            string previousState = mcm.GetState()
-            mcm.GotoState(stateName)
+            string previousState = mcmMenu.GetState()
+            mcmMenu.GotoState(stateName)
             if optionType == "menu"
                 string menuItem = JMap.getStr(actionInfo, "choose")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
-                mcm.OnMenuOpenST()
-                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                mcmMenu.OnMenuOpenST()
+                string[] menuOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
                     McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
-                    mcm.OnMenuAcceptST(itemIndex)
+                    mcmMenu.OnMenuAcceptST(itemIndex)
                 endIf
             elseIf optionType == "keymap"
                 int shortcut = JMap.getFlt(actionInfo, "shortcut") as int
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " shortcut " + shortcut)
-                mcm.OnKeyMapChangeST(shortcut, "", "")
+                mcmMenu.OnKeyMapChangeST(shortcut, "", "")
             elseIf optionType == "color"
                 int colorCode = JMap.getInt(actionInfo, "color")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " color " + colorCode)
-                mcm.OnColorAcceptST(colorCode)
+                mcmMenu.OnColorAcceptST(colorCode)
             elseIf optionType == "input"
                 string inputValue = JMap.getStr(actionInfo, "text")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " input '" + inputValue + "'")
-                mcm.OnInputAcceptST(inputValue)
+                mcmMenu.OnInputAcceptST(inputValue)
             elseIf optionType == "slider"
                 float sliderValue = JMap.getFlt(actionInfo, "slider")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " slider " + sliderValue)
-                mcm.OnSliderAcceptST(sliderValue)
+                mcmMenu.OnSliderAcceptST(sliderValue)
             elseIf optionType == "toggle"
                 string turnOnOrOff = JMap.getStr(actionInfo, "toggle")
                 bool currentlyEnabledOnPage = JMap.getFlt(option, "fltValue") == 1
                 if currentlyEnabledOnPage && turnOnOrOff == "off"
                     McmRecorder_Logging.ConsoleOut(debugPrefix + " toggle off")
-                    mcm.OnSelectST() ; Turn off
+                    mcmMenu.OnSelectST() ; Turn off
                 elseIf (!currentlyEnabledOnPage) && turnOnOrOff == "on"
                     McmRecorder_Logging.ConsoleOut(debugPrefix + " toggle on")
-                    mcm.OnSelectST() ; Turn on
+                    mcmMenu.OnSelectST() ; Turn on
                 endIf
             elseIf optionType == "text"
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " click")
-                mcm.OnSelectST()
+                mcmMenu.OnSelectST()
             endIf
-            mcm.GotoState(previousState)
+            mcmMenu.GotoState(previousState)
         else
             if optionType == "menu"
                 string menuItem = JMap.getStr(actionInfo, "choose")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
-                mcm.OnOptionMenuOpen(optionId)
-                string[] menuOptions = mcm.MostRecentlyConfiguredMenuDialogOptions
+                mcmMenu.OnOptionMenuOpen(optionId)
+                string[] menuOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
                     McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
                 else
-                    mcm.OnOptionMenuAccept(optionId, itemIndex)
+                    mcmMenu.OnOptionMenuAccept(optionId, itemIndex)
                 endIf
             elseIf optionType == "slider"
                 float sliderValue = JMap.getFlt(actionInfo, "slider")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " slider " + sliderValue)
-                mcm.OnOptionSliderAccept(optionId, sliderValue)
+                mcmMenu.OnOptionSliderAccept(optionId, sliderValue)
             elseIf optionType == "keymap"
                 int shortcut = JMap.getInt(actionInfo, "shortcut")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " shortcut " + shortcut)
-                mcm.OnOptionKeyMapChange(optionId, shortcut, "", "")
+                mcmMenu.OnOptionKeyMapChange(optionId, shortcut, "", "")
             elseIf optionType == "color"
                 int colorCode = JMap.getInt(actionInfo, "color")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " color " + colorCode)
-                mcm.OnOptionColorAccept(optionId, colorCode)
+                mcmMenu.OnOptionColorAccept(optionId, colorCode)
             elseIf optionType == "input"
                 string inputValue = JMap.getStr(actionInfo, "text")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " input '" + inputValue + "'")
-                mcm.OnOptionInputAccept(optionId, inputValue)
+                mcmMenu.OnOptionInputAccept(optionId, inputValue)
             elseIf optionType == "toggle"
                 string turnOnOrOff = JMap.getStr(actionInfo, "toggle")
                 bool currentlyEnabledOnPage = JMap.getFlt(option, "fltValue") == 1
                 if currentlyEnabledOnPage && turnOnOrOff == "off"
                     McmRecorder_Logging.ConsoleOut(debugPrefix + " toggle off")
-                    mcm.OnOptionSelect(optionId) ; Turn off
+                    mcmMenu.OnOptionSelect(optionId) ; Turn off
                 elseIf (!currentlyEnabledOnPage) && turnOnOrOff == "on"
                     McmRecorder_Logging.ConsoleOut(debugPrefix + " toggle on")
-                    mcm.OnOptionSelect(optionId) ; Turn on
+                    mcmMenu.OnOptionSelect(optionId) ; Turn on
                 endIf
             elseIf optionType == "text"
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " click")
-                mcm.OnOptionSelect(optionId)
+                mcmMenu.OnOptionSelect(optionId)
             endIf
         endIf
     elseIf promptOnFailures
@@ -297,15 +297,15 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     endIf
 endFunction
 
-function RefreshMcmPage(SKI_ConfigBase mcm, string modName, string pageName) global
+function RefreshMcmPage(SKI_ConfigBase mcmMenu, string modName, string pageName) global
     McmRecorder_McmFields.MarkMcmOptionsForReset()
     if HasModBeenPlayed(modName)
-        mcm.CloseConfig()
+        mcmMenu.CloseConfig()
     else
         AddModPlayed(modName)
     endIf
-    mcm.OpenConfig()
-    mcm.SetPage(pageName, mcm.Pages.Find(pageName))
+    mcmMenu.OpenConfig()
+    mcmMenu.SetPage(pageName, mcmMenu.Pages.Find(pageName))
 endFunction
 
 function SetIsPlayingRecording(bool running = true) global
@@ -406,11 +406,11 @@ function SetCurrentlySkippingModName(string modName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentlySkippingModName(), modName, createMissingKeys = true)
 endFunction
 
-int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchTimeout, float searchInterval, float searchPageLoadTime) global
+int function FindOption(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchTimeout, float searchInterval, float searchPageLoadTime) global
     int foundOption
     float startTime = Utility.GetCurrentRealTime()
     while (! foundOption) && (Utility.GetCurrentRealTime() - startTime) < searchTimeout
-        foundOption = AttemptFindOption(mcm, modName, pageName, optionType, selector, wildcard, index, side, searchInterval, searchPageLoadTime)
+        foundOption = AttemptFindOption(mcmMenu, modName, pageName, optionType, selector, wildcard, index, side, searchInterval, searchPageLoadTime)
         if ! foundOption ; Does this ever run?
             McmRecorder_UI.Notification(modName + ": " + pageName + " (search for " + selector + ")")
             Utility.WaitMenuMode(searchInterval)
@@ -419,7 +419,7 @@ int function FindOption(SKI_ConfigBase mcm, string modName, string pageName, str
     return foundOption
 endFunction
 
-int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchInterval, float searchPageLoadTime) global
+int function AttemptFindOption(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, string selector, string wildcard, int index, string side, float searchInterval, float searchPageLoadTime) global
     float startTime = Utility.GetCurrentRealTime()
     while (Utility.GetCurrentRealTime() - startTime) < searchPageLoadTime
         int options = McmRecorder_McmFields.OptionsForModPage_ByOptionType(modName, pageName, optionType)
@@ -457,7 +457,7 @@ int function AttemptFindOption(SKI_ConfigBase mcm, string modName, string pageNa
         
         Utility.WaitMenuMode(searchInterval)
 
-        RefreshMcmPage(mcm, modName, pageName) ; Wasn't on the page! Let's refresh the page.
+        RefreshMcmPage(mcmMenu, modName, pageName) ; Wasn't on the page! Let's refresh the page.
 
         string debugPrefix = "[Play Action] " + modName
         if pageName

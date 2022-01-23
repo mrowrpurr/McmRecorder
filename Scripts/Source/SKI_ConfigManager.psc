@@ -273,7 +273,12 @@ function OnModSelect(String a_eventName, String a_strArg, Float a_numArg, Form a
 			_activeConfig.CloseConfig()
 		endIf
 		_activeConfig = _modConfigs[configIndex]
-		McmRecorder_McmFields.StartTrackingFieldsForMcm(_activeConfig)
+		if McmRecorder_Recorder.IsRecording()
+			MCM_ConfigBase mcmHelperConfig = _activeConfig as MCM_ConfigBase
+			if mcmHelperConfig
+				Debug.MessageBox("This Mod Configuration Menu cannot be recorded because it was created using MCM Helper.\n\nYou can still manually create a recording for this mod.\n\nFor instructions on creating a recording, visit the MCM Recorder NexusMods description page.")
+			endIf
+		endIf
 		_activeConfig.OpenConfig()
 	endIf
 	ui.InvokeBool(self.JOURNAL_MENU, self.MENU_ROOT + ".unlock", true)
@@ -327,7 +332,6 @@ function OnPageSelect(String a_eventName, String a_strArg, Float a_numArg, Form 
 
 	String page = a_strArg
 	Int index = a_numArg as Int
-	McmRecorder_McmFields.StartTrackingFieldsForMcm(_activeConfig, page)
 	_activeConfig.SetPage(page, index)
 	ui.InvokeBool(self.JOURNAL_MENU, self.MENU_ROOT + ".unlock", true)
 endFunction

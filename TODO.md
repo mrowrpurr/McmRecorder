@@ -30,3 +30,9 @@
 TODO: MCM translation files
 
 BUG: in VR when you click 'begin recording' if says 'Choose Recording To Play' even if there are none
+
+
+MCM Helper Notes
+
+SendSettingChangeEvent
+a_vm->DispatchMethodCall(a_object, "OnSettingChange"sv, args, nullCallback);

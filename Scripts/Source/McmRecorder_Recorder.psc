@@ -13,7 +13,7 @@ int function RecordingsCount() global
     return McmRecorder_RecordingFiles.GetRecordingNames().Length
 endFunction
 
-function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global
+function RecordAction(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global
     if IsRecording() && modName != "MCM Recorder"
         if modName != GetCurrentRecordingModName()
             ResetCurrentRecordingSteps()
@@ -82,15 +82,15 @@ function RecordAction(SKI_ConfigBase mcm, string modName, string pageName, strin
         elseIf optionType == "menu"
             JMap.setStr(mcmAction, "option", selector)
             if stateName
-                string previousState = mcm.GetState()
-                mcm.GotoState(stateName)
-                mcm.OnMenuOpenST()
+                string previousState = mcmMenu.GetState()
+                mcmMenu.GotoState(stateName)
+                mcmMenu.OnMenuOpenST()
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "choose", selectedOptionText)
-                mcm.GotoState(previousState)
+                mcmMenu.GotoState(previousState)
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + selectedOptionText + "'")
             else
-                mcm.OnOptionMenuOpen(optionId)
+                mcmMenu.OnOptionMenuOpen(optionId)
                 string selectedOptionText = menuOptions[fltValue as int]
                 JMap.setStr(mcmAction, "choose", selectedOptionText)
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + selectedOptionText + "'")

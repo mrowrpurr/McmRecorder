@@ -172,6 +172,24 @@ string[] property OptionBuffer_Text
 	endFunction
 endProperty
 
+string[] property OptionBuffer_StringValue
+	string[] function get()
+		return _strValueBuf
+	endFunction
+endProperty
+
+float[] property OptionBuffer_FloatValue
+	float[] function get()
+		return _numValueBuf
+	endFunction
+endProperty
+
+string[] property OptionBuffer_State
+	string[] function get()
+		return _stateOptionMap
+	endFunction
+endProperty
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
