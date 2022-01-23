@@ -17,6 +17,10 @@ bool function IsVrGesture(int recordingInfo) global
     return JMap.getStr(recordingInfo, "gesture") == "true"
 endFunction
 
+bool function IsHidden(int recordingInfo) global
+    return JMap.getStr(recordingInfo, "hidden") == "true"
+endFunction
+
 bool function SetIsVrGesture(int recordingInfo, bool enabled = true) global
     if enabled
         JMap.setStr(recordingInfo, "gesture", "true")
@@ -38,3 +42,19 @@ endFunction
 string function GetCompleteMessage(int recordingInfo) global
     return JMap.getStr(recordingInfo, "complete")
 endFunction
+
+int function GetTotalActionCount(int recordingInfo) global
+    string recordingName = GetName(recordingInfo)
+    int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
+    string[] stepNames = JMap.allKeysPArray(steps)
+    int stepCount = JMap.count(steps)
+    int actionCount = 0
+    int i = 0
+    while i < stepCount
+        int step = JMap.getObj(steps, stepNames[i])
+        actionCount += JArray.count(step) ; <--- this is how many actions there are
+        i += 1
+    endWhile
+    return actionCount
+endFunction
+

@@ -122,10 +122,8 @@ function BeginRecording(string recordingName) global
     SetCurrentRecordingModName("")
     ResetCurrentRecordingSteps()
     int metaFile = JMap.object()
-    string authorName = Game.GetPlayer().GetActorBase().GetName()
     JMap.setStr(metaFile, "name", recordingName)    
     JMap.setStr(metaFile, "version", "1.0.0")
-    JMap.setStr(metaFile, "author", authorName)
     JMap.setStr(metaFile, "autorun", "false")
     McmRecorder_RecordingFiles.SaveRecordingInfoFile(recordingName, metaFile)
 endFunction

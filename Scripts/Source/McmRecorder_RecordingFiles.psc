@@ -59,9 +59,6 @@ string function GetRecordingDescription(string recordingName) global
     if JMap.getStr(info, "version")
         recordingDescription += " (" + JMap.getStr(info, "version") + ")"
     endIf
-    if JMap.getStr(info, "author")
-        recordingDescription += "\n~ by " + JMap.getStr(info, "author") + " ~"
-    endIf
     recordingDescription += "\nSteps: " + stepNames.Length
     
     return recordingDescription

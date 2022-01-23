@@ -102,6 +102,10 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         modName = GetCurrentPlayingRecordingModName()
     endIf
 
+    if modName != GetCurrentPlayingRecordingModName() ; This is not the same mod name as the previous action
+        SetCurrentPlayingRecordingModPageName("") ; Clear the latest page name because it's associated with a different mod!
+    endIf
+
     if JMap.hasKey(actionInfo, "page")
         pageName = JMap.getStr(actionInfo, "page")
     else

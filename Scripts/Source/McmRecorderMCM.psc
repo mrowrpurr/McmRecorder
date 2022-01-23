@@ -182,14 +182,28 @@ function Render_VRGestures()
             string recordingName = recordings[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
                 string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
-                int recordingInfo = McmRecorder_RecordingFiles.GetRecordingInfo(recordingName)
-                bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recordingInfo)
-                oids_Recordings[i] = AddToggleOption(recordingName, isGesture, OPTION_FLAG_NONE)
-                string authorText = ""
-                if JMap.getStr(recordingInfo, "author")
-                    authorText = "by " + JMap.getStr(recordingInfo, "author")
+                int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+                if ! McmRecorder_RecordingInfo.IsHidden(recordingInfo)
+                    oids_Recordings[i] = AddToggleOption(recordingName, isGesture, OPTION_FLAG_NONE)
+
+                    bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recordingInfo)
+                    string stepCountText
+                    if stepNames.Length == 1
+                        stepCountText = stepNames.Length + " mod"
+                    else
+                        stepCountText = stepNames.Length + " mods"
+                    endIf
+
+                    int totalActionCount = McmRecorder_RecordingInfo.GetTotalActionCount(recordingInfo)
+                    string actionCountText
+                    if totalActionCount == 1
+                        actionCountText = totalActionCount + " configured option"
+                    else
+                        actionCountText = totalActionCount + " configured options"
+                    endIf
+
+                    AddTextOption(actionCountText, stepCountText, OPTION_FLAG_DISABLED)
                 endIf
-                AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
             endIf
             i += 1
         endWhile
@@ -211,13 +225,27 @@ function ListRecordings()
             string recordingName = recordings[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
                 string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
-                oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
-                int recordingInfo = McmRecorder_RecordingFiles.GetRecordingInfo(recordingName)
-                string authorText = ""
-                if JMap.getStr(recordingInfo, "author")
-                    authorText = "by " + JMap.getStr(recordingInfo, "author")
+                int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+                if ! McmRecorder_RecordingInfo.IsHidden(recordingInfo)
+                    oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
+
+                    string stepCountText
+                    if stepNames.Length == 1
+                        stepCountText = stepNames.Length + " mod"
+                    else
+                        stepCountText = stepNames.Length + " mods"
+                    endIf
+
+                    int totalActionCount = McmRecorder_RecordingInfo.GetTotalActionCount(recordingInfo)
+                    string actionCountText
+                    if totalActionCount == 1
+                        actionCountText = totalActionCount + " configured option"
+                    else
+                        actionCountText = totalActionCount + " configured options"
+                    endIf
+                    
+                    AddTextOption(actionCountText, stepCountText, OPTION_FLAG_DISABLED)
                 endIf
-                AddTextOption(authorText, JMap.getStr(recordingInfo, "version"), OPTION_FLAG_DISABLED)
             endIf
             i += 1
         endWhile

@@ -1,4 +1,31 @@
-- [ ] Keyboard Shortcuts not working on load games
+## Needs
+
+- [ ] Can hide a recording in the main overview list
+- [ ] Ability to Cancel Running Recording
+- [ ] Update the MCM when you click Play Recording for VR folks (fix VR in general!)
+
+## Wants
+
+- [ ] Ability to Pause Recording
+- [ ] Start a recording from a particular step (required for pause)
+- [ ] Can do confirmation for whether to run a certain step or action
+- [ ] Can give a set of options and each option is associated with a recording or individual step
+- [ ] Can have a general GOTO which will hop on over to a recordin/step
+
+## Nice to have
+
+- [ ] Can view steps in the MCM
+- [ ] Can play individual steps in the MCM or start recording at a step
+
+## Would be super cool
+
+- [ ] Create recordings in the MCM!
+
+---
+
+- Add MORE output to the Skyrim ~ console for EVERY recording when it starts playing. And which step.
+
+- [x] Keyboard Shortcuts not working on load games
 - [ ] Also make sure that you can safely upgrade from 1.0.5 to 1.0.* ...
 
 - [ ] Recording Viewer and Editor (and creator?)
