@@ -242,6 +242,8 @@ function ApplyActionToOption(int option, SKI_ConfigBase mcmMenu, string modName,
             elseIf (!currentlyEnabledOnPage) && turnOnOrOff == "on"
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " toggle on")
                 mcmMenu.OnSelectST() ; Turn on
+            elseIf turnOnOrOff == "toggle"
+                mcmMenu.OnSelectST() ; Flip!
             endIf
         elseIf optionType == "text"
             McmRecorder_Logging.ConsoleOut(debugPrefix + " click")
@@ -291,6 +293,8 @@ function ApplyActionToOption(int option, SKI_ConfigBase mcmMenu, string modName,
             elseIf (!currentlyEnabledOnPage) && turnOnOrOff == "on"
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " toggle on")
                 mcmMenu.OnOptionSelect(optionId) ; Turn on
+            elseIf turnOnOrOff == "toggle"
+                mcmMenu.OnOptionSelect(optionId) ; Flip it!
             endIf
         elseIf optionType == "text"
             McmRecorder_Logging.ConsoleOut(debugPrefix + " click")
