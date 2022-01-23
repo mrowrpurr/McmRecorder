@@ -4,10 +4,6 @@ scriptName McmRecorder_McmFields hidden
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
 function WaitToFindAllFieldsFromMcm(SKI_ConfigBase mcmMenu) global
-    if McmOptionsShouldBeReset()
-        ResetMcmOptions()
-    endIf
-
     Utility.WaitMenuMode(0.5) ; Give the MCM half a second to render
 
     int i = 0
@@ -59,6 +55,39 @@ function TrackField(string modName, string pageName, string optionType, int opti
         JMap.setStr(option, "strValue", strValue)
         JMap.setFlt(option, "fltValue", fltvalue)
 	endIf
+endFunction
+
+string[] function GetLatestMenuOptions(SKI_ConfigBase mcmMenu) global
+    string[] fromFlash
+    string[] mostRecentOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
+    if McmRecorder_McmHelper.IsMcmHelperMcm(mcmMenu)
+        fromFlash = GetCurrentMenuOptionsFromFlash()
+    endIf
+    if fromFlash
+        return fromFlash
+    else
+        return mostRecentOptions
+    endIf
+endFunction
+
+string[] function GetCurrentMenuOptionsFromFlash() global
+    Utility.WaitMenuMode(0.5) ; Wait for the Flash
+
+    string[] menuOptions
+    string menuName = "Journal Menu"
+    string menuDialogOptionsPath = "_root.ConfigPanelFader.configPanel._menuDialogOptions"
+    int count = UI.GetInt(menuName, menuDialogOptionsPath + ".length")
+    if count
+        menuOptions = Utility.CreateStringArray(count)
+        int i = 0
+        while i < count
+            string menuOption = UI.GetString(menuName, menuDialogOptionsPath + "." + i)
+            menuOptions[i] = menuOption
+            i += 1
+        endWhile
+    endIf
+    McmRecorder_Logging.ConsoleOut("MENU OPTIONS FROM FLASH: " + menuOptions)
+    return menuOptions
 endFunction
 
 function MarkMcmOptionsForReset() global

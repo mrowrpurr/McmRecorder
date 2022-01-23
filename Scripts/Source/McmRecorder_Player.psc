@@ -204,7 +204,10 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 string menuItem = JMap.getStr(actionInfo, "choose")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
                 mcmMenu.OnMenuOpenST()
-                string[] menuOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
+                Debug.MessageBox("Calling ON MENU OPTION ST")
+                string[] menuOptions = McmRecorder_McmFields.GetLatestMenuOptions(mcmMenu)
+                Debug.MessageBox("Menu options: " + menuOptions)
+                Debug.MessageBox("The recently set ones are: " + mcmMenu.MostRecentlyConfiguredMenuDialogOptions)
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
                     McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
@@ -247,7 +250,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
                 string menuItem = JMap.getStr(actionInfo, "choose")
                 McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
                 mcmMenu.OnOptionMenuOpen(optionId)
-                string[] menuOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
+                string[] menuOptions = McmRecorder_McmFields.GetLatestMenuOptions(mcmMenu)
                 int itemIndex = menuOptions.Find(menuItem)
                 if itemIndex == -1
                     McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
