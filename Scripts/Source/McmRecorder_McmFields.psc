@@ -58,16 +58,17 @@ function TrackField(string modName, string pageName, string optionType, int opti
 endFunction
 
 string[] function GetLatestMenuOptions(SKI_ConfigBase mcmMenu) global
-    string[] fromFlash
-    string[] mostRecentOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
-    if McmRecorder_McmHelper.IsMcmHelperMcm(mcmMenu)
-        fromFlash = GetCurrentMenuOptionsFromFlash()
-    endIf
-    if fromFlash
-        return fromFlash
-    else
-        return mostRecentOptions
-    endIf
+    return mcmMenu.MostRecentlyConfiguredMenuDialogOptions
+    ; string[] fromFlash
+    ; string[] mostRecentOptions = mcmMenu.MostRecentlyConfiguredMenuDialogOptions
+    ; if McmRecorder_McmHelper.IsMcmHelperMcm(mcmMenu)
+    ;     fromFlash = GetCurrentMenuOptionsFromFlash()
+    ; endIf
+    ; if fromFlash
+    ;     return fromFlash
+    ; else
+    ;     return mostRecentOptions
+    ; endIf
 endFunction
 
 string[] function GetCurrentMenuOptionsFromFlash() global

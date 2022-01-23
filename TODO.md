@@ -1,3 +1,6 @@
+- [ ] Keyboard Shortcuts not working on load games
+- [ ] Also make sure that you can safely upgrade from 1.0.5 to 1.0.* ...
+
 - [ ] Recording Viewer and Editor (and creator?)
 - [ ] For recordings, instead of showing VERSION and AUTHOR - show # of mods and number of total settings
 

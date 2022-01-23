@@ -151,6 +151,7 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
 
     string optionType
     string selector = JMap.getStr(actionInfo, "option")
+    string selectorType = "text"
 
     if JMap.hasKey(actionInfo, "click")
         optionType = "text"
@@ -159,6 +160,9 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         optionType = "toggle"
     elseIf JMap.hasKey(actionInfo, "choose")
         optionType = "menu"
+    elseIf JMap.hasKey(actionInfo, "chooseIndex")
+        optionType = "menu"
+        selectorType = "index"
     elseIf JMap.hasKey(actionInfo, "text")
         optionType = "input"
     elseIf JMap.hasKey(actionInfo, "shortcut")
@@ -201,17 +205,20 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
             string previousState = mcmMenu.GetState()
             mcmMenu.GotoState(stateName)
             if optionType == "menu"
-                string menuItem = JMap.getStr(actionInfo, "choose")
-                McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
-                mcmMenu.OnMenuOpenST()
-                Debug.MessageBox("Calling ON MENU OPTION ST")
-                string[] menuOptions = McmRecorder_McmFields.GetLatestMenuOptions(mcmMenu)
-                Debug.MessageBox("Menu options: " + menuOptions)
-                Debug.MessageBox("The recently set ones are: " + mcmMenu.MostRecentlyConfiguredMenuDialogOptions)
-                int itemIndex = menuOptions.Find(menuItem)
-                if itemIndex == -1
-                    McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
-                else
+                if selectorType == "text"
+                    string menuItem = JMap.getStr(actionInfo, "choose")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
+                    mcmMenu.OnMenuOpenST()
+                    string[] menuOptions = McmRecorder_McmFields.GetLatestMenuOptions(mcmMenu)
+                    int itemIndex = menuOptions.Find(menuItem)
+                    if itemIndex == -1
+                        McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
+                    else
+                        mcmMenu.OnMenuAcceptST(itemIndex)
+                    endIf
+                elseIf selectorType == "index"
+                    int itemIndex = JMap.getInt(actionInfo, "chooseIndex")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " chooseIndex '" + itemIndex + "'")
                     mcmMenu.OnMenuAcceptST(itemIndex)
                 endIf
             elseIf optionType == "keymap"
@@ -247,14 +254,20 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
             mcmMenu.GotoState(previousState)
         else
             if optionType == "menu"
-                string menuItem = JMap.getStr(actionInfo, "choose")
-                McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
-                mcmMenu.OnOptionMenuOpen(optionId)
-                string[] menuOptions = McmRecorder_McmFields.GetLatestMenuOptions(mcmMenu)
-                int itemIndex = menuOptions.Find(menuItem)
-                if itemIndex == -1
-                    McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
-                else
+                if selectorType == "text"
+                    string menuItem = JMap.getStr(actionInfo, "choose")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " choose '" + menuItem + "'")
+                    mcmMenu.OnOptionMenuOpen(optionId)
+                    string[] menuOptions = McmRecorder_McmFields.GetLatestMenuOptions(mcmMenu)
+                    int itemIndex = menuOptions.Find(menuItem)
+                    if itemIndex == -1
+                        McmRecorder_UI.MessageBox("Could not find " + menuItem + " menu item. Available options: " + menuOptions)
+                    else
+                        mcmMenu.OnOptionMenuAccept(optionId, itemIndex)
+                    endIf
+                elseIf selectorType == "index"
+                    int itemIndex = JMap.getInt(actionInfo, "chooseIndex")
+                    McmRecorder_Logging.ConsoleOut(debugPrefix + " chooseIndex '" + itemIndex + "'")
                     mcmMenu.OnOptionMenuAccept(optionId, itemIndex)
                 endIf
             elseIf optionType == "slider"
