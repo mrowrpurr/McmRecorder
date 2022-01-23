@@ -15,7 +15,7 @@ string function ToJson(int jcontainer) global
 endFunction
 
 function ConsoleOut(string text) global
-    MiscUtil.PrintConsole(text)
+    MiscUtil.PrintConsole("[MCM Recorder] " + text)
 endFunction
 
 function DumpAll(string filename = "Data/McmRecorder/.debug/McmRecorderDataDump.json") global

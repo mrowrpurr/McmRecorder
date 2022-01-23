@@ -1,8 +1,9 @@
 ## Needs
 
-- [ ] Can hide a recording in the main overview list
+- [x] Can hide a recording in the main overview list
 - [ ] Ability to Cancel Running Recording
 - [ ] Update the MCM when you click Play Recording for VR folks (fix VR in general!)
+- [x] Print to ~ console when recording / steps run
 
 ## Wants
 

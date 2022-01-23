@@ -6,6 +6,8 @@ bool function IsPlayingRecording() global
 endFunction
 
 function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true) global
+    McmRecorder_Logging.ConsoleOut("Playing recording: " + recordingName)
+
     ClearModsPlayed()
     McmRecorder_McmFields.ResetMcmOptions()
     SetCurrentPlayingRecordingModName("")
@@ -31,6 +33,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     while fileIndex < stepFiles.Length
         ; File for a given step
         string filename = stepFiles[fileIndex]
+        string stepName = StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json"))
         int recordingActions = JMap.getObj(steps, filename)
         JValue.retain(recordingActions)
         int actionCount = JArray.count(recordingActions)
@@ -44,10 +47,12 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
             McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
         endIf
 
+        McmRecorder_Logging.ConsoleOut("Play Step: " + stepName)
+
         int i = 0
         while i < actionCount
             int recordingAction = JArray.getObj(recordingActions, i)
-            PlayAction(recordingAction, StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json")), mcmLoadWaitTime = mcmLoadWaitTime)
+            PlayAction(recordingAction, stepName, mcmLoadWaitTime = mcmLoadWaitTime)
             if waitTimeBetweenActions
                 Utility.WaitMenuMode(waitTimeBetweenActions)
             endIf
@@ -63,6 +68,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     if verbose
         McmRecorder_UI.FinishedMessage(recordingName)
     endIf
+    McmRecorder_Logging.ConsoleOut("Recording finished: " + recordingName)
 
     SetIsPlayingRecording(false)
 endFunction
