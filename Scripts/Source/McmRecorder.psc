@@ -2,33 +2,27 @@ scriptName McmRecorder extends Quest hidden
 
 ; TODO separate out an McmRecorderPrivate so this can become just a public API intended for integration
 
-; **PRIVATE**
-;
 ; Primary instance of the SKI_ConfigManager from the SKI_ConfigManagerInstance quest
 SKI_ConfigManager property skiConfigManager auto
 
-; **PRIVATE**
-;
 ; Message used to ask the user if they want to run a full recording, view steps, or add to the recording.
 Message property McmRecorder_Message_RunRecordingOrViewSteps auto
 
-; **PRIVATE**
-;
 ; Message used to ask the user if they want to skip a field that wasn't found, retry it, or skip the entire mod.
 Message property McmRecorder_Message_SelectorNotFound auto
 
-; **PRIVATE**
-;
 ; Message used to ask the user if they want to skip a mod or wait for it to show up when a mod cannot be found
 Message property McmRecorder_Message_ModNotFound auto
 
-; **PRIVATE**
-;
+; Message shown when user opens the System/Journal while a recording is playing
+Message Property McmRecorder_Message_PauseOrCancelEtc  Auto  
+
 ; Form used to set dynamic text in all of the Message dialogs used by MCM Recorder.
 Form property McmRecorder_MessageText auto
 
-; **PRIVATE**
-;
+; Used to conditionally show buttons on the message we show when you open the System menu during a recording (or while one is paused)
+GlobalVariable Property McmRecorder_Var_IsRecordingCurrentlyPlaying  Auto  
+
 ; Stores the installed version of MCM Recorder. Used for performing version upgrades.
 string property CurrentlyInstalledVersion auto
 

@@ -1,5 +1,6 @@
 ## Needs
 
+- [ ] "Async" actions
 - [x] Can hide a recording in the main overview list
 - [ ] Ability to Cancel Running Recording
 - [ ] Update the MCM when you click Play Recording for VR folks (fix VR in general!)

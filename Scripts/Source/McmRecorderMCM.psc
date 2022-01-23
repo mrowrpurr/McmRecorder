@@ -393,8 +393,8 @@ endFunction
 
 ; TODO move to the McmRecorder maybe a global script for prompts
 function PromptToRunRecordingOrPreviewSteps(string recordingName)
-    string recordingDescription = McmRecorder_RecordingFiles.GetRecordingDescription(recordingName)
-
+    int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+    string recordingDescription = McmRecorder_RecordingInfo.GetDescriptionText(recordingInfo)
     bool confirmation = true
 
     ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog

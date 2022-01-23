@@ -51,19 +51,6 @@ int function GetRecordingStep(string recordingName, string stepName) global
     return JValue.readFromFile(PathToStepFile(recordingName, stepName))
 endFunction
 
-string function GetRecordingDescription(string recordingName) global
-    int info = GetRecordingInfo(recordingName)
-    string[] stepNames = GetRecordingStepFilenames(recordingName)
-
-    string recordingDescription = recordingName
-    if JMap.getStr(info, "version")
-        recordingDescription += " (" + JMap.getStr(info, "version") + ")"
-    endIf
-    recordingDescription += "\nSteps: " + stepNames.Length
-    
-    return recordingDescription
-endFunction
-
 string function PathToRecordings() global
     return "Data/McmRecorder"
 endFunction

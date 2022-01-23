@@ -58,3 +58,10 @@ int function GetTotalActionCount(int recordingInfo) global
     return actionCount
 endFunction
 
+string function GetDescriptionText(int recordingInfo) global
+    string recordingName = GetName(recordingInfo)
+    string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
+    string recordingDescription = recordingName
+    recordingDescription += "\nSteps: " + stepNames.Length
+    return recordingDescription
+endFunction

@@ -18,6 +18,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
 
     McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
     recorder.ListenForSystemMenuOpen()
+    recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1
 
     int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
     SetCurrentlyPlayingSteps(steps)
@@ -71,6 +72,7 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     McmRecorder_Logging.ConsoleOut("Recording finished: " + recordingName)
 
     SetIsPlayingRecording(false)
+    recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
 endFunction
 
 function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.0) global
