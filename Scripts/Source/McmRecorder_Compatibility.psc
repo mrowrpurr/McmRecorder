@@ -1,1 +1,0 @@
-scriptName McmRecorder_Compatibility

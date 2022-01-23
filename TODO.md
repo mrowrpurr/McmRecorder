@@ -1,3 +1,8 @@
+- [ ] Recording Viewer and Editor (and creator?)
+- [ ] For recordings, instead of showing VERSION and AUTHOR - show # of mods and number of total settings
+
+
+
 - [ ] Show when dependencies are not installed
 - [ ] PW's not working mods
 - [ ] Pause while running

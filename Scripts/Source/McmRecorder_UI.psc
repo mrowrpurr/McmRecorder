@@ -87,3 +87,7 @@ string function GetUserResponseForNotFoundMod(string modName) global
         return Options_SkipThisMod()
     endIf
 endFunction
+
+function ShowMcmHelperRecordingWarning() global
+    Debug.MessageBox("This Mod Configuration Menu cannot be recorded because it was created using MCM Helper.\n\nYou can still manually create a recording for this mod.\n\nFor instructions on creating a recording, visit the MCM Recorder NexusMods description page.")
+endFunction

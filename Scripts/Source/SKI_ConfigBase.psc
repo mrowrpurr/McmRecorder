@@ -158,7 +158,7 @@ Int property STATE_DEFAULT
 endproperty
 
 
-;;;;; EXPOSE THE BUFFERS FOR READING ;;;;;;
+;;;;; EXPOSE THE BUFFERS etc FOR READING ;;;;;;
 
 int[] property OptionBuffer_TypeWithFlags
 	int[] function get()
@@ -187,6 +187,12 @@ endProperty
 string[] property OptionBuffer_State
 	string[] function get()
 		return _stateOptionMap
+	endFunction
+endProperty
+
+int property CurrentPageNum
+	int function get()
+		return _currentPageNum
 	endFunction
 endProperty
 

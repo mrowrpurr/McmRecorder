@@ -72,7 +72,6 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     SetIsPlayingRecording(true) ; XXX is this used?
 
     int stepInfo = McmRecorder_RecordingFiles.GetRecordingStep(recordingName, stepName)
-    
     JValue.retain(stepInfo)
 
     McmRecorder_UI.Notification("Playing step " + stepName + " of recording " + recordingName)
@@ -89,7 +88,6 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     endWhile
     
     JValue.release(stepInfo)
-
     SetIsPlayingRecording(false)
 endFunction
 
@@ -306,6 +304,9 @@ function RefreshMcmPage(SKI_ConfigBase mcmMenu, string modName, string pageName)
     endIf
     mcmMenu.OpenConfig()
     mcmMenu.SetPage(pageName, mcmMenu.Pages.Find(pageName))
+    if McmRecorder_McmHelper.IsMcmHelperMcm(mcmMenu)
+        McmRecorder_McmFields.WaitToFindAllFieldsFromMcm(mcmMenu)
+    endIf
 endFunction
 
 function SetIsPlayingRecording(bool running = true) global

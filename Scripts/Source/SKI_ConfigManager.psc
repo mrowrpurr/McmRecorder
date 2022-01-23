@@ -273,11 +273,8 @@ function OnModSelect(String a_eventName, String a_strArg, Float a_numArg, Form a
 			_activeConfig.CloseConfig()
 		endIf
 		_activeConfig = _modConfigs[configIndex]
-		if McmRecorder_Recorder.IsRecording()
-			MCM_ConfigBase mcmHelperConfig = _activeConfig as MCM_ConfigBase
-			if mcmHelperConfig
-				Debug.MessageBox("This Mod Configuration Menu cannot be recorded because it was created using MCM Helper.\n\nYou can still manually create a recording for this mod.\n\nFor instructions on creating a recording, visit the MCM Recorder NexusMods description page.")
-			endIf
+		if McmRecorder_Recorder.IsRecording() && McmRecorder_McmHelper.IsMcmHelperMcm(_activeConfig)
+			McmRecorder_UI.ShowMcmHelperRecordingWarning()
 		endIf
 		_activeConfig.OpenConfig()
 	endIf

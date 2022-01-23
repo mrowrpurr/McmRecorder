@@ -3,31 +3,44 @@ scriptName McmRecorder_McmFields hidden
 
 ; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
 
-function StartTrackingFieldsForMcm(SKI_ConfigBase mcmMenu, string page = "") global
-    ResetMcmOptions()
-    McmRecorder_Recorder.SetCurrentRecordingModName(mcmMenu.ModName)
-    McmRecorder_Recorder.SetCurrentRecordingModPageName(page)
-    McmRecorder_McmWatcher.BeginWatchingMcm(mcmMenu)
+function WaitToFindAllFieldsFromMcm(SKI_ConfigBase mcmMenu) global
+    if McmOptionsShouldBeReset()
+        ResetMcmOptions()
+    endIf
+
+    Utility.WaitMenuMode(0.5) ; Give the MCM half a second to render
+
+    int i = 0
+    while i < mcmMenu.OptionBuffer_TypeWithFlags.Length
+        int optionWithFlags = mcmMenu.OptionBuffer_TypeWithFlags[i]
+        if optionWithFlags
+            
+            ; Get the information about this option on the page
+            int optionId = i + mcmMenu.CurrentPageNum * 256
+            int optionTypeId = Math.LogicalAnd(optionWithFlags, 0xFF)
+            string optionType = GetOptionTypeName(optionTypeId)
+            int optionFlags = Math.RightShift(Math.LogicalAnd(optionWithFlags, 0xFF00), 8)
+            string text = mcmMenu.OptionBuffer_Text[i]
+            string strValue = mcmMenu.OptionBuffer_StringValue[i]
+            float fltValue = mcmMenu.OptionBuffer_FloatValue[i]
+            string stateName = mcmMenu.OptionBuffer_State[i]
+
+            ; Store the option information for access by the player
+            int optionsOnModPageForType = OptionsForModPage_ByOptionType(mcmMenu.ModName, mcmMenu.CurrentPage, optionType)
+            int option = JMap.object()
+            JArray.addObj(optionsOnModPageForType, option)
+            JIntMap.setObj(OptionsForModPage_ByOptionIds(mcmMenu.ModName, mcmMenu.CurrentPage), optionId, option)
+            JMap.setInt(option, "id", optionId)
+            JMap.setStr(option, "state", stateName)
+            JMap.setStr(option, "type", optionType)
+            JMap.setStr(option, "text", text)
+            JMap.setStr(option, "strValue", strValue)
+            JMap.setFlt(option, "fltValue", fltvalue)
+
+        endIf
+        i += 1
+    endWhile
 endFunction
-
-; OptionBuffer_TypeWithFlags
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 function TrackField(string modName, string pageName, string optionType, int optionId, string text, string strValue, float fltValue, string stateName, bool force = false) global
     if McmOptionsShouldBeReset()
@@ -46,9 +59,6 @@ function TrackField(string modName, string pageName, string optionType, int opti
         JMap.setStr(option, "strValue", strValue)
         JMap.setFlt(option, "fltValue", fltvalue)
 	endIf
-
-    MiscUtil.PrintConsole("TrackField " + modName + " " + pageName + " " + optionType + " " + text)
-    McmRecorder_Logging.DumpAll()
 endFunction
 
 function MarkMcmOptionsForReset() global
