@@ -5,14 +5,32 @@ bool function IsPlayingRecording() global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
 endFunction
 
-function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true) global
-    McmRecorder_Logging.ConsoleOut("Playing recording: " + recordingName)
-
+function Reset() global
     ClearModsPlayed()
+    MarkRecordingAsPlaying()
     ResetCurrentPlaybackCancelation()
+    ResetCurrentPlaybackPaused()
     McmRecorder_McmFields.ResetMcmOptions()
     SetCurrentPlayingRecordingModName("")
     SetCurrentPlayingRecordingModPageName("")
+    SetCurrentlyPlayingStepFilename("")
+    SetCurrentlyPlayingStepIndex(-1)
+    SetCurrentlyPlayingActionIndex(-1)
+endFunction
+
+function PlayRecording(string recordingName, string startingStep = "", int startingActionIndex = -1, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true, bool reset = true) global
+    if reset
+        Reset()
+    endIf
+
+    string startingConsoleMessage = "Playing recording: " + recordingName
+    if startingStep
+        startingConsoleMessage += " Step: " + startingStep
+        if startingActionIndex > -1
+            startingConsoleMessage += " (action " + startingActionIndex + ")"
+        endIf
+    endIf
+    McmRecorder_Logging.ConsoleOut(startingConsoleMessage)
 
     SetIsPlayingRecording(true)
     SetCurrentlyPlayingRecordingName(recordingName)
@@ -31,38 +49,64 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
         McmRecorder_UI.Notification("Play " + recordingName + " (" + stepFiles.Length + " steps)")
     endIf
 
+    bool isFirstStep = true
+    bool firstStepFound = true
+    if startingStep
+        firstStepFound = false
+    endIf
+
     int fileIndex = 0
-    while fileIndex < stepFiles.Length && ! IsCurrentRecordingCanceled()
+    while fileIndex < stepFiles.Length && (! IsCurrentRecordingCanceled()) && (! IsCurrentRecordingPaused())
 
         ; File for a given step
         string filename = stepFiles[fileIndex]
         string stepName = StringUtil.Substring(filename, 0, StringUtil.Find(filename, ".json"))
-        int recordingActions = JMap.getObj(steps, filename)
-        JValue.retain(recordingActions)
-        int actionCount = JArray.count(recordingActions)
 
-        ; Set the current step being run...
-        SetCurrentlyPlayingStepFilename(filename)
-        SetCurrentlyPlayingStepIndex(fileIndex)
-
-        ; Show notification for the current step being run
-        if verbose
-            McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
+        ; Check if this is the first step - used when a starting step is provided
+        if (! firstStepFound) && startingStep == stepName
+            firstStepFound = true
         endIf
 
-        McmRecorder_Logging.ConsoleOut("Play Step: " + stepName)
+        if firstStepFound
+            int recordingActions = JMap.getObj(steps, filename)
+            JValue.retain(recordingActions)
+            int actionCount = JArray.count(recordingActions)
 
-        int i = 0
-        while i < actionCount && ! IsCurrentRecordingCanceled()
-            int recordingAction = JArray.getObj(recordingActions, i)
-            PlayAction(recordingAction, stepName, mcmLoadWaitTime = mcmLoadWaitTime)
-            if waitTimeBetweenActions
-                Utility.WaitMenuMode(waitTimeBetweenActions)
+            ; Set the current step being run...
+            SetCurrentlyPlayingStepFilename(filename)
+            SetCurrentlyPlayingStepIndex(fileIndex)
+
+            ; Show notification for the current step being run
+            if verbose
+                McmRecorder_UI.Notification(filename + " (" + (fileIndex + 1) + "/" + stepFiles.Length + ")")
             endIf
-            i += 1
-        endWhile
 
-        JValue.release(recordingActions)
+            McmRecorder_Logging.ConsoleOut("Play Step: " + stepName)
+
+            int i = 0
+            while i < actionCount && (! IsCurrentRecordingCanceled()) && (! IsCurrentRecordingPaused())
+                bool shouldPlay = (startingActionIndex == -1) ; If no action specified, should play!
+                if ! shouldPlay
+                    shouldPlay = ! isFirstStep ; If a specific action was provided but this is no longer the first step, should play!
+                endIf
+                if ! shouldPlay
+                    shouldPlay = i >= startingActionIndex
+                endIf
+                if shouldPlay
+                    SetCurrentlyPlayingActionIndex(i)
+                    int recordingAction = JArray.getObj(recordingActions, i)
+                    PlayAction(recordingAction, stepName, mcmLoadWaitTime = mcmLoadWaitTime)
+                    if waitTimeBetweenActions
+                        Utility.WaitMenuMode(waitTimeBetweenActions)
+                    endIf
+                endIf
+                i += 1
+            endWhile
+
+            JValue.release(recordingActions)
+            isFirstStep = false
+        endIf
+
         fileIndex += 1
     endWhile
 
@@ -71,6 +115,8 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
     if verbose
         if IsCurrentRecordingCanceled()
             McmRecorder_UI.Notification("Canceled " + recordingName)
+        elseIf IsCurrentRecordingPaused()
+            McmRecorder_UI.Notification("Paused " + recordingName)
         else
             McmRecorder_UI.Notification("Finished " + recordingName)
             McmRecorder_UI.FinishedMessage(recordingName)
@@ -79,12 +125,22 @@ function PlayRecording(string recordingName, float waitTimeBetweenActions = 0.0,
 
     if IsCurrentRecordingCanceled()
         McmRecorder_Logging.ConsoleOut("Recording canceled: " + recordingName)
+    elseIf IsCurrentRecordingPaused()
+        McmRecorder_Logging.ConsoleOut("Recording paused: " + recordingName)
     else
         McmRecorder_Logging.ConsoleOut("Recording finished: " + recordingName)
     endIf
 
+    MarkRecordingAsNotPlaying()
     SetIsPlayingRecording(false)
     recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
+
+    if IsCurrentRecordingPaused()
+        McmRecorder_UI.MessageBox("Recording has been paused.")
+    endIf
+
+    ; Add config that will do this automatically!
+    McmRecorder_Logging.DumpAll()
 endFunction
 
 function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.0) global
@@ -178,7 +234,6 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     elseIf JMap.hasKey(actionInfo, "slider")
         optionType = "slider"
     else
-        McmRecorder_UI.MessageBox("MCM recording step " + stepName + " has action of unknown or unsupported type: '" + optionType + "'\n" + McmRecorder_Logging.ToJson(actionInfo))
         return
     endIf
 
@@ -207,6 +262,24 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
             SetCurrentlySkippingModName(modName)
         endIf
     endIf
+endFunction
+
+function ResumeCurrentRecording() global
+    string pausedRecordingName = GetCurrentlyPlayingRecordingName()
+    McmRecorder_Logging.ConsoleOut("Resume recording: " + pausedRecordingName)
+    McmRecorder_UI.Notification("Resume recording: " + pausedRecordingName)
+    string pausedStepFilename = GetCurrentlyPlayingStepFilename()
+    string pausedStepName = StringUtil.Substring(pausedStepFilename, 0, StringUtil.Find(pausedStepFilename, ".json"))
+    int pausedActionIndex = GetCurrentlyPlayingActionIndex()
+    ResetCurrentPlaybackPaused()
+    PlayRecording(pausedRecordingName, pausedStepName, pausedActionIndex + 1, reset = false)
+endFunction
+
+function CancelCurrentRecording() global
+    string pausedRecordingName = GetCurrentlyPlayingRecordingName()
+    McmRecorder_Logging.ConsoleOut("Canceled recording: " + pausedRecordingName)
+    McmRecorder_UI.Notification("Canceled recording: " + pausedRecordingName)
+    Reset()
 endFunction
 
 function ApplyActionToOption(int option, SKI_ConfigBase mcmMenu, string modName, string pageName, int actionInfo, string stepName, string stateName, string optionType, string selector, string selectorType, int index) global
@@ -419,6 +492,14 @@ int function GetCurrentlyPlayingStepIndex() global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingStepIndex())
 endFunction
 
+function SetCurrentlyPlayingActionIndex(int stepIndex) global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingActionIndex(), stepIndex, createMissingKeys = true)
+endFunction
+
+int function GetCurrentlyPlayingActionIndex() global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingActionIndex())
+endFunction
+
 string function GetCurrentPlayingRecordingModName() global
     return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingModName())
 endFunction
@@ -562,4 +643,25 @@ endFunction
 
 bool function IsCurrentRecordingCanceled() global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled())
+endFunction
+
+function PauseCurrentPlayback() global
+    MarkRecordingAsNotPlaying()
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused(), 1, createMissingKeys = true)
+endFunction
+
+function ResetCurrentPlaybackPaused() global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused(), 0)
+endFunction
+
+bool function IsCurrentRecordingPaused() global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused())
+endFunction
+
+function MarkRecordingAsPlaying() global
+    McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1
+endFunction
+
+function MarkRecordingAsNotPlaying() global
+    McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
 endFunction

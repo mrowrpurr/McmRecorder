@@ -1,5 +1,7 @@
 ## Needs
 
+- [ ] Update recorder to use "mod"/"page" once then not in the other steps
+- [ ] Update SKSE Mod Events to support running recording's certain step and action
 - [ ] "Async" actions
 - [x] Can hide a recording in the main overview list
 - [ ] Ability to Cancel Running Recording

@@ -72,6 +72,10 @@ string function JdbPath_PlayingStepIndex() global
     return ".mcmRecorder.playingRecording.stepIndex"
 endFunction
 
+string function JdbPath_PlayingActionIndex() global
+    return ".mcmRecorder.playingRecording.actionIndex"
+endFunction
+
 string function JdbPath_PlayingRecordingModName() global
     return ".mcmRecorder.playingRecording.modName"
 endFunction
@@ -90,6 +94,10 @@ endFunction
 
 string function JdbPath_PlayingRecordingHasBeenCanceled() global
     return ".mcmRecorder.playingRecording.canceled"
+endFunction
+
+string function JdbPath_PlayingRecordingIsPaused() global
+    return ".mcmRecorder.playingRecording.paused"
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

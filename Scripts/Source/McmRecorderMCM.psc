@@ -1,12 +1,16 @@
 scriptName McmRecorderMCM extends SKI_ConfigBase
 {**PRIVATE** Please do not edit.}
 
+; TODO - put different MCM pages into different files :)
+
 McmRecorder Recorder
 
 int oid_Record
 int oid_Stop
 int[] oids_Recordings
 int oid_KeyboardShortcuts_RecordingSelectionMenu
+int oid_ResumePausedRecording
+int oid_CancelPausedRecording
 
 string[] menuOptions
 string[] recordings
@@ -66,7 +70,11 @@ event OnPageReset(string page)
         elseIf page == "VR Gestures"
             Render_VRGestures()
         else
-            Render_Recordings()
+            if McmRecorder_Player.IsCurrentRecordingPaused()
+                Render_PausedRecordingMenu()
+            else
+                Render_Recordings()
+            endIf
         endIf
     else
         if ! papyrusUtilOK
@@ -93,6 +101,16 @@ function Render_Recordings()
         AddEmptyOption()
     endIf
     ListRecordings()
+endFunction
+
+function Render_PausedRecordingMenu()
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    string pausedRecordingName = McmRecorder_Player.GetCurrentlyPlayingRecordingName()
+    AddHeaderOption("Recording currently paused", OPTION_FLAG_NONE)
+    AddTextOption("Recording name:", "", OPTION_FLAG_DISABLED)
+    AddTextOption(pausedRecordingName, "", OPTION_FLAG_DISABLED)
+    oid_ResumePausedRecording = AddTextOption("", "RESUME RECORDING", OPTION_FLAG_NONE)
+    oid_CancelPausedRecording = AddTextOption("", "CANCEL RECORDING", OPTION_FLAG_NONE)
 endFunction
 
 function Render_KeyboardShortcuts()
@@ -253,6 +271,19 @@ function ListRecordings()
 endFunction
 
 event OnOptionSelect(int optionId)
+    if McmRecorder_Player.IsCurrentRecordingPaused()
+        string pausedRecordingName = McmRecorder_Player.GetCurrentlyPlayingRecordingName()
+        if optionId == oid_ResumePausedRecording
+            Debug.MessageBox("Resuming recording " + pausedRecordingName + "\n\nClose MCM to continue")
+            McmRecorder_Player.ResumeCurrentRecording()
+        elseIf optionId == oid_CancelPausedRecording
+            McmRecorder_Player.CancelCurrentRecording()
+            Debug.MessageBox("Canceled recording " + pausedRecordingName)
+        endIf
+        ForcePageReset()
+        return
+    endIf
+
     if IsSkyrimVR && optionId == oid_Record ; SkyrimVR
         if ! McmRecorder_Recorder.IsRecording()
             McmRecorder_Recorder.BeginRecording(GetRandomRecordingName())
