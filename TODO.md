@@ -1,3 +1,34 @@
+- [ ] `"msgbox": "Some dialog message"`
+- [ ] `"print": "Some console message"`
+- [ ] `"notify": "Some notification message"`
+- [ ] `"wait": 1.5
+- [ ] `"dialog": ["Option1", "Option2"], "text": "..."`
+- [ ] `"chooser": ["Option1", "Option2"]`
+- [ ] Translation support for all of the above
+- [ ] `"var": "coolvar", "value": 12.34`
+- [ ] `"msgbox": "Some dialog message", "if": "somevar"`
+- [ ] `"msgbox": "Some dialog message", "if": "somevar = some value"`
+- [ ] `"play": "recording name"`
+- [ ] `"play": "recording name", "step": "step name"`
+- [ ] `"ini": "sSomething=Whatever"`
+- [ ] `"console": "tgm"`
+- [ ] `"coc": "whiterunorigin"`
+- [ ] `"add": ["f"], "count": 1`
+- [ ] `"add": ["d65", "somerandom.esp"], "count": 1`
+- [ ] `"equip": ["d65", "somerandom.esp"], "count": 1`
+- [ ] `"fadeToBlack": true`
+- [ ] `"fadeToBlack": false`
+- [ ] `"camera": "3rd"`
+- [ ] `"save": true`
+- [ ] `"autosave": true`
+- [ ] `"modEvent": "ModEventName", "params": [1, "hi", true], "paramTypes": ["int", "string", "bool"]`
+- [ ] `"background": true`
+- [ ] `"quest": "QuestName": "start": true`
+- [ ] `"quest": "QuestName": "stop": true`
+- [ ] `"action": "MyAction", "whatever": true - ` _extensible via a FOLDER of .ini for action types_
+
+------------------------------------------------------------------------------
+
 ## Needs
 
 - [ ] Update recorder to use "mod"/"page" once then not in the other steps
