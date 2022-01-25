@@ -11,7 +11,7 @@
     Final="false">
     <Variables>
         <Variable Name="ModName" Value="McmRecorder" />
-        <Variable Name="ModVersion" Value="1.0.8" />
+        <Variable Name="ModVersion" Value="1.1.0" />
         <Variable Name="ModsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Mods" />
         <Variable Name="ImportsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Imports" />
     </Variables>
