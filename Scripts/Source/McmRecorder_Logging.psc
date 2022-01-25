@@ -9,7 +9,7 @@ function LogContainer(string text, int jcontainer) global
 endFunction
 
 string function ToJson(int jcontainer) global
-    string filepath = McmRecorder_RecordingFiles.PathToRecordings() + "/" + ".temp" + "/temp.json"
+    string filepath = McmRecorder_Files.GetMcmRecordingsDataPath() + "/" + ".temp" + "/temp.json"
     JValue.writeToFile(jcontainer, filepath)
     return MiscUtil.ReadFromFile(filepath)
 endFunction

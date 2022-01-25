@@ -2,24 +2,24 @@ scriptName McmRecorder_KeyboardShortcuts
 {Responsible for MCM Recorder keyboard shortcuts and VR VRIK gestures}
 
 function AddRecording(string recordingName) global
-    int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+    int recordingInfo = McmRecorder_Recording.Get(recordingName)
     int shortcut = JMap.getObj(recordingInfo, "shortcut")
     if ! shortcut
         shortcut = JMap.object()
         JMap.setObj(recordingInfo, "shortcut", shortcut)
     endIf
     JMap.setInt(shortcut, "key", -1)
-    McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+    McmRecorder_Recording.Save(recordingInfo)
 endFunction
 
 int function GetShortcutsInfos() global
-    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
     int shortcutInfos = JArray.object()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_MCM_KeyboardShortcuts_ShortcutInfos(), shortcutInfos, createMissingKeys = true)
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
         int shortcut = JMap.getObj(recordingInfo, "shortcut")
         if shortcut
             int shortcutInfo = JMap.object()
@@ -34,12 +34,12 @@ endFunction
 
 int[] function GetAllKeyboardShortcutKeys() global
     int[] keycodes
-    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
     int shortcutInfos = JArray.object()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
         int shortcut = JMap.getObj(recordingInfo, "shortcut")
         if shortcut
             int keycode = JMap.getInt(shortcut, "key")
@@ -58,12 +58,12 @@ function RunKeyboardShortcutIfAny(int pressedKey) global
     bool altPressed  = Input.IsKeyPressed(56)  || Input.IsKeyPressed(184)
     bool shiftPressed = Input.IsKeyPressed(42) || Input.IsKeyPressed(54)
     bool found
-    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
     int shortcutInfos = JArray.object()
     int i = 0
     while i < recordingNames.Length && (!found)
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
         int shortcut = JMap.getObj(recordingInfo, "shortcut")
         if shortcut
             int keycode = JMap.getInt(shortcut, "key")

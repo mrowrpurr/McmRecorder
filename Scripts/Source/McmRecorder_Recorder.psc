@@ -10,7 +10,7 @@ bool function AnyRecordings() global
 endFunction
 
 int function RecordingsCount() global
-    return McmRecorder_RecordingFiles.GetRecordingNames().Length
+    return McmRecorder_Files.GetRecordingNames().Length
 endFunction
 
 function RecordAction(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global
@@ -113,7 +113,7 @@ function RecordAction(SKI_ConfigBase mcmMenu, string modName, string pageName, s
             McmRecorder_Logging.ConsoleOut(debugPrefix + " input '" + strValue + "'")
         endIf
 
-        McmRecorder_RecordingFiles.SaveCurrentRecording(GetCurrentRecordingName(), modName)
+        McmRecorder_Files.SaveCurrentRecording(GetCurrentRecordingName(), modName)
     endIf
 endFunction
 
@@ -125,7 +125,7 @@ function BeginRecording(string recordingName) global
     JMap.setStr(metaFile, "name", recordingName)    
     JMap.setStr(metaFile, "version", "1.0.0")
     JMap.setStr(metaFile, "autorun", "false")
-    McmRecorder_RecordingFiles.SaveRecordingInfoFile(recordingName, metaFile)
+    McmRecorder_Files.SaveRecordingInfoFile(recordingName, metaFile)
 endFunction
 
 function ContinueRecording(string recordingName) global

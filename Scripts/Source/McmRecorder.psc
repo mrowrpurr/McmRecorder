@@ -15,20 +15,35 @@ Message property McmRecorder_Message_SelectorNotFound auto
 Message property McmRecorder_Message_ModNotFound auto
 
 ; Message shown when user opens the System/Journal while a recording is playing
-Message Property McmRecorder_Message_PauseOrCancelEtc  Auto  
+Message property McmRecorder_Message_PauseOrCancelEtc auto
+
+; Generic message for adding prompts and confirmations etc to recordings
+Message property McmRecorder_Message_Generic auto
+
+; Global Variables for Generic message buttons
+GlobalVariable property McmRecorder_Var_GenericMessage_Back auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Continue auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Yes auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Pause auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Resume auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Install auto
+GlobalVariable property McmRecorder_Var_GenericMessage_No auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Next auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Cancel auto
+GlobalVariable property McmRecorder_Var_GenericMessage_Exit auto
+
+; Used to conditionally show buttons on the message we show when you open the System menu during a recording (or while one is paused)
+GlobalVariable property McmRecorder_Var_IsRecordingCurrentlyPlaying auto
 
 ; Form used to set dynamic text in all of the Message dialogs used by MCM Recorder.
 Form property McmRecorder_MessageText auto
-
-; Used to conditionally show buttons on the message we show when you open the System menu during a recording (or while one is paused)
-GlobalVariable Property McmRecorder_Var_IsRecordingCurrentlyPlaying  Auto  
 
 ; Stores the installed version of MCM Recorder. Used for performing version upgrades.
 string property CurrentlyInstalledVersion auto
 
 ; Returns the installed version of MCM Recorder
 string function GetVersion() global
-    return "1.0.7"
+    return "1.0.8"
 endFunction
 
 event OnInit()
@@ -104,12 +119,12 @@ event OnMenuClose(string menuName)
 endEvent
 
 function AutorunRecordings()
-    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-        if McmRecorder_RecordingInfo.IsAutorun(recordingInfo) && (! McmRecorder_Player.HasBeenAutorun(recordingName))
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
+        if McmRecorder_Recording.IsAutorun(recordingInfo) && (! McmRecorder_Player.HasBeenAutorun(recordingName))
             McmRecorder_Player.MarkHasBeenAutorun(recordingName)
             McmRecorder_Logging.Log("Autorun Recording " + recordingName)
             McmRecorder_Player.PlayRecording(recordingName, mcmLoadWaitTime = 30.0)

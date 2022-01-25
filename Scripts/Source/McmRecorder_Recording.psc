@@ -1,12 +1,32 @@
-scriptName McmRecorder_RecordingInfo hidden
+scriptName McmRecorder_Recording hidden
 
 int function Get(string recordingName) global
-    return McmRecorder_RecordingFiles.GetRecordingInfo(recordingName)
+
+
+
+    return McmRecorder_Files.GetRecordingInfo(recordingName)
 endFunction
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; TODO remove the recordingName parameter
-function Save(string recordingName, int recordingInfo) global
-    McmRecorder_RecordingFiles.SaveRecordingInfoFile(recordingName, recordingInfo)
+function Save(int recordingInfo) global
+    McmRecorder_Files.SaveRecordingInfoFile(GetName(recordingInfo), recordingInfo)
 endFunction
 
 bool function IsAutorun(int recordingInfo) global
@@ -27,7 +47,7 @@ bool function SetIsVrGesture(int recordingInfo, bool enabled = true) global
     else
         JMap.removeKey(recordingInfo, "gesture")
     endIf
-    Save(GetName(recordingInfo), recordingInfo)
+    Save(recordingInfo)
 endFunction
 
 string function GetName(int recordingInfo) global
@@ -45,7 +65,7 @@ endFunction
 
 int function GetTotalActionCount(int recordingInfo) global
     string recordingName = GetName(recordingInfo)
-    int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
+    int steps = McmRecorder_Files.GetAllStepsForRecording(recordingName)
     string[] stepNames = JMap.allKeysPArray(steps)
     int stepCount = JMap.count(steps)
     int actionCount = 0
@@ -60,7 +80,7 @@ endFunction
 
 string function GetDescriptionText(int recordingInfo) global
     string recordingName = GetName(recordingInfo)
-    string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
+    string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
     string recordingDescription = recordingName
     recordingDescription += "\nSteps: " + stepNames.Length
     return recordingDescription

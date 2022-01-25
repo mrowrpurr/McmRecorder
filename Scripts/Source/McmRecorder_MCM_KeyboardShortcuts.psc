@@ -1,0 +1,1 @@
+scriptName McmRecorder_MCM_KeyboardShortcuts hidden

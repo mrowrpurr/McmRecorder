@@ -186,7 +186,7 @@ int function GetShortcutInfoAndActionForOptionsID(int optionId)
 endFunction
 
 function Render_VRGestures()
-    recordings = McmRecorder_RecordingFiles.GetRecordingNames()
+    recordings = McmRecorder_Files.GetRecordingNames()
     if recordings.Length && ((! McmRecorder_Recorder.IsRecording()) || recordings.Length > 1)
         SetCursorFillMode(TOP_TO_BOTTOM)
         AddTextOption("Choose MCM Recordings", "", OPTION_FLAG_DISABLED)
@@ -199,12 +199,12 @@ function Render_VRGestures()
         while i < recordings.Length
             string recordingName = recordings[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
-                int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-                if ! McmRecorder_RecordingInfo.IsHidden(recordingInfo)
+                string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
+                int recordingInfo = McmRecorder_Recording.Get(recordingName)
+                if ! McmRecorder_Recording.IsHidden(recordingInfo)
                     oids_Recordings[i] = AddToggleOption(recordingName, isGesture, OPTION_FLAG_NONE)
 
-                    bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recordingInfo)
+                    bool isGesture = McmRecorder_Recording.IsVrGesture(recordingInfo)
                     string stepCountText
                     if stepNames.Length == 1
                         stepCountText = stepNames.Length + " mod"
@@ -212,7 +212,7 @@ function Render_VRGestures()
                         stepCountText = stepNames.Length + " mods"
                     endIf
 
-                    int totalActionCount = McmRecorder_RecordingInfo.GetTotalActionCount(recordingInfo)
+                    int totalActionCount = McmRecorder_Recording.GetTotalActionCount(recordingInfo)
                     string actionCountText
                     if totalActionCount == 1
                         actionCountText = totalActionCount + " configured option"
@@ -231,7 +231,7 @@ function Render_VRGestures()
 endFunction
 
 function ListRecordings()
-    recordings = McmRecorder_RecordingFiles.GetRecordingNames()
+    recordings = McmRecorder_Files.GetRecordingNames()
     if recordings.Length && ((! McmRecorder_Recorder.IsRecording()) || recordings.Length > 1)
         AddEmptyOption()
         AddEmptyOption()
@@ -242,9 +242,9 @@ function ListRecordings()
         while i < recordings.Length
             string recordingName = recordings[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
-                int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-                if ! McmRecorder_RecordingInfo.IsHidden(recordingInfo)
+                string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
+                int recordingInfo = McmRecorder_Recording.Get(recordingName)
+                if ! McmRecorder_Recording.IsHidden(recordingInfo)
                     oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
 
                     string stepCountText
@@ -254,7 +254,7 @@ function ListRecordings()
                         stepCountText = stepNames.Length + " mods"
                     endIf
 
-                    int totalActionCount = McmRecorder_RecordingInfo.GetTotalActionCount(recordingInfo)
+                    int totalActionCount = McmRecorder_Recording.GetTotalActionCount(recordingInfo)
                     string actionCountText
                     if totalActionCount == 1
                         actionCountText = totalActionCount + " configured option"
@@ -299,14 +299,14 @@ event OnOptionSelect(int optionId)
         int recordingIndex = oids_Recordings.Find(optionId)
         string recordingName = recordings[recordingIndex]
         if CurrentPage == "VR Gestures"
-            int recording = McmRecorder_RecordingInfo.Get(recordingName)
-            bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recording)
+            int recording = McmRecorder_Recording.Get(recordingName)
+            bool isGesture = McmRecorder_Recording.IsVrGesture(recording)
             if isGesture
-                McmRecorder_RecordingInfo.SetIsVrGesture(recording, false)
+                McmRecorder_Recording.SetIsVrGesture(recording, false)
                 SetToggleOptionValue(optionId, false, false)
                 McmRecorder_VRIK.UnregisterVrikGestureForRecording(recordingName)
             else
-                McmRecorder_RecordingInfo.SetIsVrGesture(recording, true)
+                McmRecorder_Recording.SetIsVrGesture(recording, true)
                 SetToggleOptionValue(optionId, true, false)
                 McmRecorder_VRIK.RegisterVrikGestureForRecording(recordingName)
             endIf
@@ -319,7 +319,7 @@ event OnOptionSelect(int optionId)
             string clickAction = JMap.getStr(shortcutInfoAndAction, "action")
             int shortcutInfo = JMap.getObj(shortcutInfoAndAction, "shortcutInfo")
             string recordingName = JMap.getStr(shortcutInfo, "recordingName")
-            int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+            int recordingInfo = McmRecorder_Recording.Get(recordingName)
             int shortcut = JMap.getObj(recordingInfo, "shortcut")
             if clickAction == "ctrl"
                 if JMap.getStr(shortcut, "ctrl") == "true"
@@ -329,7 +329,7 @@ event OnOptionSelect(int optionId)
                     JMap.setStr(shortcut, "ctrl", "true")
                     SetToggleOptionValue(optionId, true, false)
                 endIf
-                McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+                McmRecorder_Recording.Save(recordingInfo)
             elseIf clickAction == "alt"
                 if JMap.getStr(shortcut, "alt") == "true"
                     JMap.removeKey(shortcut, "alt")
@@ -338,7 +338,7 @@ event OnOptionSelect(int optionId)
                     JMap.setStr(shortcut, "alt", "true")
                     SetToggleOptionValue(optionId, true, false)
                 endIf
-                McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+                McmRecorder_Recording.Save(recordingInfo)
             elseIf clickAction == "shift"
                 if JMap.getStr(shortcut, "shift") == "true"
                     JMap.removeKey(shortcut, "shift")
@@ -347,12 +347,12 @@ event OnOptionSelect(int optionId)
                     JMap.setStr(shortcut, "shift", "true")
                     SetToggleOptionValue(optionId, true, false)
                 endIf
-                McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+                McmRecorder_Recording.Save(recordingInfo)
             elseIf clickAction == "delete"
                 if ShowMessage("Are you sure you would like to delete this shortcut?", true, "Yes", "Cancel")
                     JMap.removeKey(recordingInfo, "shortcut")
                     ForcePageReset()
-                    McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+                    McmRecorder_Recording.Save(recordingInfo)
                 endIf
             endIf
         endIf
@@ -364,12 +364,12 @@ event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, st
     if shortcutInfoAndAction
         int shortcutInfo = JMap.getObj(shortcutInfoAndAction, "shortcutInfo")
         string recordingName = JMap.getStr(shortcutInfo, "recordingName")
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
         int shortcut = JMap.getObj(recordingInfo, "shortcut")
         JMap.setInt(shortcut, "key", keyCode)
         SetKeyMapOptionValue(optionId, keyCode, false)
         Recorder.StopListeningForKeyboardShortcuts()
-        McmRecorder_RecordingInfo.Save(recordingName, recordingInfo)
+        McmRecorder_Recording.Save(recordingInfo)
         Recorder.StartListenForKeyboardShortcuts()
     endIf
 endEvent
@@ -389,12 +389,12 @@ endEvent
 event OnOptionMenuOpen(int optionId)
     if optionId == oid_KeyboardShortcuts_RecordingSelectionMenu
         menuOptions = new string[1]
-        string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+        string[] recordingNames = McmRecorder_Files.GetRecordingNames()
         int recordingsWithoutShortcutsCount = 0
         int i = 0
         while i < recordingNames.Length
             string recordingName = recordingNames[i]
-            if ! JMap.getObj(McmRecorder_RecordingInfo.Get(recordingName), "shortcut")
+            if ! JMap.getObj(McmRecorder_Recording.Get(recordingName), "shortcut")
                 recordingsWithoutShortcutsCount += 1
                 menuOptions = Utility.ResizeStringArray(menuOptions, recordingsWithoutShortcutsCount)
                 menuOptions[menuOptions.Length - 1] = recordingName
@@ -424,8 +424,8 @@ endFunction
 
 ; TODO move to the McmRecorder maybe a global script for prompts
 function PromptToRunRecordingOrPreviewSteps(string recordingName)
-    int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-    string recordingDescription = McmRecorder_RecordingInfo.GetDescriptionText(recordingInfo)
+    int recordingInfo = McmRecorder_Recording.Get(recordingName)
+    string recordingDescription = McmRecorder_Recording.GetDescriptionText(recordingInfo)
     bool confirmation = true
 
     ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog
@@ -437,7 +437,7 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     endIf
 
     if confirmation
-        string[] stepNames = McmRecorder_RecordingFiles.GetRecordingStepFilenames(recordingName)
+        string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
         string text = recordingDescription + "\n"
         int i = 0
         while i < stepNames.Length && i < 11

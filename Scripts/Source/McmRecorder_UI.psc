@@ -25,8 +25,8 @@ string function Options_SkipThisMod() global
 endFunction
 
 function FinishedMessage(string recordingName) global
-    int recording = McmRecorder_RecordingInfo.Get(recordingName)
-    string finishedMessage = McmRecorder_RecordingInfo.GetCompleteMessage(recording)
+    int recording = McmRecorder_Recording.Get(recordingName)
+    string finishedMessage = McmRecorder_Recording.GetCompleteMessage(recording)
     if ! finishedMessage
         finishedMessage = recordingName + " has finished playing."
     endIf
@@ -34,8 +34,8 @@ function FinishedMessage(string recordingName) global
 endFunction
 
 function WelcomeMessage(string recordingName) global
-    int recording = McmRecorder_RecordingInfo.Get(recordingName)
-    string welcomeMessage = McmRecorder_RecordingInfo.GetWelcomeMessage(recording)
+    int recording = McmRecorder_Recording.Get(recordingName)
+    string welcomeMessage = McmRecorder_Recording.GetWelcomeMessage(recording)
     if welcomeMessage
         MessageBox(welcomeMessage)
     endIf

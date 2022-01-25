@@ -13,12 +13,12 @@ bool function IsVrikInstalled() global
 endFunction
 
 function RegisterVrikGesturesForRecordings() global
-    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-        bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recordingInfo)
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
+        bool isGesture = McmRecorder_Recording.IsVrGesture(recordingInfo)
         if isGesture
             RegisterVrikGestureForRecording(recordingName)
         endIf
@@ -37,12 +37,12 @@ function UnregisterVrikGestureForRecording(string recordingName) global
 endFunction
 
 function ListenForVriKGesturesForRecordings() global
-    string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
+    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_RecordingInfo.Get(recordingName)
-        bool isGesture = McmRecorder_RecordingInfo.IsVrGesture(recordingInfo)
+        int recordingInfo = McmRecorder_Recording.Get(recordingName)
+        bool isGesture = McmRecorder_Recording.IsVrGesture(recordingInfo)
         if isGesture
             ListenForVriKGestureForRecording(recordingName)
         endIf

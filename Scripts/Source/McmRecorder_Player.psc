@@ -39,7 +39,7 @@ function PlayRecording(string recordingName, string startingStep = "", int start
     recorder.ListenForSystemMenuOpen()
     recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1
 
-    int steps = McmRecorder_RecordingFiles.GetAllStepsForRecording(recordingName)
+    int steps = McmRecorder_Files.GetAllStepsForRecording(recordingName)
     SetCurrentlyPlayingSteps(steps)
 
     string[] stepFiles = JMap.allKeysPArray(steps)
@@ -148,7 +148,7 @@ function PlayStep(string recordingName, string stepName, float waitTimeBetweenAc
     SetCurrentPlayingRecordingModPageName("")
     SetIsPlayingRecording(true) ; XXX is this used?
 
-    int stepInfo = McmRecorder_RecordingFiles.GetRecordingStep(recordingName, stepName)
+    int stepInfo = McmRecorder_Files.GetRecordingStep(recordingName, stepName)
     JValue.retain(stepInfo)
 
     McmRecorder_UI.Notification("Playing step " + stepName + " of recording " + recordingName)

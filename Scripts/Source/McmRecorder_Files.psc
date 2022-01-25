@@ -1,5 +1,34 @@
-scriptName McmRecorder_RecordingFiles hidden
+scriptName McmRecorder_Files hidden
 {Responsible for managing the recording files found in Data\McmRecorder\}
+
+string function GetMcmRecordingsDataPath() global
+    return "Data/McmRecorder"
+endFunction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 function SaveCurrentRecording(string recordingName, string modName) global
     JValue.writeToFile(McmRecorder_Recorder.GetCurrentRecordingSteps(), GetFileNameForRecordingAction(recordingName, modName))
@@ -14,7 +43,7 @@ int function GetAllStepsForRecording(string recordingName) global
 endFunction
 
 string[] function GetRecordingNames() global
-    if ! MiscUtil.FileExists(PathToRecordings())
+    if ! MiscUtil.FileExists(GetMcmRecordingsDataPath())
         string[] ret
         return ret
     endIf
@@ -22,9 +51,9 @@ string[] function GetRecordingNames() global
     string[] fileNames
     
     if McmRecorder_Config.IsSkyrimVR()
-        fileNames = JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordings()))
+        fileNames = JMap.allKeysPArray(JValue.readFromDirectory(GetMcmRecordingsDataPath()))
     else
-        fileNames = MiscUtil.FilesInFolder(PathToRecordings())
+        fileNames = MiscUtil.FilesInFolder(GetMcmRecordingsDataPath())
     endIf
     
     int i = 0
@@ -51,19 +80,15 @@ int function GetRecordingStep(string recordingName, string stepName) global
     return JValue.readFromFile(PathToStepFile(recordingName, stepName))
 endFunction
 
-string function PathToRecordings() global
-    return "Data/McmRecorder"
-endFunction
-
 string function PathToRecordingFolder(string recordingName) global
-    return PathToRecordings() + "/" + FileSystemPathPart(recordingName)
+    return GetMcmRecordingsDataPath() + "/" + FileSystemPathPart(recordingName)
 endFunction
 
 string function PathToStepFile(string recordingName, string stepName) global
     if StringUtil.Find(stepName, ".json")
-        return PathToRecordings() + "/" + FileSystemPathPart(recordingName) + "/" + stepName
+        return GetMcmRecordingsDataPath() + "/" + FileSystemPathPart(recordingName) + "/" + stepName
     else
-        return PathToRecordings() + "/" + FileSystemPathPart(recordingName) + "/" + stepName + ".json"
+        return GetMcmRecordingsDataPath() + "/" + FileSystemPathPart(recordingName) + "/" + stepName + ".json"
     endIf
 endFunction
 

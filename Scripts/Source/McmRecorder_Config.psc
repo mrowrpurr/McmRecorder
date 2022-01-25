@@ -3,6 +3,8 @@ scriptName McmRecorder_Config hidden
     
 Settings are defined in Data\McmRecorder.json}
 
+; CURRENTLY UNUSED!
+
 function ReloadConfig() global
     ; TODO
 endFunction
