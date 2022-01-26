@@ -4,37 +4,30 @@ McmRecorder Recorder
 
 int property oid_RecordingList_Record auto
 int property oid_RecordingList_Stop auto
+int[] property RecordingList_RecordingTextOptions auto
+string[] property RecordingList_RecordingNames auto
 
-int oid_Record
-int oid_Stop
-int[] oids_Recordings
-int oid_KeyboardShortcuts_RecordingSelectionMenu
-int oid_ResumePausedRecording
-int oid_CancelPausedRecording
+int property oid_PausedRecording_Resume auto
+int property oid_PausedRecording_Cancel auto
 
-string[] menuOptions
-string[] recordings
-bool isPlayingRecording
-string currentlyPlayingRecordingName
-bool openRunOrPreviewStepsPrompt
+int property oid_KeyboardShortcuts_SelectRecordingMenu auto
+string[] property KeyboardShortcuts_RecordingNamesMenu auto
 
-; Move to a Integration or Compatibility file
-bool property IsVrikInstalled
-    bool function get()
-        return McmRecorder_VR.IsVrikInstalled()
-    endFunction
-endProperty
-bool property HasJcontainersInstalled
-    bool function get()
-        return JContainers.APIVersion()
-    endFunction
-endProperty
+int[] property oid_VrGestures_RecordingToggles auto
+string[] property VrGestures_RecordingNames auto
 
-bool property HasPapyrusUtilInstalled
-    bool function get()
-        return PapyrusUtil.GetVersion() 
-    endFunction
-endProperty
+; Private fields from previous versions: TODO comment out!
+; int oid_Record
+; int oid_Stop
+; int[] oids_Recordings
+; int oid_KeyboardShortcuts_RecordingSelectionMenu
+; int oid_ResumePausedRecording
+; int oid_CancelPausedRecording
+; string[] menuOptions
+; string[] recordings
+; bool isPlayingRecording
+; string currentlyPlayingRecordingName
+; bool openRunOrPreviewStepsPrompt
 
 event OnConfigInit()
     ModName = "MCM Recorder"
@@ -55,432 +48,65 @@ event OnConfigOpen()
 endEvent
 
 event OnPageReset(string page)
-    bool papyrusUtilOK = HasPapyrusUtilInstalled
-    bool jcontainersOK = HasJcontainersInstalled
+    if (! McmRecorder_Dependencies.IsPapyrusUtilInstalled()) || (! McmRecorder_Dependencies.IsJContainersInstalled())
+        ShowDependencyError()
+        return
+    endIf
 
-    if papyrusUtilOK && jcontainersOK
-        if page == "Keyboard Shortcuts"
-            Render_KeyboardShortcuts()
-        elseIf page == "VR Gestures"
-            Render_VRGestures()
-        else
-            if McmRecorder_Player.IsCurrentRecordingPaused()
-                Render_PausedRecordingMenu()
-            else
-                McmRecorder_MCM_RecordingList.Render(self)
-            endIf
-        endIf
+    if page == McmRecorder_MCM_KeyboardShortcuts.PageName()
+        McmRecorder_MCM_KeyboardShortcuts.Render(self)
+    elseIf page == McmRecorder_MCM_VrGestures.PageName()
+        McmRecorder_MCM_VrGestures.Render(self)
     else
-        if ! papyrusUtilOK
-            AddTextOption("<font color=\"#ff0000\">PapyrusUtil not found</font>", "<font color=\"#ff0000\">FAILED</font>", OPTION_FLAG_DISABLED)
-            AddTextOption("<font color=\"#ff0000\">(or incompatible version installed)</font>", "", OPTION_FLAG_DISABLED)
-        endIf
-        if ! jcontainersOK
-            AddTextOption("<font color=\"#ff0000\">JContainers not found</font>", "<font color=\"#ff0000\">FAILED</font>", OPTION_FLAG_DISABLED)
-            AddTextOption("<font color=\"#ff0000\">(or incompatible version installed)</font>", "", OPTION_FLAG_DISABLED)
+        if McmRecorder_Player.IsCurrentRecordingPaused()
+            McmRecorder_MCM_RecordingPaused.Render(self)
+        else
+            McmRecorder_MCM_RecordingList.Render(self)
         endIf
     endIf
 endEvent
 
-function Render_PausedRecordingMenu()
-    SetCursorFillMode(TOP_TO_BOTTOM)
-    string pausedRecordingName = McmRecorder_Player.GetCurrentlyPlayingRecordingName()
-    AddHeaderOption("Recording currently paused", OPTION_FLAG_NONE)
-    AddTextOption("Recording name:", "", OPTION_FLAG_DISABLED)
-    AddTextOption(pausedRecordingName, "", OPTION_FLAG_DISABLED)
-    oid_ResumePausedRecording = AddTextOption("", "RESUME RECORDING", OPTION_FLAG_NONE)
-    oid_CancelPausedRecording = AddTextOption("", "CANCEL RECORDING", OPTION_FLAG_NONE)
-endFunction
-
-function Render_KeyboardShortcuts()
-    if McmRecorder_Recorder.AnyRecordings()
-        ; Recording Choice Dropdown
-        AddTextOption("Choose a recording to set keyboard shortcut", "", OPTION_FLAG_DISABLED)
-        AddEmptyOption()
-        oid_KeyboardShortcuts_RecordingSelectionMenu = AddMenuOption("", "[Choose Recording]", OPTION_FLAG_NONE)
-        AddEmptyOption()
-
-        ; Existing keyboard shortcuts
-        Render_KeyboardShortcutInfos(McmRecorder_KeyboardShortcuts.GetShortcutsInfos())
-    else
-        AddTextOption("No recordings available", "", OPTION_FLAG_DISABLED)
+function ShowDependencyError()
+    if ! McmRecorder_Dependencies.IsPapyrusUtilInstalled()
+        AddTextOption("<font color=\"#ff0000\">PapyrusUtil not found</font>", "<font color=\"#ff0000\">FAILED</font>", OPTION_FLAG_DISABLED)
+        AddTextOption("<font color=\"#ff0000\">(or incompatible version installed)</font>", "", OPTION_FLAG_DISABLED)
     endIf
-endFunction
-
-function Render_KeyboardShortcutInfos(int shortcutInfos)
-    int shortcutOptions = JIntMap.object()
-    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_MCM_KeyboardShortcuts_ShortcutOptions(), shortcutOptions, createMissingKeys = true)
-    int shortcutInfosCount = JArray.count(shortcutInfos)
-    if shortcutInfosCount > 0
-        AddEmptyOption()
-        AddEmptyOption()
-        int i = 0
-        while i < shortcutInfosCount
-
-            int shortcutInfo = JArray.getObj(shortcutInfos, i)
-            string recordingName = JMap.getStr(shortcutInfo, "recordingName")
-            int shortcut = JMap.getObj(shortcutInfo, "shortcut")
-            int keycode = JMap.getInt(shortcut, "key")
-
-            int keymap = JMap.object()
-            JMap.setStr(keymap, "action", "keymap")
-            JMap.setObj(keymap, "shortcutInfo", shortcutInfo)
-
-            int ctrl = JMap.object()
-            JMap.setStr(ctrl, "action", "ctrl")
-            JMap.setObj(ctrl, "shortcutInfo", shortcutInfo)
-
-            int alt = JMap.object()
-            JMap.setStr(alt, "action", "alt")
-            JMap.setObj(alt, "shortcutInfo", shortcutInfo)
-
-            int shift = JMap.object()
-            JMap.setStr(shift, "action", "shift")
-            JMap.setObj(shift, "shortcutInfo", shortcutInfo)
-
-            int delete = JMap.object()
-            JMap.setStr(delete, "action", "delete")
-            JMap.setObj(delete, "shortcutInfo", shortcutInfo)
-
-            JIntMap.setObj(shortcutOptions, AddKeyMapOption(recordingName, keycode, OPTION_FLAG_NONE), keymap)
-            JIntMap.setObj(shortcutOptions, AddTextOption("Click to delete Recording", "DELETE", OPTION_FLAG_NONE), delete)
-            JIntMap.setObj(shortcutOptions, AddToggleOption("Ctrl", JMap.getStr(shortcut, "ctrl") == "true", OPTION_FLAG_NONE), ctrl)
-            AddEmptyOption()
-            JIntMap.setObj(shortcutOptions, AddToggleOption("Alt", JMap.getStr(shortcut, "alt") == "true", OPTION_FLAG_NONE), alt)
-            AddEmptyOption()
-            JIntMap.setObj(shortcutOptions, AddToggleOption("Shift", JMap.getStr(shortcut, "shift") == "true", OPTION_FLAG_NONE), shift)
-            AddEmptyOption()
-            AddEmptyOption()
-            AddEmptyOption()
-            i += 1
-        endWhile
-    endIf
-endFunction
-
-int function GetShortcutInfoAndActionForOptionsID(int optionId)
-    int shortcutOptions = JDB.solveObj(McmRecorder_JDB.JdbPath_MCM_KeyboardShortcuts_ShortcutOptions())
-    if shortcutOptions
-        return JIntMap.getObj(shortcutOptions, optionId)
-    endIf
-endFunction
-
-function Render_VRGestures()
-    recordings = McmRecorder_Files.GetRecordingNames()
-    if recordings.Length && ((! McmRecorder_Recorder.IsRecording()) || recordings.Length > 1)
-        SetCursorFillMode(TOP_TO_BOTTOM)
-        AddTextOption("Choose MCM Recordings", "", OPTION_FLAG_DISABLED)
-        AddTextOption("These will become available as VRIK Gestures", "", OPTION_FLAG_DISABLED)
-        AddTextOption("which can be configured via the VRIK MCM", "", OPTION_FLAG_DISABLED)
-        AddEmptyOption()
-        SetCursorFillMode(LEFT_TO_RIGHT)
-        oids_Recordings = Utility.CreateIntArray(recordings.Length)
-        int i = 0
-        while i < recordings.Length
-            string recordingName = recordings[i]
-            if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
-                int recordingInfo = McmRecorder_Recording.Get(recordingName)
-                if ! McmRecorder_Recording.IsHidden(recordingInfo)
-                    oids_Recordings[i] = AddToggleOption(recordingName, isGesture, OPTION_FLAG_NONE)
-
-                    bool isGesture = McmRecorder_Recording.IsVrGesture(recordingInfo)
-                    string stepCountText
-                    if stepNames.Length == 1
-                        stepCountText = stepNames.Length + " mod"
-                    else
-                        stepCountText = stepNames.Length + " mods"
-                    endIf
-
-                    int totalActionCount = McmRecorder_Recording.GetTotalActionCount(recordingInfo)
-                    string actionCountText
-                    if totalActionCount == 1
-                        actionCountText = totalActionCount + " configured option"
-                    else
-                        actionCountText = totalActionCount + " configured options"
-                    endIf
-
-                    AddTextOption(actionCountText, stepCountText, OPTION_FLAG_DISABLED)
-                endIf
-            endIf
-            i += 1
-        endWhile
-    else
-        AddTextOption("There are no recordings", "", OPTION_FLAG_DISABLED)
-    endIf
-endFunction
-
-function ListRecordings()
-    recordings = McmRecorder_Files.GetRecordingNames()
-    if recordings.Length && ((! McmRecorder_Recorder.IsRecording()) || recordings.Length > 1)
-        AddEmptyOption()
-        AddEmptyOption()
-        AddTextOption("Choose a recording to play:", "", OPTION_FLAG_DISABLED)
-        AddEmptyOption()
-        oids_Recordings = Utility.CreateIntArray(recordings.Length)
-        int i = 0
-        while i < recordings.Length
-            string recordingName = recordings[i]
-            if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
-                int recordingInfo = McmRecorder_Recording.Get(recordingName)
-                if ! McmRecorder_Recording.IsHidden(recordingInfo)
-                    oids_Recordings[i] = AddTextOption("", recordingName, OPTION_FLAG_NONE)
-
-                    string stepCountText
-                    if stepNames.Length == 1
-                        stepCountText = stepNames.Length + " mod"
-                    else
-                        stepCountText = stepNames.Length + " mods"
-                    endIf
-
-                    int totalActionCount = McmRecorder_Recording.GetTotalActionCount(recordingInfo)
-                    string actionCountText
-                    if totalActionCount == 1
-                        actionCountText = totalActionCount + " configured option"
-                    else
-                        actionCountText = totalActionCount + " configured options"
-                    endIf
-                    
-                    AddTextOption(actionCountText, stepCountText, OPTION_FLAG_DISABLED)
-                endIf
-            endIf
-            i += 1
-        endWhile
+    if ! McmRecorder_Dependencies.IsJContainersInstalled()
+        AddTextOption("<font color=\"#ff0000\">JContainers not found</font>", "<font color=\"#ff0000\">FAILED</font>", OPTION_FLAG_DISABLED)
+        AddTextOption("<font color=\"#ff0000\">(or incompatible version installed)</font>", "", OPTION_FLAG_DISABLED)
     endIf
 endFunction
 
 event OnOptionSelect(int optionId)
-    if McmRecorder_Player.IsCurrentRecordingPaused()
-        string pausedRecordingName = McmRecorder_Player.GetCurrentlyPlayingRecordingName()
-        if optionId == oid_ResumePausedRecording
-            Debug.MessageBox("Resuming recording " + pausedRecordingName + "\n\nClose MCM to continue")
-            McmRecorder_Player.ResumeCurrentRecording()
-        elseIf optionId == oid_CancelPausedRecording
-            McmRecorder_Player.CancelCurrentRecording()
-            Debug.MessageBox("Canceled recording " + pausedRecordingName)
-        endIf
-        ForcePageReset()
-        return
-    endIf
-
-    if McmRecorder_VR.IsSkyrimVR() && optionId == oid_Record ; SkyrimVR
-        if ! McmRecorder_Recorder.IsRecording()
-            McmRecorder_Recorder.BeginRecording(GetRandomRecordingName())
-            ForcePageReset()
-        else
-            McmRecorder_Recorder.StopRecording() ; For SkyrimVR these OIDs are the same
-            ForcePageReset()
-        endIf
-    elseIf optionId == oid_Stop
-        McmRecorder_Recorder.StopRecording()
-        ForcePageReset()
-    elseIf oids_Recordings.Find(optionId) > -1
-        int recordingIndex = oids_Recordings.Find(optionId)
-        string recordingName = recordings[recordingIndex]
-        if CurrentPage == "VR Gestures"
-            int recording = McmRecorder_Recording.Get(recordingName)
-            bool isGesture = McmRecorder_Recording.IsVrGesture(recording)
-            if isGesture
-                McmRecorder_Recording.SetIsVrGesture(recording, false)
-                SetToggleOptionValue(optionId, false, false)
-                McmRecorder_VR.UnregisterVrikGestureForRecording(recordingName)
-            else
-                McmRecorder_Recording.SetIsVrGesture(recording, true)
-                SetToggleOptionValue(optionId, true, false)
-                McmRecorder_VR.RegisterVrikGestureForRecording(recordingName)
-            endIf
-        else
-            PromptToRunRecordingOrPreviewSteps(recordingName)
-        endIf
+    if CurrentPage == McmRecorder_MCM_KeyboardShortcuts.PageName()
+        McmRecorder_MCM_KeyboardShortcuts.OnOptionSelect(self, optionId)
+    elseIf CurrentPage == McmRecorder_MCM_VrGestures.PageName()
+        McmRecorder_MCM_VrGestures.OnOptionSelect(self, optionId)
     else
-        int shortcutInfoAndAction = GetShortcutInfoAndActionForOptionsID(optionId)
-        if shortcutInfoAndAction
-            string clickAction = JMap.getStr(shortcutInfoAndAction, "action")
-            int shortcutInfo = JMap.getObj(shortcutInfoAndAction, "shortcutInfo")
-            string recordingName = JMap.getStr(shortcutInfo, "recordingName")
-            int recordingInfo = McmRecorder_Recording.Get(recordingName)
-            int shortcut = JMap.getObj(recordingInfo, "shortcut")
-            if clickAction == "ctrl"
-                if JMap.getStr(shortcut, "ctrl") == "true"
-                    JMap.removeKey(shortcut, "ctrl")
-                    SetToggleOptionValue(optionId, false, false)
-                else
-                    JMap.setStr(shortcut, "ctrl", "true")
-                    SetToggleOptionValue(optionId, true, false)
-                endIf
-                McmRecorder_Recording.Save(recordingInfo)
-            elseIf clickAction == "alt"
-                if JMap.getStr(shortcut, "alt") == "true"
-                    JMap.removeKey(shortcut, "alt")
-                    SetToggleOptionValue(optionId, false, false)
-                else
-                    JMap.setStr(shortcut, "alt", "true")
-                    SetToggleOptionValue(optionId, true, false)
-                endIf
-                McmRecorder_Recording.Save(recordingInfo)
-            elseIf clickAction == "shift"
-                if JMap.getStr(shortcut, "shift") == "true"
-                    JMap.removeKey(shortcut, "shift")
-                    SetToggleOptionValue(optionId, false, false)
-                else
-                    JMap.setStr(shortcut, "shift", "true")
-                    SetToggleOptionValue(optionId, true, false)
-                endIf
-                McmRecorder_Recording.Save(recordingInfo)
-            elseIf clickAction == "delete"
-                if ShowMessage("Are you sure you would like to delete this shortcut?", true, "Yes", "Cancel")
-                    JMap.removeKey(recordingInfo, "shortcut")
-                    ForcePageReset()
-                    McmRecorder_Recording.Save(recordingInfo)
-                endIf
-            endIf
+        if McmRecorder_Player.IsCurrentRecordingPaused()
+            McmRecorder_MCM_RecordingPaused.OnOptionSelect(self, optionId)
+        else
+            McmRecorder_MCM_RecordingList.OnOptionSelect(self, optionId)
         endIf
     endIf
 endEvent
 
 event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, string conflictName)
-    int shortcutInfoAndAction = GetShortcutInfoAndActionForOptionsID(optionId)
-    if shortcutInfoAndAction
-        int shortcutInfo = JMap.getObj(shortcutInfoAndAction, "shortcutInfo")
-        string recordingName = JMap.getStr(shortcutInfo, "recordingName")
-        int recordingInfo = McmRecorder_Recording.Get(recordingName)
-        int shortcut = JMap.getObj(recordingInfo, "shortcut")
-        JMap.setInt(shortcut, "key", keyCode)
-        SetKeyMapOptionValue(optionId, keyCode, false)
-        Recorder.StopListeningForKeyboardShortcuts()
-        McmRecorder_Recording.Save(recordingInfo)
-        Recorder.StartListenForKeyboardShortcuts()
-    endIf
+    McmRecorder_MCM_KeyboardShortcuts.OnOptionKeyMapChange(self, optionId, keyCode)    
 endEvent
 
 event OnOptionInputAccept(int optionId, string text)
-    McmRecorder_Recorder.BeginRecording(text)
-    ForcePageReset()
-    Debug.MessageBox("Recording Started!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to this page to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
+    McmRecorder_MCM_RecordingList.OnOptionInputAccept(self, optionId, text)
 endEvent
 
 event OnOptionInputOpen(int optionId)
-    if optionId == oid_Record
-        SetInputDialogStartText(GetRandomRecordingName())
-    endIf
+    McmRecorder_MCM_RecordingList.OnOptionInputOpen(self, optionId)
 endEvent
 
 event OnOptionMenuOpen(int optionId)
-    if optionId == oid_KeyboardShortcuts_RecordingSelectionMenu
-        menuOptions = new string[1]
-        string[] recordingNames = McmRecorder_Files.GetRecordingNames()
-        int recordingsWithoutShortcutsCount = 0
-        int i = 0
-        while i < recordingNames.Length
-            string recordingName = recordingNames[i]
-            if ! JMap.getObj(McmRecorder_Recording.Get(recordingName), "shortcut")
-                recordingsWithoutShortcutsCount += 1
-                menuOptions = Utility.ResizeStringArray(menuOptions, recordingsWithoutShortcutsCount)
-                menuOptions[menuOptions.Length - 1] = recordingName
-            endIf
-            i += 1
-        endWhile
-        SetMenuDialogOptions(menuOptions)
-    endIf
+    McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuOpen(self, optionId)
 endEvent
 
 event OnOptionMenuAccept(int optionId, int index)
-    if index == -1
-        return
-    endIf
-
-    if optionId == oid_KeyboardShortcuts_RecordingSelectionMenu
-        string recordingName = menuOptions[index]
-        McmRecorder_KeyboardShortcuts.AddRecording(recordingName)
-        ForcePageReset()
-    endIf
+    McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuAccept(self, optionId, index)
 endEvent
-
-string function GetRandomRecordingName()
-    string[] currentTimeParts = StringUtil.Split(Utility.GetCurrentRealTime(), ".")
-    return "Recording_" + currentTimeParts[0] + "_" + currentTimeParts[1]
-endFunction
-
-; TODO move to the McmRecorder maybe a global script for prompts
-function PromptToRunRecordingOrPreviewSteps(string recordingName)
-    int recordingInfo = McmRecorder_Recording.Get(recordingName)
-    string recordingDescription = McmRecorder_Recording.GetDescriptionText(recordingInfo)
-    bool confirmation = true
-
-    ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog
-    if ! McmRecorder_VR.IsSkyrimVR()
-        confirmation = ShowMessage(recordingDescription + "\n\nClose the MCM to continue\n\nYou will be prompted to play this recording\n\nYou will also be able to preview all recording steps or play individual one\n\nYou will also be given the opportunity to continue the recording\n\nWould you like to continue?", "No", "Yes", "Cancel")
-        if confirmation
-            Debug.MessageBox("Close the MCM to continue")
-        endIf
-    endIf
-
-    if confirmation
-        string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
-        string text = recordingDescription + "\n"
-        int i = 0
-        while i < stepNames.Length && i < 11
-            if i == 10
-                text += "\n- ..."
-            else
-                text += "\n- " + StringUtil.Substring(stepNames[i], 0, StringUtil.Find(stepNames[i], ".json"))
-            endIf
-            i += 1
-        endWhile
-        text += "\n\nWould you like to play this recording?"
-
-        ; Inlined to extract method later
-        Recorder.McmRecorder_MessageText.SetName(text)
-        int responseId = Recorder.McmRecorder_Message_RunRecordingOrViewSteps.Show()
-        string response
-        if responseId == 0
-            response = "Play Recording"
-        elseIf responseId == 1
-            response = "View Steps"
-        elseIf responseId == 2
-            response = "Add to Recording"
-        elseIf responseId == 3
-            response = "Cancel"
-        endIf
-
-        if response == "Play Recording"
-            currentlyPlayingRecordingName = recordingName
-            isPlayingRecording = true
-            McmRecorder_Player.PlayRecording(recordingName)
-            currentlyPlayingRecordingName = ""
-            isPlayingRecording = false
-        elseIf response == "View Steps"
-            ShowStepSelectionUI(recordingName, stepNames)
-        elseIf response == "Add to Recording"
-            McmRecorder_Recorder.ContinueRecording(recordingName)
-            Debug.MessageBox("Recording has been restarted!\n\nYou can now interact with MCM menus and all interactions will be recorded.\n\nWhen you are finished, return to the MCM Recorder mod configuration menu to stop the recording (or quit the game).\n\nRecordings are saved in simple text files inside of Data\\McmRecorder\\ which you can edit to tweak your recording without completely re-recording it :)")
-        endIf
-    endIf
-endFunction
-
-function ShowStepSelectionUI(string recordingName, string[] stepNames)
-    UIListMenu menu = UIExtensions.GetMenu("UIListMenu") as UIListMenu
-    menu.AddEntryItem("[" + recordingName + "]")
-    menu.AddEntryItem(" ")
-
-    int i = 0
-    while i < stepNames.Length
-        string stepName = stepNames[i]
-        menu.AddEntryItem(stepName)
-        i += 1
-    endWhile
-
-    menu.OpenMenu()
-
-    int selection = menu.GetResultInt()
-
-    if selection < 2 ; Go Back
-        ; TODO open the previous prompt! This isn't working...
-        ; PromptToRunRecordingOrPreviewSteps(recordingName)
-    else
-        int stepIndex = selection - 2 ; Subtract the top 3 entry items
-        string stepName = stepNames[stepIndex]
-        McmRecorder_Player.PlayStep(recordingName, stepName)
-        Debug.MessageBox("MCM recording " + recordingName + " step " + StringUtil.Substring(stepName, 0, StringUtil.Find(stepName, ".json")) + " has finished playing.")
-    endIf
-endFunction

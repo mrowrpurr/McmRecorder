@@ -85,3 +85,8 @@ string function GetDescriptionText(int recordingInfo) global
     recordingDescription += "\nSteps: " + stepNames.Length
     return recordingDescription
 endFunction
+
+string function GetRandomRecordingName() global
+    string[] currentTimeParts = StringUtil.Split(Utility.GetCurrentRealTime(), ".")
+    return "Recording_" + currentTimeParts[0] + "_" + currentTimeParts[1]
+endFunction
