@@ -5,5 +5,5 @@ bool function IsActionType(int actionInfo, int metaInfo) global
 endFunction
 
 function Play(int actionInfo, int metaInfo) global
-
+    
 endFunction

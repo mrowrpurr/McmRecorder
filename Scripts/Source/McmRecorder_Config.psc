@@ -3,7 +3,43 @@ scriptName McmRecorder_Config hidden
     
 Settings are defined in Data\McmRecorder.json}
 
-; CURRENTLY UNUSED!
+float function GetMcmMenuLoadWaitTime() global
+    return 10.0
+endFunction
+
+float function GetMcmMenuLoadWaitInterval() global
+    return 1.0
+endFunction
+
+float function GetMcmMenuLoadNotificationInterval() global
+    return 5.0
+endFunction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; CURRENTLY UNUSED! ALL BELOW UNUSED ----
 
 function ReloadConfig() global
     ; TODO

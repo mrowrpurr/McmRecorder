@@ -1,4 +1,4 @@
-scriptName McmRecorder_UI
+scriptName McmRecorder_UI 
 
 function Notification(string text) global
     if McmRecorder_Config.ShowNotifications()

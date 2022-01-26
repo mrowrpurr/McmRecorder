@@ -1,10 +1,10 @@
 scriptName McmRecorder_Action_MessageBox hidden
 
-bool function IsActionType(int actionInfo, int metaInfo) global
-    return McmRecorder_Action.HasKey(actionInfo, "msgbox")
+bool function IsActionType(int actionInfo) global
+    return JMap.hasKey(actionInfo, "msgbox")
 endFunction
 
-function Play(int actionInfo, int metaInfo) global
-    string text = McmRecorder_Action.GetString(actionInfo, "msgbox")
+function Play(int actionInfo) global
+    string text = JMap.getStr(actionInfo, "msgbox")
     Debug.MessageBox(text)
 endFunction
