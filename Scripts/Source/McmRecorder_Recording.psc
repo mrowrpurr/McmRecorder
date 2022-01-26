@@ -1,26 +1,38 @@
 scriptName McmRecorder_Recording hidden
 
 int function Get(string recordingName) global
-
-
-
-    return McmRecorder_Files.GetRecordingInfo(recordingName)
+    return McmRecorder_Files.ReadRecordingFile(recordingName)
 endFunction
 
+string function GetName(int recordingInfo) global
+    return JMap.getStr(recordingInfo, "name")
+endFunction
 
+string[] function GetStepNames(int recordingInfo) global
+    int stepInfos = Mcmrecorder_Files.ReadStepFilesToMap(GetName(recordingInfo))
+    string[] stepNames
+    if stepInfos
+        stepNames = Utility.CreateStringArray(JMap.count(stepInfos))
+        string[] fileNames = JMap.allKeysPArray(stepInfos)
+        int i = 0
+        while i < stepNames.Length
+            stepNames[i] = McmRecorder_Files.FilenameWithoutExtension(fileNames[i], ".json")
+            i += 1
+        endWhile
+    endIf
+    return stepNames
+endFunction
 
+bool function HasInlineScript(int recordingInfo) global
+    return JMap.hasKey(recordingInfo, "script")
+endFunction
 
-
-
-
-
-
-
-
-
-
-
-
+function RunInlineScript(int recordingInfo) global
+    if HasInlineScript(recordingInfo)
+        int actionList = JMap.getObj(recordingInfo, "script")
+        McmRecorder_Action.PlayList(actionList)
+    endIf
+endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -50,10 +62,6 @@ bool function SetIsVrGesture(int recordingInfo, bool enabled = true) global
     Save(recordingInfo)
 endFunction
 
-string function GetName(int recordingInfo) global
-    return JMap.getStr(recordingInfo, "name")
-endFunction
-
 ; TODO support replacements like $STEP_COUNT$ or something.
 string function GetWelcomeMessage(int recordingInfo) global
     return JMap.getStr(recordingInfo, "welcome")
@@ -64,17 +72,25 @@ string function GetCompleteMessage(int recordingInfo) global
 endFunction
 
 int function GetTotalActionCount(int recordingInfo) global
-    string recordingName = GetName(recordingInfo)
-    int steps = McmRecorder_Files.GetAllStepsForRecording(recordingName)
-    string[] stepNames = JMap.allKeysPArray(steps)
-    int stepCount = JMap.count(steps)
     int actionCount = 0
-    int i = 0
-    while i < stepCount
-        int step = JMap.getObj(steps, stepNames[i])
-        actionCount += JArray.count(step) ; <--- this is how many actions there are
-        i += 1
-    endWhile
+    string recordingName = GetName(recordingInfo)
+
+    int steps = McmRecorder_Files.ReadStepFilesToMap(recordingName)
+    if steps
+        string[] stepNames = JMap.allKeysPArray(steps)
+        int stepCount = JMap.count(steps)
+        int i = 0
+        while i < stepCount
+            int step = JMap.getObj(steps, stepNames[i])
+            actionCount += JArray.count(step) ; <--- this is how many actions there are
+            i += 1
+        endWhile
+    endIf
+
+    if McmRecorder_Recording.HasInlineScript(recordingInfo)
+        actionCount += JArray.count(JMap.getObj(recordingInfo, "script"))
+    endIf
+
     return actionCount
 endFunction
 

@@ -40,7 +40,8 @@ function Render(McmRecorderMCM mcmMenu) global
         while i < recordingNames.Length
             string recordingName = recordingNames[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
-                string[] stepNames = McmRecorder_Files.GetRecordingStepFilenames(recordingName)
+                int recording = McmRecorder_Recording.Get(recordingName)
+                string[] stepNames = McmRecorder_Recording.GetStepNames(recording)
                 int recordingInfo = McmRecorder_Recording.Get(recordingName)
                 if ! McmRecorder_Recording.IsHidden(recordingInfo)
                     mcmMenu.RecordingList_RecordingTextOptions[i] = mcmMenu.AddTextOption("", recordingName, flagOption)

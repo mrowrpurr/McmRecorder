@@ -39,7 +39,7 @@ function PlayRecording(string recordingName, string startingStep = "", int start
     recorder.ListenForSystemMenuOpen()
     recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1
 
-    int steps = McmRecorder_Files.GetAllStepsForRecording(recordingName)
+    int steps = McmRecorder_Files.ReadStepFilesToMap(recordingName)
     SetCurrentlyPlayingSteps(steps)
 
     string[] stepFiles = JMap.allKeysPArray(steps)
@@ -54,6 +54,14 @@ function PlayRecording(string recordingName, string startingStep = "", int start
     if startingStep
         firstStepFound = false
     endIf
+
+    int recordingInfo = McmRecorder_Recording.Get(recordingName)
+    
+    ;; Inline Script playing
+    McmRecorder_Recording.RunInlineScript(recordingInfo)
+    ; McmRecorder_Recording.RunSteps(recordingInfo) ; <=== TODO XXX
+
+    ;; TODO - extract Step File Playing
 
     int fileIndex = 0
     while fileIndex < stepFiles.Length && (! IsCurrentRecordingCanceled()) && (! IsCurrentRecordingPaused())
@@ -234,6 +242,13 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     elseIf JMap.hasKey(actionInfo, "slider")
         optionType = "slider"
     else
+        ; Prototyping new action calling
+        int metaInfo = JMap.object()
+        JValue.retain(metaInfo)
+        JMap.setStr(metaInfo, "mcmModName", modName)
+        JMap.setStr(metaInfo, "mcmPageName", pageName)
+        JMap.setStr(metaInfo, "recordingStepName", stepName)
+        McmRecorder_Action.Play(actionInfo, metaInfo)
         return
     endIf
 
@@ -418,6 +433,7 @@ function RefreshMcmPage(SKI_ConfigBase mcmMenu, string modName, string pageName)
     endIf
 endFunction
 
+; TODO XXX extract this!
 SKI_ConfigBase function GetMcmMenu(string modName, int actionInfo, string stepName, bool promptOnFailures = true, float mcmLoadWaitTime = 10.0) global
     SKI_ConfigBase mcmMenu = McmRecorder.GetMcmInstance(modName)
 

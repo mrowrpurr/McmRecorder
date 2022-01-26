@@ -5,28 +5,17 @@ string function GetMcmRecordingsDataPath() global
     return "Data/McmRecorder"
 endFunction
 
+int function ReadStepFilesToMap(string recordingName) global
+    if MiscUtil.FileExists(PathToRecordingFolder(recordingName))
+        return JValue.readFromDirectory(PathToRecordingFolder(recordingName))
+    else
+        return 0
+    endIf
+endFunction
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int function ReadRecordingFile(string recordingName) global
+    return JValue.ReadFromFile(PathToRecordingFolder(recordingName) + ".json")
+endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -36,10 +25,6 @@ endFunction
 
 function SaveRecordingInfoFile(string recordingName, int metaInfo) global
     JValue.writeToFile(metaInfo, PathToRecordingFolder(recordingName) + ".json")
-endFunction
-
-int function GetAllStepsForRecording(string recordingName) global
-    return JValue.readFromDirectory(PathToRecordingFolder(recordingName))
 endFunction
 
 string[] function GetRecordingNames() global
@@ -64,16 +49,16 @@ string[] function GetRecordingNames() global
     return fileNames
 endFunction
 
+string function FilenameWithoutExtension(string filename, string extension) global
+    return StringUtil.Substring(fileName, 0, StringUtil.Find(fileName, extension))
+endFunction
+
 string[] function GetRecordingStepFilenames(string recordingName) global
     if McmRecorder_Config.IsSkyrimVR()
         return JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordingFolder(recordingName)))
     else
         return MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
     endIf 
-endFunction
-
-int function GetRecordingInfo(string recordingName) global
-    return JValue.ReadFromFile(PathToRecordingFolder(recordingName) + ".json")
 endFunction
 
 int function GetRecordingStep(string recordingName, string stepName) global
