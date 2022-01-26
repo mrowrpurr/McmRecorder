@@ -223,6 +223,12 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
     string selector = JMap.getStr(actionInfo, "option")
     string selectorType = "text"
 
+    int actionMetaInfo = JMap.object()
+    JValue.retain(actionMetaInfo)
+    JMap.setStr(actionMetaInfo, "mcmModName", modName)
+    JMap.setStr(actionMetaInfo, "mcmPageName", pageName)
+    JMap.setStr(actionMetaInfo, "recordingStepName", stepName)
+
     if JMap.hasKey(actionInfo, "click")
         optionType = "text"
         selector = JMap.getStr(actionInfo, "click")
@@ -239,16 +245,11 @@ function PlayAction(int actionInfo, string stepName, bool promptOnFailures = tru
         optionType = "keymap"
     elseIf JMap.hasKey(actionInfo, "color")
         optionType = "color"
-    elseIf JMap.hasKey(actionInfo, "slider")
+    elseIf JMap.hasKey(actionInfo, "slider") ; <--- TODO next: start moving these over into their own files :)
         optionType = "slider"
     else
         ; Prototyping new action calling
-        int metaInfo = JMap.object()
-        JValue.retain(metaInfo)
-        JMap.setStr(metaInfo, "mcmModName", modName)
-        JMap.setStr(metaInfo, "mcmPageName", pageName)
-        JMap.setStr(metaInfo, "recordingStepName", stepName)
-        McmRecorder_Action.Play(actionInfo, metaInfo)
+        McmRecorder_Action.Play(actionInfo, actionMetaInfo)
         return
     endIf
 

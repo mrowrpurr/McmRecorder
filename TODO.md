@@ -1,6 +1,6 @@
 - [ ] Inline macro in definition file `"script": []` (treated as its own step, the first step, for statistics etc)
 - [ ] `"done": true`
-- [ ] `"msgbox": "Some dialog message"`
+- [x] `"msgbox": "Some dialog message"`
 - [ ] `"print": "Some console message"`
 - [ ] `"notify": "Some notification message"`
 - [ ] `"wait": 1.5
