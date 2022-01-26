@@ -1,3 +1,5 @@
+- [ ] Inline macro in definition file `"script": []` (treated as its own step, the first step, for statistics etc)
+- [ ] `"done": true`
 - [ ] `"msgbox": "Some dialog message"`
 - [ ] `"print": "Some console message"`
 - [ ] `"notify": "Some notification message"`
@@ -10,9 +12,8 @@
 - [ ] `"msgbox": "Some dialog message", "if": "somevar = some value"`
 - [ ] `"play": "recording name"`
 - [ ] `"play": "recording name", "step": "step name"`
-- [ ] `"ini": "sSomething=Whatever"`
 - [ ] `"console": "tgm"`
-- [ ] `"coc": "whiterunorigin"`
+- [ ] `"pause": true`
 - [ ] `"add": ["f"], "count": 1`
 - [ ] `"add": ["d65", "somerandom.esp"], "count": 1`
 - [ ] `"equip": ["d65", "somerandom.esp"], "count": 1`
@@ -21,11 +22,14 @@
 - [ ] `"camera": "3rd"`
 - [ ] `"save": true`
 - [ ] `"autosave": true`
-- [ ] `"modEvent": "ModEventName", "params": [1, "hi", true], "paramTypes": ["int", "string", "bool"]`
 - [ ] `"background": true`
+- [ ] `"coc": "whiterunorigin"`
+- [ ] `"waitForEvent": "ModEventName", "paramTypes: ["int", "string", "bool"]"` (we can support a _few_ of the most common param types)
+- [ ] `"modEvent": "ModEventName", "params": [1, "hi", true], "paramTypes": ["int", "string", "bool"]`
 - [ ] `"quest": "QuestName": "start": true`
 - [ ] `"quest": "QuestName": "stop": true`
 - [ ] `"action": "MyAction", "whatever": true - ` _extensible via a FOLDER of .ini for action types_
+- [ ] `"ini": "sSomething=Whatever"`
 
 ------------------------------------------------------------------------------
 

@@ -22,7 +22,7 @@ If you looking to get started with MCM Recorder, please see its NexusMods page:
 
 - https://www.nexusmods.com/skyrimspecialedition/mods/61719
 
-> This page documents the _scripting language_ and is targeted at modlist authors.
+> This page documents the _macro scripting language_ and is targeted at modlist authors.
 
 ## JSON Files
 
@@ -65,7 +65,8 @@ Scripts are defined using a definition file, e.g. `Data\McmRecorder\MyRecording.
 
 ## LICENSE
 
-> **Note:** the `SKI_ConfigBase` and `SKI_ConfigManager` scripts from [SkyUI](https://github.com/schlangster/skyui) are not owned by me.  They are owned by [schlangster](https://github.com/schlangster).
+> **Note:** the `SKI_ConfigBase` and `SKI_ConfigManager` scripts from [SkyUI](https://github.com/schlangster/skyui) are not owned by me.  
+> They are owned by [schlangster](https://github.com/schlangster).
 >
 > All _other_ code in this project is released under the MIT license.
 

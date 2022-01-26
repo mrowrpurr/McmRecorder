@@ -1,4 +1,8 @@
-scriptName McmRecorder_VRIK
+scriptName McmRecorder_VR
+
+bool function IsSkyrimVR() global
+    return Game.GetModByName("SkyrimVR.esm") != 255
+endFunction
 
 string function GetModEventNameForRecording(string recordingName) global
     return "McmRecorder_VrGesture_PlayRecording:" + recordingName

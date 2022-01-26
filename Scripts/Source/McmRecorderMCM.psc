@@ -1,9 +1,9 @@
 scriptName McmRecorderMCM extends SKI_ConfigBase
-{**PRIVATE** Please do not edit.}
-
-; TODO - put different MCM pages into different files :)
 
 McmRecorder Recorder
+
+int property oid_RecordingList_Record auto
+int property oid_RecordingList_Stop auto
 
 int oid_Record
 int oid_Stop
@@ -18,18 +18,12 @@ bool isPlayingRecording
 string currentlyPlayingRecordingName
 bool openRunOrPreviewStepsPrompt
 
-bool property IsSkyrimVR
-    bool function get()
-        return Game.GetModByName("SkyrimVR.esm") != 255
-    endFunction
-endProperty
-
+; Move to a Integration or Compatibility file
 bool property IsVrikInstalled
     bool function get()
-        return McmRecorder_VRIK.IsVrikInstalled()
+        return McmRecorder_VR.IsVrikInstalled()
     endFunction
 endProperty
-
 bool property HasJcontainersInstalled
     bool function get()
         return JContainers.APIVersion()
@@ -48,7 +42,7 @@ event OnConfigInit()
 endEvent
 
 event OnConfigOpen()
-    if IsSkyrimVR && IsVrikInstalled
+    if McmRecorder_VR.IsSkyrimVR() && McmRecorder_VR.IsVrikInstalled()
         Pages = new string[3]
         Pages[0] = "MCM Recordings"
         Pages[1] = "Keyboard Shortcuts"
@@ -73,7 +67,7 @@ event OnPageReset(string page)
             if McmRecorder_Player.IsCurrentRecordingPaused()
                 Render_PausedRecordingMenu()
             else
-                Render_Recordings()
+                McmRecorder_MCM_RecordingList.Render(self)
             endIf
         endIf
     else
@@ -87,21 +81,6 @@ event OnPageReset(string page)
         endIf
     endIf
 endEvent
-
-function Render_Recordings()
-    if McmRecorder_Recorder.IsRecording()
-        oid_Stop = AddTextOption("Currently Recording!", "STOP RECORDING", OPTION_FLAG_NONE)
-        AddTextOption(McmRecorder_Recorder.GetCurrentRecordingName(), "", OPTION_FLAG_DISABLED)
-    else
-        if IsSkyrimVR
-            oid_Record = AddTextOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
-        else
-            oid_Record = AddInputOption("Click to begin recording:", "BEGIN RECORDING", OPTION_FLAG_NONE)
-        endIf
-        AddEmptyOption()
-    endIf
-    ListRecordings()
-endFunction
 
 function Render_PausedRecordingMenu()
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -284,7 +263,7 @@ event OnOptionSelect(int optionId)
         return
     endIf
 
-    if IsSkyrimVR && optionId == oid_Record ; SkyrimVR
+    if McmRecorder_VR.IsSkyrimVR() && optionId == oid_Record ; SkyrimVR
         if ! McmRecorder_Recorder.IsRecording()
             McmRecorder_Recorder.BeginRecording(GetRandomRecordingName())
             ForcePageReset()
@@ -304,11 +283,11 @@ event OnOptionSelect(int optionId)
             if isGesture
                 McmRecorder_Recording.SetIsVrGesture(recording, false)
                 SetToggleOptionValue(optionId, false, false)
-                McmRecorder_VRIK.UnregisterVrikGestureForRecording(recordingName)
+                McmRecorder_VR.UnregisterVrikGestureForRecording(recordingName)
             else
                 McmRecorder_Recording.SetIsVrGesture(recording, true)
                 SetToggleOptionValue(optionId, true, false)
-                McmRecorder_VRIK.RegisterVrikGestureForRecording(recordingName)
+                McmRecorder_VR.RegisterVrikGestureForRecording(recordingName)
             endIf
         else
             PromptToRunRecordingOrPreviewSteps(recordingName)
@@ -429,7 +408,7 @@ function PromptToRunRecordingOrPreviewSteps(string recordingName)
     bool confirmation = true
 
     ; The ShowMessage prompt can not be interacted with via SkyrimVR so we simply show a prompt - not a confirmation dialog
-    if ! IsSkyrimVR
+    if ! McmRecorder_VR.IsSkyrimVR()
         confirmation = ShowMessage(recordingDescription + "\n\nClose the MCM to continue\n\nYou will be prompted to play this recording\n\nYou will also be able to preview all recording steps or play individual one\n\nYou will also be given the opportunity to continue the recording\n\nWould you like to continue?", "No", "Yes", "Cancel")
         if confirmation
             Debug.MessageBox("Close the MCM to continue")
