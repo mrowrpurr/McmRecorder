@@ -72,12 +72,12 @@ function OpenSystemMenuDuringRecordingMessage(string recordingName) global
     endIf
 endFunction
 
-string function GetUserResponseForNotFoundSelector(string modName, string pageName, string selector) global
+string function GetUserResponseForNotFoundSelector(string modName, string pageName, string optionDescription) global
     string description = "Could not find MCM option:\n\nMod name: " + modName
     if pageName
         description += "\nPage name: " + pageName
     endIf
-    description += "\nField name: " + selector
+    description += "\nMCM Option: " + optionDescription
     description += "\n\nWhich of the following would you like to do?"
     description += "\n- Continue this mod and move on to the next MCM field"
     description += "\n- Try finding this MCM field again"

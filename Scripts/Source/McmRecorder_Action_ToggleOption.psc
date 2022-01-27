@@ -22,10 +22,9 @@ function Play(int actionInfo) global
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, "toggle", selector = toggleOption)
+    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "toggle", selector = toggleOption)
     if ! option
-        ; Oh jeepers, do something!
-        Debug.MessageBox("Oh jeepers, couldn't find toggle option!") ; <-- do thing that asks to skip mod etc
+        McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "toggle '" + toggleOption + "'")
         return
     endIf
 

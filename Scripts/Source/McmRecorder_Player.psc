@@ -490,9 +490,19 @@ endFunction
 function McmMenuNotFound(int actionInfo, string modName) global
     string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
     if result == "Try again"
-        Debug.MessageBox("TRY AGAIN: " + actionInfo)
         McmRecorder_Action.Play(actionInfo)
     elseIf result == "Skip this mod"
         SetCurrentlySkippingModName(modName)
     endIf
 endFunction
+
+function OptionNotFound(int actionInfo, string modName, string pageName, string optionDescription) global
+    string response = McmRecorder_UI.GetUserResponseForNotFoundSelector(modName, pageName, optionDescription)
+    if response == "Try again"
+        McmRecorder_Action.Play(actionInfo)
+    elseIf response == "Skip this mod"
+        SetCurrentlySkippingModName(modName)
+    endIf
+endFunction
+
+

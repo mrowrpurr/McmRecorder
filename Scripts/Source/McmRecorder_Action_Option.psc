@@ -1,10 +1,7 @@
 scriptName McmRecorder_Action_Option hidden
 
 ; Find an option. Assumed running in the context of a running recording.
-int function GetOption(SKI_ConfigBase mcmMenu, string optionType, string selector, string side = "left", int index = -1) global
-    string modName = McmRecorder_Player.GetCurrentPlayingRecordingModName()
-    string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
-
+int function GetOption(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, string selector, string side = "left", int index = -1) global
     ; If this isn't the same MCM that was previously played, refresh it!
     if modName != McmRecorder_Player.GetCurrentPlayingRecordingModName() || pageName != McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
         bool forceRefresh = false
@@ -28,15 +25,3 @@ bool function ShouldSkipOption() global
     return skippingMod && skippingMod == McmRecorder_Player.GetCurrentPlayingRecordingModName()
 endFunction
 
-; TODO - move the code below to the right spot!
-
-; if option
-;     ; ApplyActionToOption(option, mcmMenu, modName, pageName, actionInfo, stepName, stateName, optionType, selector, selectorType, index)
-; elseIf promptOnFailures && ! IsCurrentRecordingCanceled()
-;     string response = McmRecorder_UI.GetUserResponseForNotFoundSelector(modName, pageName, selector)
-;     if response == "Try again"
-;         PlayAction(actionInfo, stepName, promptOnFailures)
-;     elseIf response == "Skip this mod"
-;         SetCurrentlySkippingModName(modName)
-;     endIf
-; endIf
