@@ -14,6 +14,7 @@ function Play(int actionInfo) global
     string menuOptionName = JMap.getStr(actionInfo, "choose")
     int menuOptionIndex = JMap.getInt(actionInfo, "chooseIndex")
     string selector = JMap.getStr(actionInfo, "option")
+    int index = JMap.getInt(actionInfo, "index", 1)
 
     if JMap.hasKey(actionInfo, "choose")
         McmRecorder_Logging.ConsoleOut("[Play Action] choose '" + menuOptionName + "' from '" + selector + "'")
@@ -27,7 +28,7 @@ function Play(int actionInfo) global
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "menu", selector)
+    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "menu", selector, index = index)
     if ! option
         McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "menu '" + selector + "'")
         return

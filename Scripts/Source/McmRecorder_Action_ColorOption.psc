@@ -15,6 +15,7 @@ function Play(int actionInfo) global
     string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
     int color = JMap.getInt(actionInfo, "color") ; Right now this is an Int but will support Strings
     string selector = JMap.getStr(actionInfo, "option")
+    int index = JMap.getInt(actionInfo, "index", 1)
 
     McmRecorder_Logging.ConsoleOut("[Play Action] set color '" + selector + "' to " + color) ; TODO make this HEX
 
@@ -24,7 +25,7 @@ function Play(int actionInfo) global
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "color", selector)
+    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "color", selector, index = index)
     if ! option
         McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "color '" + selector + "'")
         return

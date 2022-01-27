@@ -13,6 +13,7 @@ function Play(int actionInfo) global
     string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
     string text = JMap.getStr(actionInfo, "text")
     string selector = JMap.getStr(actionInfo, "option")
+    int index = JMap.getInt(actionInfo, "index", 1)
 
     McmRecorder_Logging.ConsoleOut("[Play Action] set '" + selector + "' to '" + text + "'")
     
@@ -22,7 +23,7 @@ function Play(int actionInfo) global
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "input", selector)
+    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "input", selector, index = index)
     if ! option
         McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "text input '" + selector + "'")
         return

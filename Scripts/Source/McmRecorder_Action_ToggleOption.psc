@@ -13,6 +13,7 @@ function Play(int actionInfo) global
     string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
     string toggleAction = JMap.getStr(actionInfo, "toggle")
     string toggleOption = JMap.getStr(actionInfo, "option")
+    int index = JMap.getInt(actionInfo, "index", 1)
 
     McmRecorder_Logging.ConsoleOut("[Play Action] toggle '" + toggleOption + "' to " + toggleAction)
     
@@ -22,7 +23,7 @@ function Play(int actionInfo) global
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "toggle", selector = toggleOption)
+    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "toggle", selector = toggleOption, index = index)
     if ! option
         McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "toggle '" + toggleOption + "'")
         return

@@ -13,6 +13,7 @@ function Play(int actionInfo) global
     string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
     int shortcut = JMap.getInt(actionInfo, "shortcut")
     string selector = JMap.getStr(actionInfo, "option")
+    int index = JMap.getInt(actionInfo, "index", 1)
 
     McmRecorder_Logging.ConsoleOut("[Play Action] set keyboard shortcut '" + selector + "' to " + shortcut + " keycode") ; TODO make this HEX
 
@@ -22,7 +23,7 @@ function Play(int actionInfo) global
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "keymap", selector)
+    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "keymap", selector, index = index)
     if ! option
         McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "keyboard shortcut '" + selector + "'")
         return
