@@ -1,3 +1,16 @@
+- [ ] Pass thru the INDEX of all types!
+
+Refactor Option Types:
+- [x] Toggle
+- [ ] Input
+- [ ] Text
+- [ ] Color
+- [ ] Keymap
+- [ ] Menu
+- [ ] Slider
+
+
+- [ ] Represent color as string "#ffaabb" (with or without #, detect if string vs int)
 - [ ] Wildcard matching for modName
 - [ ] Wildcard matching for pageName
 - [ ] Provide more guidance for SSE JContainers when not found when using 1.5 vs 1.6 vs VR

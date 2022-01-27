@@ -99,7 +99,7 @@ int function AttemptFindOption(SKI_ConfigBase mcmMenu, string modName, string pa
         
         Utility.WaitMenuMode(searchInterval)
 
-        Refresh(mcmMenu, modName, pageName) ; Wasn't on the page! Let's refresh the page.
+        Refresh(mcmMenu, modName, pageName, force = true) ; Wasn't on the page! Let's refresh the page.
 
         string debugPrefix = "[Play Action] " + modName
         if pageName
