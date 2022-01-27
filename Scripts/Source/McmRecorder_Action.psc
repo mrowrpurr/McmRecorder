@@ -31,6 +31,8 @@ function Play(int actionInfo) global
         McmRecorder_Action_MenuOption.Play(actionInfo)
     elseIf McmRecorder_Action_SliderOption.IsActionType(actionInfo)
         McmRecorder_Action_SliderOption.Play(actionInfo)
+    elseIf McmRecorder_Action_Chooser.IsActionType(actionInfo)
+        McmRecorder_Action_Chooser.Play(actionInfo)
     else
         ; Nothing right now...
     endIf

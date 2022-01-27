@@ -1,8 +1,10 @@
 - [ ] Represent color as string "#ffaabb" (with or without #, detect if string vs int)
 - [ ] Wildcard matching for modName
 - [ ] Wildcard matching for pageName
+
 - [ ] Provide more guidance for SSE JContainers when not found when using 1.5 vs 1.6 vs VR
-- [ ] Inline macro in definition file `"script": []` (treated as its own step, the first step, for statistics etc)
+
+- [x] Inline macro in definition file `"script": []` (treated as its own step, the first step, for statistics etc)
 - [ ] `"done": true`
 - [x] `"msgbox": "Some dialog message"`
 - [ ] `"print": "Some console message"`
