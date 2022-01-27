@@ -27,11 +27,12 @@ bool function HasInlineScript(int recordingInfo) global
     return JMap.hasKey(recordingInfo, "script")
 endFunction
 
-function RunInlineScript(int recordingInfo) global
-    if HasInlineScript(recordingInfo)
-        int actionList = JMap.getObj(recordingInfo, "script")
-        McmRecorder_Action.PlayList(actionList)
-    endIf
+int function GetInlineScript(int recordingInfo) global
+    return JMap.getObj(recordingInfo, "script")
+endFunction
+
+function RunInlineScript(int actionList) global
+    McmRecorder_Action.PlayList(actionList)
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

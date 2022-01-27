@@ -64,6 +64,10 @@ string function JdbPath_PlayingRecordingSteps() global
     return ".mcmRecorder.playingRecording.steps"
 endFunction
 
+string function JdbPath_PlayingRecordingInlineScript() global
+    return ".mcmRecorder.playingRecording.inlineScript"
+endFunction
+
 string function JdbPath_PlayingStepFilename() global
     return ".mcmRecorder.playingRecording.stepFilename"
 endFunction

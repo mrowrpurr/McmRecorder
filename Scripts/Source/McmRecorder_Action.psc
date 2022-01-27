@@ -13,6 +13,8 @@ function PlayList(int actionList) global
 endFunction
 
 function Play(int actionInfo) global
+    McmRecorder_Logging.ConsoleOut("Play(" + actionInfo + ") action " + McmRecorder_Logging.ToJson(actionInfo))
+
     TrackMostRecentMcmMenuAndPage(actionInfo) ; Track "mod" and "page"
 
     if McmRecorder_Action_MessageBox.IsActionType(actionInfo)

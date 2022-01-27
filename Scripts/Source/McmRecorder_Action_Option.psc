@@ -4,7 +4,7 @@ scriptName McmRecorder_Action_Option hidden
 int function GetOption(SKI_ConfigBase mcmMenu, string optionType, string selector, string side = "left", int index = -1) global
     string modName = McmRecorder_Player.GetCurrentPlayingRecordingModName()
     string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
-    
+
     ; If this isn't the same MCM that was previously played, refresh it!
     if modName != McmRecorder_Player.GetCurrentPlayingRecordingModName() || pageName != McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
         bool forceRefresh = false

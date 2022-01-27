@@ -3,6 +3,10 @@ scriptName McmRecorder_Config hidden
     
 Settings are defined in Data\McmRecorder.json}
 
+bool function IsDebugMode() global
+    return false
+endFunction
+
 float function GetMcmMenuLoadWaitTime() global
     return 10.0
 endFunction

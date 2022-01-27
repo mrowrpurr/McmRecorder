@@ -56,9 +56,15 @@ function PlayRecording(string recordingName, string startingStep = "", int start
     endIf
 
     int recordingInfo = McmRecorder_Recording.Get(recordingName)
+    SetCurrentlyPlayingInlineScript(recordingInfo)
     
-    ;; Inline Script playing
-    McmRecorder_Recording.RunInlineScript(recordingInfo)
+    ; Inline Script
+    if McmRecorder_Recording.HasInlineScript(recordingInfo)
+        int script = McmRecorder_Recording.GetInlineScript(recordingInfo)
+        SetCurrentlyPlayingInlineScript(script)
+        McmRecorder_Recording.RunInlineScript(script)
+    endIf
+
     ; McmRecorder_Recording.RunSteps(recordingInfo) ; <=== TODO XXX
 
     ;; TODO - extract Step File Playing
@@ -77,7 +83,6 @@ function PlayRecording(string recordingName, string startingStep = "", int start
 
         if firstStepFound
             int recordingActions = JMap.getObj(steps, filename)
-            JValue.retain(recordingActions)
             int actionCount = JArray.count(recordingActions)
 
             ; Set the current step being run...
@@ -111,7 +116,6 @@ function PlayRecording(string recordingName, string startingStep = "", int start
                 i += 1
             endWhile
 
-            JValue.release(recordingActions)
             isFirstStep = false
         endIf
 
@@ -148,7 +152,9 @@ function PlayRecording(string recordingName, string startingStep = "", int start
     endIf
 
     ; Add config that will do this automatically!
-    McmRecorder_Logging.DumpAll()
+    if McmRecorder_Config.IsDebugMode()
+        McmRecorder_Logging.DumpAll()
+    endIf
 endFunction
 
 ; TODO move to McmRecorder_Step
@@ -323,7 +329,7 @@ function ApplyActionToOption(int option, SKI_ConfigBase mcmMenu, string modName,
             elseIf turnOnOrOff == "toggle"
                 mcmMenu.OnOptionSelect(optionId) ; Flip it!
             endIf
-            
+
         elseIf optionType == "text"
             McmRecorder_Logging.ConsoleOut(debugPrefix + " click")
             mcmMenu.OnOptionSelect(optionId)
@@ -352,6 +358,14 @@ endFunction
 
 int function GetCurrentlyPlayingSteps() global
     return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingSteps())
+endFunction
+
+function SetCurrentlyPlayingInlineScript(int script) global
+    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingInlineScript(), script, createMissingKeys = true)
+endFunction
+
+int function GetCurrentlyPlayingInlineScript() global
+    return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingInlineScript())
 endFunction
 
 function SetCurrentlyPlayingStepFilename(string stepFilename) global
@@ -471,4 +485,14 @@ endFunction
 
 function MarkRecordingAsNotPlaying() global
     McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
+endFunction
+
+function McmMenuNotFound(int actionInfo, string modName) global
+    string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
+    if result == "Try again"
+        Debug.MessageBox("TRY AGAIN: " + actionInfo)
+        McmRecorder_Action.Play(actionInfo)
+    elseIf result == "Skip this mod"
+        SetCurrentlySkippingModName(modName)
+    endIf
 endFunction

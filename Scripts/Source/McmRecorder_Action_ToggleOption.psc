@@ -17,21 +17,22 @@ function Play(int actionInfo) global
     McmRecorder_Logging.ConsoleOut("[Play Action] toggle '" + toggleOption + "' to " + toggleAction)
     
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
-
     if ! mcmMenu
-        ; TODO!
-        Debug.MessageBox("Oh jeepers, couldn't find MCM menu!") ; <-- do thing that asks to skip mod etc
+        McmRecorder_Player.McmMenuNotFound(actionInfo, modName)
         return
     endIf
 
     int option = McmRecorder_Action_Option.GetOption(mcmMenu, "toggle", selector = toggleOption)
-
     if ! option
         ; Oh jeepers, do something!
         Debug.MessageBox("Oh jeepers, couldn't find toggle option!") ; <-- do thing that asks to skip mod etc
         return
     endIf
 
+    PerformAction(mcmMenu, option, toggleAction)
+endFunction
+
+function PerformAction(SKI_ConfigBase mcmMenu, int option, string toggleAction) global
     int optionId = JMap.getInt(option, "id")
     string stateName = JMap.getStr(option, "state")
     bool currentlyEnabledOnPage = JMap.getFlt(option, "fltValue") == 1
@@ -58,21 +59,3 @@ function Play(int actionInfo) global
     endIf
 endFunction
 
-
-    ; TODO get the skipping working again when the MCM menu is not found! <---
-
-    ; if ! mcmMenu
-    ;     if interactive
-    ;         string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
-    ;         if result == "Try again"
-    ;             McmRecorder_Action.Play(actionInfo)
-    ;         elseIf result == "Skip this mod"
-    ;             SetCurrentlySkippingModName(modName)
-    ;             return 0
-    ;         endIf
-    ;     else
-    ;         SetCurrentlySkippingModName(modName)
-    ;         return 0
-    ;     endIf
-    ;     return 0
-    ; endIf
