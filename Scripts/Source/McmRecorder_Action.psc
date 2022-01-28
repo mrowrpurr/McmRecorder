@@ -1,12 +1,12 @@
 scriptName McmRecorder_Action hidden
 
-function PlayList(int actionList) global
+    function PlayMultiple(int actionList) global
     int actionCount = JArray.count(actionList)
     if actionCount
         int i = 0
         while i < actionCount
             int actionInfo = JArray.getObj(actionList, i)
-            Play(actionInfo)
+                Play(actionInfo)
             i += 1
         endWhile
     endIf

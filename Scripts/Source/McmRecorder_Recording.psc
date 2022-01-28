@@ -48,8 +48,10 @@ int function GetInlineScript(int this) global
     return JMap.getObj(this, "script")
 endFunction
 
-function RunInlineScript(int actionList) global
-    McmRecorder_Action.PlayList(actionList)
+function RunInlineScript(int this) global
+    if HasInlineScript(this)
+        McmRecorder_Action.PlayMultiple(GetInlineScript(this))
+    endIf
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

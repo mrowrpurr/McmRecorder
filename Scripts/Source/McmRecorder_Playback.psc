@@ -1,11 +1,11 @@
 scriptName McmRecorder_Playback hidden
 
-int function Create(int recording, string startingStepFilename = "", int startingActionIndex = -1) global
+int function Create(int recording, string startingStepName = "", int startingActionIndex = -1) global
     int this = JMap.object()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlaybackById(this), this, createMissingKeys = true)
     JMap.setObj(this, "recording", recording)
-    if startingStepFilename
-        SetCurrentStepFilename(this, startingStepFilename)
+    if startingStepName
+        SetCurrentStepFilename(this, startingStepName)
     endIf
     if startingActionIndex != -1
         SetCurrentActionIndex(this, startingActionIndex)
@@ -17,23 +17,118 @@ int function Create(int recording, string startingStepFilename = "", int startin
     if stepsByFilename
         JMap.setObj(this, "stepsByFilename", stepsByFilename)
     endIf
+    return this
 endFunction
 
+    ; int recording = Recording(this)
+    ; string recordingName = McmRecorder_Recording.GetName(recording)
+    ; string startingStep = CurrentStepFilename(this)
+    ; int startingActionIndex = CurrentActionIndex(this)
+    ; int stepsByFilename = StepsByFilename(this)
+
 function Play(int this) global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 1, createMissingKeys = true)
-    
-    ;
-    Debug.MessageBox("PLAYBACK RECORDING " + McmRecorder_Recording.GetName(Recording(this)))
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 1, createMissingKeys = true)   
+
+    int recording = Recording(this)
+    string recordingName = McmRecorder_Recording.GetName(recording)
+    string startingStep = CurrentStepFilename(this)
+    int startingActionIndex = CurrentActionIndex(this)
+
+    string log = "Start playback of recording '" + recordingName + "'"
+    if startingStep
+        log += " Starting Step '" + startingStep + "'"
+        if startingActionIndex > -1
+            log += " (Starting Action #" + startingActionIndex + ")"
+        endIf
+    endIf
+    McmRecorder_Logging.ConsoleOut(log)
+
+    if ShouldPrintNotifications(this)
+        McmRecorder_UI.Notification("Play " + recordingName)
+    endIf
+
+    _Play_InlineScript(this)
+    _Play_Steps(this)
+
+    ; TODO LOG FINISHED
 
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 0)
+endFunction
+
+bool function ShouldPrintNotifications(int this) global
+    int currentTopLevelPlayback = McmRecorder_TopLevelPlayer.PlaybackId()
+    return currentTopLevelPlayback && currentTopLevelPlayback == this
+endFunction
+
+function _Play_InlineScript(int this) global
+    if IsCanceled(this) || IsPaused(this)
+        return
+    endIf
+
+    int recording = Recording(this)
+    string recordingName = McmRecorder_Recording.GetName(recording)
+    int inlineScript = InlineScript(this)
+    if inlineScript
+        McmRecorder_Logging.ConsoleOut("Playing recording '" + recordingName + "' inline script (" + JArray.count(inlineScript) + " actions)")
+        McmRecorder_Recording.RunInlineScript(recording)
+    endIf
+endFunction
+
+function _Play_Steps(int this) global
+    if IsCanceled(this) || IsPaused(this)
+        return
+    endIf
+
+    int recording = Recording(this)
+    string recordingName = McmRecorder_Recording.GetName(recording)    
+    int stepsByFilename = StepsByFilename(this)
+    if stepsByFilename
+        string[] stepFilenames = JMap.allKeysPArray(stepsByFilename)
+        McmRecorder_Logging.ConsoleOut("Playing recording '" + recordingName + "' steps (" + stepFilenames.Length + " steps)")
+
+        string startingStepName = CurrentStepFilename(this)
+        int startingActionindex = CurrentActionIndex(this)
+        bool isFirstStep = true
+        bool firstStepFound = true
+        if startingStepName
+            firstStepFound = false
+        endIf
+        int stepIndex = 0
+        while stepIndex < stepFilenames.Length && (! IsCanceled(this)) && (! IsPaused(this))
+            string stepFilename = stepFilenames[stepIndex]
+            string stepName = McmRecorder_Files.FilenameWithoutExtension(stepFilename, ".json")
+            if (! firstStepFound) && startingStepName == stepName
+                firstStepFound = true
+            endIf
+            if firstStepFound
+                int stepActions = JMap.getObj(stepsByFilename, stepFilename)
+                int stepActionCount = JArray.count(stepActions)
+                SetCurrentStepFilename(this, stepFilename)
+                int actionIndex = 0
+                while actionindex < stepActionCount && (! IsCanceled(this)) && (! IsPaused(this))
+                    bool shouldPlay = (startingActionIndex == -1) ; If no action specified, should play!
+                    if ! shouldPlay
+                        shouldPlay = ! isFirstStep ; If a specific action was provided but this is no longer the first step, should play!
+                    endIf
+                    if ! shouldPlay
+                        shouldPlay = actionIndex >= startingActionIndex
+                    endIf
+                    if shouldPlay
+                        SetCurrentActionIndex(this, actionindex)
+                        int stepAction = JArray.getObj(stepActions, actionIndex)
+                        McmRecorder_Action.Play(stepAction)
+                    endIf
+                    actionIndex += 1
+                endWhile
+            endIf
+
+            stepIndex += 1
+        endWhile
+    endIf
 endFunction
 
 function Resume(int this) global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 1, createMissingKeys = true)
-
-    ;
-    
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 0)
+    Play(this)
 endFunction
 
 function Dispose(int this) global

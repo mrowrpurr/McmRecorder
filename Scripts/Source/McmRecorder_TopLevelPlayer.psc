@@ -7,14 +7,23 @@ function PlayByName(string recordingName) global
     endIf
 endFunction
 
-function Play(int recordingId, string startingStepFilename = "", int startingActionIndex = -1) global
-    int this = McmRecorder_Playback.Create(recordingId, startingStepFilename, startingActionIndex)
+function Play(int recordingId, string startingStepName = "", int startingActionIndex = -1) global
+    ; Tell system that recording is in progress
+    McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
+    recorder.ListenForSystemMenuOpen()
+    recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1 ; <--- used for UI messageboxes
+
+    int this = McmRecorder_Playback.Create(recordingId, startingStepName, startingActionIndex)
     SetPlaybackId(this)
     McmRecorder_Playback.Play(this)
     if ! IsPaused()
         McmRecorder_Playback.Dispose(this)
     endIf
     SetPlaybackId(0)
+
+    ; Tell system that recording is no longer in progress
+    recorder.StopListeningForSystemMenuOpen()
+    recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0 ; <--- used for UI messageboxes
 endFunction
 
 function Pause() global
