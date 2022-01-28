@@ -125,7 +125,7 @@ function AutorunRecordings()
         if McmRecorder_Recording.IsAutorun(recordingInfo) && (! McmRecorder_Player.HasBeenAutorun(recordingName))
             McmRecorder_Player.MarkHasBeenAutorun(recordingName)
             McmRecorder_Logging.Log("Autorun Recording " + recordingName)
-            McmRecorder_Player.PlayRecording(recordingName, mcmLoadWaitTime = 30.0)
+            McmRecorder_Recording.PlayByName(recordingName)
         endIf
         i += 1
     endWhile
@@ -168,7 +168,7 @@ endFunction
 
 event OnVrikGesture(string eventName, string strArg, float fltArg, Form sender)
     string recordingName = McmRecorder_VR.GetRecordingNameFromModEvent(eventName)
-    McmRecorder_Player.PlayRecording(recordingName, verbose = false)
+    McmRecorder_Recording.PlayByName(recordingName)
 endEvent
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -180,5 +180,5 @@ function ListenForRecordingSkseModEvents()
 endFunction
 
 event OnRecordingModEvent(string eventName, string recordingName, float fltArg, Form sender)
-    McmRecorder_Player.PlayRecording(recordingName, verbose = false)
+    McmRecorder_Recording.PlayByName(recordingName)
 endEvent

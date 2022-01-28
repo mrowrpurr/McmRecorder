@@ -1,5 +1,12 @@
 scriptName McmRecorder_TopLevelPlayer hidden
 
+function PlayByName(string recordingName) global
+    int recording = McmRecorder_Recording.Get(recordingName)
+    if recording
+        Play(recording)
+    endIf
+endFunction
+
 function Play(int recordingId, string startingStepFilename = "", int startingActionIndex = -1) global
     int this = McmRecorder_Playback.Create(recordingId, startingStepFilename, startingActionIndex)
     SetPlaybackId(this)

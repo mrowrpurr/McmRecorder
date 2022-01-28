@@ -4,6 +4,13 @@ int function Get(string recordingName) global
     return McmRecorder_Files.ReadRecordingFile(recordingName)
 endFunction
 
+function PlayByName(string recordingName) global
+    int recording = Get(recordingName)
+    if recording
+        Play(recording)
+    endIf
+endFunction
+
 function Play(int this, string startingStepName = "", int startingActionIndex = -1) global
     int playback = McmRecorder_Playback.Create(this, startingStepName, startingActionIndex)
     McmRecorder_Playback.Play(playback)

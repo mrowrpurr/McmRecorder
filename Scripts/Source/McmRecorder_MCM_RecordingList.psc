@@ -142,7 +142,7 @@ function PromptToRunRecordingOrPreviewSteps(McmRecorderMCM mcmMenu, string recor
         endIf
 
         if response == "Play Recording"
-            McmRecorder_Player.PlayRecording(recordingName)
+            McmRecorder_TopLevelPlayer.PlayByName(recordingName)
         elseIf response == "View Steps"
             ShowStepSelectionUI(recordingName, stepNames)
         elseIf response == "Add to Recording"

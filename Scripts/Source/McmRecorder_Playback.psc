@@ -23,6 +23,7 @@ function Play(int this) global
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 1, createMissingKeys = true)
     
     ;
+    Debug.MessageBox("PLAYBACK RECORDING " + McmRecorder_Recording.GetName(Recording(this)))
 
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 0)
 endFunction
