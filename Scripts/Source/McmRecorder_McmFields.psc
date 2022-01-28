@@ -1,8 +1,6 @@
 scriptName McmRecorder_McmFields hidden
 {Responsible for storage of and querying of individual fields on Mod Configuration Menu pages}
 
-; TODO OptionsForModPage_ByState & GetConfigurationOptionByState ? O[tion IDs fine for stateful options?
-
 function WaitToFindAllFieldsFromMcm(SKI_ConfigBase mcmMenu) global
     Utility.WaitMenuMode(0.5) ; Give the MCM half a second to render
 
@@ -43,7 +41,7 @@ function TrackField(string modName, string pageName, string optionType, int opti
         ResetMcmOptions()
     endIf
 
-	if force || McmRecorder_Recorder.IsRecording() || McmRecorder_Player.IsPlayingRecording()
+	if force || McmRecorder_Recorder.IsRecording() || McmRecorder_TopLevelPlayer.IsPlaying()
         int optionsOnModPageForType = OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int option = JMap.object()
         JArray.addObj(optionsOnModPageForType, option)

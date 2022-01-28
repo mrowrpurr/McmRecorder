@@ -1,6 +1,27 @@
 scriptName McmRecorder_Player hidden
 {Responsible for playback of recordings or can trigger individual actions}
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; TODO - Move everything OUT of here, then maybe some back in...
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool function IsPlayingRecording() global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
 endFunction

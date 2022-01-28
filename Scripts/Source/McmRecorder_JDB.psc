@@ -49,7 +49,98 @@ string function JdbPath_McmOptions_MarkForReset() global
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Playing Recording
+; Recording Playback
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+string function JdbPath_TopLevelPlaybackId() global
+    return ".mcmRecorder.topLevelPlayback"
+endFunction
+
+string function JdbPath_Playbacks() global
+    return ".mcmRecorder.playbacks"
+endFunction
+
+string function JdbPath_PlaybackById(int playback) global
+    return ".mcmRecorder.playbacks." + playback
+endFunction
+
+string function JdbPath_Playback_Recording(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".recording"
+endFunction
+
+string function JdbPath_Playback_IsPlaying(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".isPlaying"
+endFunction
+
+string function JdbPath_Playback_IsPaused(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".isPaused"
+endFunction
+
+string function JdbPath_Playback_IsCanceled(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".isCanceled"
+endFunction
+
+string function JdbPath_Playback_StepsByFilename(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".stepsByFilename"
+endFunction
+
+string function JdbPath_Playback_InlineScript(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".inlineScript"
+endFunction
+
+string function JdbPath_Playback_CurrentModName(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".currentModName"
+endFunction
+
+string function JdbPath_Playback_CurrentModPageName(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".currentModPageName"
+endFunction
+
+string function JdbPath_Playback_CurrentStepFilename(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".currentStepFilename"
+endFunction
+
+string function JdbPath_Playback_CurrentActionIndex(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".currentActionIndex"
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Autorun
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+string function JdbPath_AutorunHistory() global
+    return ".mcmRecorder.autorunHistory"
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Keyboard Shortcuts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+string function JdbPath_MCM_KeyboardShortcuts_ShortcutInfos() global
+    return ".mcmRecorder.mcm.keyboardShortcuts.shortcutInfos"
+endFunction
+
+string function JdbPath_MCM_KeyboardShortcuts_ShortcutOptions() global
+    return ".mcmRecorder.mcm.keyboardShortcuts.shortcutOptions"
+endFunction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Playing Recording (ORIGINAL - DEPRECATE)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 string function JdbPath_IsPlayingRecording() global
@@ -102,26 +193,6 @@ endFunction
 
 string function JdbPath_PlayingRecordingIsPaused() global
     return ".mcmRecorder.playingRecording.paused"
-endFunction
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Autorun
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-string function JdbPath_AutorunHistory() global
-    return ".mcmRecorder.autorunHistory"
-endFunction
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Keyboard Shortcuts
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-string function JdbPath_MCM_KeyboardShortcuts_ShortcutInfos() global
-    return ".mcmRecorder.mcm.keyboardShortcuts.shortcutInfos"
-endFunction
-
-string function JdbPath_MCM_KeyboardShortcuts_ShortcutOptions() global
-    return ".mcmRecorder.mcm.keyboardShortcuts.shortcutOptions"
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -63,8 +63,8 @@ function RunKeyboardShortcutIfAny(int pressedKey) global
     int i = 0
     while i < recordingNames.Length && (!found)
         string recordingName = recordingNames[i]
-        int recordingInfo = McmRecorder_Recording.Get(recordingName)
-        int shortcut = JMap.getObj(recordingInfo, "shortcut")
+        int recording = McmRecorder_Recording.Get(recordingName)
+        int shortcut = JMap.getObj(recording, "shortcut")
         if shortcut
             int keycode = JMap.getInt(shortcut, "key")
             bool ctrl = JMap.getStr(shortcut, "ctrl") == "true"
@@ -79,7 +79,7 @@ function RunKeyboardShortcutIfAny(int pressedKey) global
                 bool messageboxes = McmRecorder_Config.ShowMessageBoxes()
                 McmRecorder_Config.SetShowNotifications(false)
                 McmRecorder_Config.SetShowMessageBoxes(false)
-                McmRecorder_Player.PlayRecording(recordingName)
+                McmRecorder_Recording.Play(recording)
                 McmRecorder_Config.SetShowNotifications(notifications)
                 McmRecorder_Config.SetShowMessageBoxes(messageboxes)
                 found = true

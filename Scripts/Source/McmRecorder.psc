@@ -81,9 +81,7 @@ function StopListeningForKeyboardShortcuts()
 endFunction
 
 event OnKeyDown(int keycode)
-    if ! McmRecorder_Player.IsPlayingRecording()
-        McmRecorder_KeyboardShortcuts.RunKeyboardShortcutIfAny(keycode)
-    endIf
+    McmRecorder_KeyboardShortcuts.RunKeyboardShortcutIfAny(keycode)
 endEvent
 
 ; **DO NOT USE THIS**
@@ -148,7 +146,7 @@ endFunction
 
 event OnMenuOpen(string menuName)
     if menuName == "Journal Menu"
-        if McmRecorder_Player.IsPlayingRecording()
+        if McmRecorder_TopLevelPlayer.IsPlaying()
             McmRecorder_UI.OpenSystemMenuDuringRecordingMessage(McmRecorder_Player.GetCurrentlyPlayingRecordingName())
         endIf
     endIf
