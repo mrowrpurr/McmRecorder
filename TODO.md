@@ -18,6 +18,9 @@
 - [ ] `"var": "coolvar", "value": 12.34`
 - [ ] `"msgbox": "Some dialog message", "if": "somevar"`
 - [ ] `"msgbox": "Some dialog message", "if": "somevar = some value"`
+- [ ] Inventory Selector
+- [ ] Spell Selector
+- [ ] Search results
 - [ ] `"play": "recording name"`
 - [ ] `"play": "recording name", "step": "step name"`
 - [ ] `"console": "tgm"`
