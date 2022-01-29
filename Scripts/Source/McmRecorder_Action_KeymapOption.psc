@@ -4,13 +4,13 @@ bool function IsActionType(int actionInfo) global
     return JMap.hasKey(actionInfo, "shortcut") && JMap.hasKey(actionInfo, "option")
 endFunction
 
-function Play(int actionInfo) global
-    if McmRecorder_Player.IsCurrentRecordingCanceled() || McmRecorder_Action_Option.ShouldSkipOption()
+function Play(int playback, int actionInfo) global
+    if McmRecorder_Playback.IsCanceled(playback) || McmRecorder_Action_Option.ShouldSkipOption(playback)
         return
     endIf
 
-    string modName = McmRecorder_Player.GetCurrentPlayingRecordingModName()
-    string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
+    string modName = McmRecorder_Playback.CurrentModName(playback)
+    string pageName = McmRecorder_Playback.CurrentModPageName(playback)
     int shortcut = JMap.getInt(actionInfo, "shortcut")
     string selector = JMap.getStr(actionInfo, "option")
     int index = JMap.getInt(actionInfo, "index", 1)
@@ -19,13 +19,13 @@ function Play(int actionInfo) global
 
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu
-        McmRecorder_Player.McmMenuNotFound(actionInfo, modName)
+        McmRecorder_Player.McmMenuNotFound(playback, actionInfo, modName)
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "keymap", selector, index = index)
+    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "keymap", selector, index = index)
     if ! option
-        McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "keyboard shortcut '" + selector + "'")
+        McmRecorder_Player.OptionNotFound(playback, actionInfo, modName, pageName, "keyboard shortcut '" + selector + "'")
         return
     endIf
 

@@ -58,7 +58,7 @@ event OnPageReset(string page)
     elseIf page == McmRecorder_MCM_VrGestures.PageName()
         McmRecorder_MCM_VrGestures.Render(self)
     else
-        if McmRecorder_Player.IsCurrentRecordingPaused()
+        if McmRecorder_TopLevelPlayer.IsPaused()
             McmRecorder_MCM_RecordingPaused.Render(self)
         else
             McmRecorder_MCM_RecordingList.Render(self)
@@ -83,7 +83,7 @@ event OnOptionSelect(int optionId)
     elseIf CurrentPage == McmRecorder_MCM_VrGestures.PageName()
         McmRecorder_MCM_VrGestures.OnOptionSelect(self, optionId)
     else
-        if McmRecorder_Player.IsCurrentRecordingPaused()
+        if McmRecorder_TopLevelPlayer.IsPaused()
             McmRecorder_MCM_RecordingPaused.OnOptionSelect(self, optionId)
         else
             McmRecorder_MCM_RecordingList.OnOptionSelect(self, optionId)

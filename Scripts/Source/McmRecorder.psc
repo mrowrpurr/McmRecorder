@@ -147,7 +147,7 @@ endFunction
 event OnMenuOpen(string menuName)
     if menuName == "Journal Menu"
         if McmRecorder_TopLevelPlayer.IsPlaying()
-            McmRecorder_UI.OpenSystemMenuDuringRecordingMessage(McmRecorder_Player.GetCurrentlyPlayingRecordingName())
+            McmRecorder_UI.OpenSystemMenuDuringRecordingMessage(McmRecorder_TopLevelPlayer.RecordingName())
         endIf
     endIf
 endEvent

@@ -41,6 +41,8 @@ function TrackField(string modName, string pageName, string optionType, int opti
         ResetMcmOptions()
     endIf
 
+    McmRecorder_Logging.DumpAll()
+
 	if force || McmRecorder_Recorder.IsRecording() || McmRecorder_TopLevelPlayer.IsPlaying()
         int optionsOnModPageForType = OptionsForModPage_ByOptionType(modName, pageName, optionType)
         int option = JMap.object()

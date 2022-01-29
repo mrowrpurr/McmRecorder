@@ -100,6 +100,10 @@ string function JdbPath_Playback_CurrentStepFilename(int playback) global
     return ".mcmRecorder.playbacks." + playback + ".currentStepFilename"
 endFunction
 
+string function JdbPath_Playback_CurrentStepIndex(int playback) global
+    return ".mcmRecorder.playbacks." + playback + ".currentStepIndex"
+endFunction
+
 string function JdbPath_Playback_CurrentActionIndex(int playback) global
     return ".mcmRecorder.playbacks." + playback + ".currentActionIndex"
 endFunction

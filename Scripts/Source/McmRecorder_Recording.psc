@@ -4,15 +4,17 @@ int function Get(string recordingName) global
     return McmRecorder_Files.ReadRecordingFile(recordingName)
 endFunction
 
-function PlayByName(string recordingName) global
+function PlayByName(string recordingName, string startingStepName = "") global
     int recording = Get(recordingName)
     if recording
-        Play(recording)
+        Debug.Notification("Recording: " + recording)
+        Play(recording, startingStepName)
     endIf
 endFunction
 
 function Play(int this, string startingStepName = "", int startingActionIndex = -1) global
     int playback = McmRecorder_Playback.Create(this, startingStepName, startingActionIndex)
+    Debug.Notification("Playback: " + playback)
     McmRecorder_Playback.Play(playback)
     McmRecorder_Playback.Dispose(playback)
 endFunction
@@ -46,12 +48,6 @@ endFunction
 
 int function GetInlineScript(int this) global
     return JMap.getObj(this, "script")
-endFunction
-
-function RunInlineScript(int this) global
-    if HasInlineScript(this)
-        McmRecorder_Action.PlayMultiple(GetInlineScript(this))
-    endIf
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

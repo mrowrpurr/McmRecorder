@@ -3,17 +3,20 @@ scriptName McmRecorder_TopLevelPlayer hidden
 function PlayByName(string recordingName) global
     int recording = McmRecorder_Recording.Get(recordingName)
     if recording
+        Debug.Notification("Recording: " + recording)
         Play(recording)
     endIf
 endFunction
 
 function Play(int recordingId, string startingStepName = "", int startingActionIndex = -1) global
+    int this = McmRecorder_Playback.Create(recordingId, startingStepName, startingActionIndex)
+    Debug.Notification("Playback: " + this)
+
     ; Tell system that recording is in progress
     McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
     recorder.ListenForSystemMenuOpen()
     recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1 ; <--- used for UI messageboxes
 
-    int this = McmRecorder_Playback.Create(recordingId, startingStepName, startingActionIndex)
     SetPlaybackId(this)
     McmRecorder_Playback.Play(this)
     if ! IsPaused()
@@ -60,4 +63,24 @@ endFunction
 
 function SetPlaybackId(int playbackId) global
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_TopLevelPlaybackId(), playbackId, createMissingKeys = true)
+endFunction
+
+int function Recording() global
+    int playbackId = PlaybackId()
+    if playbackId
+        int recording = McmRecorder_Playback.Recording(playbackId)
+        if recording
+            return recording
+        endIf
+    endIf
+endFunction
+
+string function RecordingName() global
+    int playbackId = PlaybackId()
+    if playbackId
+        int recording = McmRecorder_Playback.Recording(playbackId)
+        if recording
+            return Mcmrecorder_Recording.GetName(recording)
+        endIf
+    endIf
 endFunction

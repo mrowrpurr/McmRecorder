@@ -4,7 +4,7 @@ bool function IsActionType(int actionInfo) global
     return JMap.hasKey(actionInfo, "chooser")
 endFunction
 
-function Play(int actionInfo) global
+function Play(int playback, int actionInfo) global
     int optionNames = JMap.getObj(actionInfo, "chooser")
     int optionActions = JMap.getObj(actionInfo, "options")
     int optionCount = JArray.count(optionNames)
@@ -23,6 +23,6 @@ function Play(int actionInfo) global
     endIf
     if JMap.hasKey(optionActions, selectedOptionName)
         int optionAction = JMap.getObj(optionActions, selectedOptionName)
-        McmRecorder_Action.Play(optionAction)
+        McmRecorder_Action.Play(playback, optionAction)
     endIf
 endFunction

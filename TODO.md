@@ -1,3 +1,5 @@
+- [ ] Fix playing individual Step!
+- [ ] Confirm Pause and Resume and Cancel all still work!
 - [ ] Represent color as string "#ffaabb" (with or without #, detect if string vs int)
 - [ ] Wildcard matching for modName
 - [ ] Wildcard matching for pageName

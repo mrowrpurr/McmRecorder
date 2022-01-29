@@ -3,7 +3,7 @@ scriptName McmRecorder_Playback hidden
 int function Create(int recording, string startingStepName = "", int startingActionIndex = -1) global
     int this = JMap.object()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlaybackById(this), this, createMissingKeys = true)
-    JMap.setObj(this, "recording", recording)
+    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_Recording(this), recording, createMissingKeys = true)
     if startingStepName
         SetCurrentStepFilename(this, startingStepName)
     endIf
@@ -11,12 +11,13 @@ int function Create(int recording, string startingStepName = "", int startingAct
         SetCurrentActionIndex(this, startingActionIndex)
     endIf
     if McmRecorder_Recording.HasInlineScript(recording)
-        JMap.setObj(this, "inlineScript", McmRecorder_Recording.GetInlineScript(recording))
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_InlineScript(this), McmRecorder_Recording.GetInlineScript(recording), createMissingKeys = true)
     endIf
     int stepsByFilename = McmRecorder_Recording.StepsByFilename(recording)
     if stepsByFilename
-        JMap.setObj(this, "stepsByFilename", stepsByFilename)
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_StepsByFilename(this), stepsByFilename, createMissingKeys = true)
     endIf
+    McmRecorder_Logging.ConsoleOut("FINISHED CREATING")
     return this
 endFunction
 
@@ -27,9 +28,15 @@ endFunction
     ; int stepsByFilename = StepsByFilename(this)
 
 function Play(int this) global
+    McmRecorder_Logging.DumpAll() ; TODO REMOVE ME
+    McmRecorder_Logging.ConsoleOut("PLAY " + this)
+
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 1, createMissingKeys = true)   
 
     int recording = Recording(this)
+
+    McmRecorder_Logging.ConsoleOut("RECORDING: " + recording + McmRecorder_Logging.ToJson(recording))
+
     string recordingName = McmRecorder_Recording.GetName(recording)
     string startingStep = CurrentStepFilename(this)
     int startingActionIndex = CurrentActionIndex(this)
@@ -67,10 +74,14 @@ function _Play_InlineScript(int this) global
 
     int recording = Recording(this)
     string recordingName = McmRecorder_Recording.GetName(recording)
+
+    McmRecorder_Logging.ConsoleOut("Play inline script for " + recordingName)
+    McmRecorder_Logging.ConsoleOut("Here the recording is " + recording + " " + McmRecorder_Logging.ToJson(recording))
+
     int inlineScript = InlineScript(this)
     if inlineScript
         McmRecorder_Logging.ConsoleOut("Playing recording '" + recordingName + "' inline script (" + JArray.count(inlineScript) + " actions)")
-        McmRecorder_Recording.RunInlineScript(recording)
+        McmRecorder_Action.PlayMultiple(this, inlineScript)
     endIf
 endFunction
 
@@ -104,6 +115,7 @@ function _Play_Steps(int this) global
                 int stepActions = JMap.getObj(stepsByFilename, stepFilename)
                 int stepActionCount = JArray.count(stepActions)
                 SetCurrentStepFilename(this, stepFilename)
+                SetCurrentStepIndex(this, stepIndex)
                 int actionIndex = 0
                 while actionindex < stepActionCount && (! IsCanceled(this)) && (! IsPaused(this))
                     bool shouldPlay = (startingActionIndex == -1) ; If no action specified, should play!
@@ -116,7 +128,7 @@ function _Play_Steps(int this) global
                     if shouldPlay
                         SetCurrentActionIndex(this, actionindex)
                         int stepAction = JArray.getObj(stepActions, actionIndex)
-                        McmRecorder_Action.Play(stepAction)
+                        McmRecorder_Action.Play(this, stepAction)
                     endIf
                     actionIndex += 1
                 endWhile
@@ -132,7 +144,10 @@ function Resume(int this) global
 endFunction
 
 function Dispose(int this) global
-    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlaybackById(this), 0)
+    int playbacks = JDB.solveObj(McmRecorder_JDB.JdbPath_Playbacks())
+    if playbacks
+        JMap.removeKey(playbacks, this)
+    endIf
 endFunction
 
 int function Recording(int this) global
@@ -175,6 +190,14 @@ function SetCurrentStepFilename(int this, string stepFilename) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_Playback_CurrentStepFilename(this), stepFilename, createMissingKeys = true)
 endFunction
 
+int function CurrentStepIndex(int this) global
+    return JDB.solveInt(McmRecorder_JDB.JdbPath_Playback_CurrentStepIndex(this))
+endFunction
+
+function SetCurrentStepIndex(int this, int index) global
+    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_CurrentStepIndex(this), index, createMissingKeys = true)
+endFunction
+
 int function CurrentActionIndex(int this) global
     return JDB.solveInt(McmRecorder_JDB.JdbPath_Playback_CurrentActionIndex(this))
 endFunction
@@ -191,10 +214,10 @@ function SetCurrentModName(int this, string modName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_Playback_CurrentModName(this), modName, createMissingKeys = true)
 endFunction
 
-string function CurrentPageName(int this) global
+string function CurrentModPageName(int this) global
     return JDB.solveStr(McmRecorder_JDB.JdbPath_Playback_CurrentModPageName(this))
 endFunction
 
-function SetCurrentPageName(int this, string pageName) global
+function SetCurrentModPageName(int this, string pageName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_Playback_CurrentModPageName(this), pageName, createMissingKeys = true)
 endFunction

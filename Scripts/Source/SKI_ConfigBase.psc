@@ -927,7 +927,6 @@ function SetSliderOptionValue(Int a_option, Float a_value, String a_formatString
 endFunction
 
 function AddOptionST(String a_stateName, Int a_optionType, String a_text, String a_strValue, Float a_numValue, Int a_flags)
-	McmRecorder_Logging.ConsoleOut("ADD OPTION ST " + a_stateName)
 
 	if _stateOptionMap.find(a_stateName, 0) != -1
 		self.Error("State option name " + a_stateName + " is already in use")

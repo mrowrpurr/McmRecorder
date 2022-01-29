@@ -22,22 +22,22 @@ scriptName McmRecorder_Player hidden
 
 
 
-bool function IsPlayingRecording() global
-    return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
-endFunction
+; bool function IsPlayingRecording() global
+;     return JDB.solveInt(McmRecorder_JDB.JdbPath_IsPlayingRecording())
+; endFunction
 
-function Reset() global
-    ClearModsPlayed()
-    MarkRecordingAsPlaying()
-    ResetCurrentPlaybackCancelation()
-    ResetCurrentPlaybackPaused()
-    McmRecorder_McmFields.ResetMcmOptions()
-    SetCurrentPlayingRecordingModName("")
-    SetCurrentPlayingRecordingModPageName("")
-    SetCurrentlyPlayingStepFilename("") ; Make this StepName NOT StepFilename :)
-    SetCurrentlyPlayingStepIndex(-1)
-    SetCurrentlyPlayingActionIndex(-1)
-endFunction
+; function Reset() global
+;     ClearModsPlayed()
+;     MarkRecordingAsPlaying()
+;     ResetCurrentPlaybackCancelation()
+;     ResetCurrentPlaybackPaused()
+;     McmRecorder_McmFields.ResetMcmOptions()
+;     SetCurrentPlayingRecordingModName("")
+;     SetCurrentPlayingRecordingModPageName("")
+;     SetCurrentlyPlayingStepFilename("") ; Make this StepName NOT StepFilename :)
+;     SetCurrentlyPlayingStepIndex(-1)
+;     SetCurrentlyPlayingActionIndex(-1)
+; endFunction
 
 ; function PlayRecording(string recordingName, string startingStep = "", int startingActionIndex = -1, float waitTimeBetweenActions = 0.0, float mcmLoadWaitTime = 0.0, bool verbose = true, bool reset = true) global
 ;     if reset
@@ -179,118 +179,118 @@ endFunction
 ; endFunction
 
 ; TODO move to McmRecorder_Step
-function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.0) global
-    SetCurrentlyPlayingStepIndex(-1) ; Dunno! Uh oh! Should we pass this?
-    SetCurrentlyPlayingStepFilename(stepName + ".json") ; TODO XXX Make this track STEP NAME not the Filename
-    SetCurrentPlayingRecordingModName("")
-    SetCurrentPlayingRecordingModPageName("")
-    SetIsPlayingRecording(true) ; XXX is this used?
+; function PlayStep(string recordingName, string stepName, float waitTimeBetweenActions = 0.0) global
+;     SetCurrentlyPlayingStepIndex(-1) ; Dunno! Uh oh! Should we pass this?
+;     SetCurrentlyPlayingStepFilename(stepName + ".json") ; TODO XXX Make this track STEP NAME not the Filename
+;     SetCurrentPlayingRecordingModName("")
+;     SetCurrentPlayingRecordingModPageName("")
+;     SetIsPlayingRecording(true) ; XXX is this used?
 
-    int stepInfo = McmRecorder_Files.GetRecordingStep(recordingName, stepName)
-    JValue.retain(stepInfo)
+;     int stepInfo = McmRecorder_Files.GetRecordingStep(recordingName, stepName)
+;     JValue.retain(stepInfo)
 
-    McmRecorder_UI.Notification("Playing step " + stepName + " of recording " + recordingName)
+;     McmRecorder_UI.Notification("Playing step " + stepName + " of recording " + recordingName)
     
-    int actionCount = JArray.count(stepInfo)
-    int i = 0
-    while i < actionCount
-        int recordingAction = JArray.getObj(stepInfo, i)
-        McmRecorder_Action.Play(recordingAction)
-        if waitTimeBetweenActions
-            Utility.WaitMenuMode(waitTimeBetweenActions)
-        endIf
-        i += 1
-    endWhile
+;     int actionCount = JArray.count(stepInfo)
+;     int i = 0
+;     while i < actionCount
+;         int recordingAction = JArray.getObj(stepInfo, i)
+;         McmRecorder_Action.Play(recordingAction)
+;         if waitTimeBetweenActions
+;             Utility.WaitMenuMode(waitTimeBetweenActions)
+;         endIf
+;         i += 1
+;     endWhile
     
-    JValue.release(stepInfo)
-    SetIsPlayingRecording(false)
-endFunction
+;     JValue.release(stepInfo)
+;     SetIsPlayingRecording(false)
+; endFunction
 
-function ResumeCurrentRecording() global
-    string pausedRecordingName = GetCurrentlyPlayingRecordingName()
-    McmRecorder_Logging.ConsoleOut("Resume recording: " + pausedRecordingName)
-    McmRecorder_UI.Notification("Resume recording: " + pausedRecordingName)
-    string pausedStepFilename = GetCurrentlyPlayingStepFilename()
-    string pausedStepName = StringUtil.Substring(pausedStepFilename, 0, StringUtil.Find(pausedStepFilename, ".json"))
-    int pausedActionIndex = GetCurrentlyPlayingActionIndex()
-    ResetCurrentPlaybackPaused()
-    ; PlayRecording(pausedRecordingName, pausedStepName, pausedActionIndex + 1, reset = false)
-endFunction
+; function ResumeCurrentRecording() global
+;     string pausedRecordingName = GetCurrentlyPlayingRecordingName()
+;     McmRecorder_Logging.ConsoleOut("Resume recording: " + pausedRecordingName)
+;     McmRecorder_UI.Notification("Resume recording: " + pausedRecordingName)
+;     string pausedStepFilename = GetCurrentlyPlayingStepFilename()
+;     string pausedStepName = StringUtil.Substring(pausedStepFilename, 0, StringUtil.Find(pausedStepFilename, ".json"))
+;     int pausedActionIndex = GetCurrentlyPlayingActionIndex()
+;     ResetCurrentPlaybackPaused()
+;     ; PlayRecording(pausedRecordingName, pausedStepName, pausedActionIndex + 1, reset = false)
+; endFunction
 
-function CancelCurrentRecording() global
-    string pausedRecordingName = GetCurrentlyPlayingRecordingName()
-    McmRecorder_Logging.ConsoleOut("Canceled recording: " + pausedRecordingName)
-    McmRecorder_UI.Notification("Canceled recording: " + pausedRecordingName)
-    Reset()
-endFunction
+; function CancelCurrentRecording() global
+;     string pausedRecordingName = GetCurrentlyPlayingRecordingName()
+;     McmRecorder_Logging.ConsoleOut("Canceled recording: " + pausedRecordingName)
+;     McmRecorder_UI.Notification("Canceled recording: " + pausedRecordingName)
+;     Reset()
+; endFunction
 
-function SetIsPlayingRecording(bool running = true) global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_IsPlayingRecording(), running as int, createMissingKeys = true)
-endFunction
+; function SetIsPlayingRecording(bool running = true) global
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_IsPlayingRecording(), running as int, createMissingKeys = true)
+; endFunction
 
-function SetCurrentlyPlayingRecordingName(string recordingName) global
-    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingName(), recordingName, createMissingKeys = true)
-endFunction
+; function SetCurrentlyPlayingRecordingName(string recordingName) global
+;     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingName(), recordingName, createMissingKeys = true)
+; endFunction
 
-string function GetCurrentlyPlayingRecordingName() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingName())
-endFunction
+; string function GetCurrentlyPlayingRecordingName() global
+;     return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingName())
+; endFunction
 
-function SetCurrentlyPlayingSteps(int steps) global
-    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingSteps(), steps, createMissingKeys = true)
-endFunction
+; function SetCurrentlyPlayingSteps(int steps) global
+;     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingSteps(), steps, createMissingKeys = true)
+; endFunction
 
-int function GetCurrentlyPlayingSteps() global
-    return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingSteps())
-endFunction
+; int function GetCurrentlyPlayingSteps() global
+;     return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingSteps())
+; endFunction
 
-function SetCurrentlyPlayingInlineScript(int script) global
-    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingInlineScript(), script, createMissingKeys = true)
-endFunction
+; function SetCurrentlyPlayingInlineScript(int script) global
+;     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingInlineScript(), script, createMissingKeys = true)
+; endFunction
 
-int function GetCurrentlyPlayingInlineScript() global
-    return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingInlineScript())
-endFunction
+; int function GetCurrentlyPlayingInlineScript() global
+;     return JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingInlineScript())
+; endFunction
 
-function SetCurrentlyPlayingStepFilename(string stepFilename) global
-    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingStepFilename(), stepFilename, createMissingKeys = true)
-endFunction
+; function SetCurrentlyPlayingStepFilename(string stepFilename) global
+;     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingStepFilename(), stepFilename, createMissingKeys = true)
+; endFunction
 
-string function GetCurrentlyPlayingStepFilename() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingStepFilename())
-endFunction
+; string function GetCurrentlyPlayingStepFilename() global
+;     return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingStepFilename())
+; endFunction
 
-function SetCurrentlyPlayingStepIndex(int stepIndex) global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingStepIndex(), stepIndex, createMissingKeys = true)
-endFunction
+; function SetCurrentlyPlayingStepIndex(int stepIndex) global
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingStepIndex(), stepIndex, createMissingKeys = true)
+; endFunction
 
-int function GetCurrentlyPlayingStepIndex() global
-    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingStepIndex())
-endFunction
+; int function GetCurrentlyPlayingStepIndex() global
+;     return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingStepIndex())
+; endFunction
 
-function SetCurrentlyPlayingActionIndex(int stepIndex) global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingActionIndex(), stepIndex, createMissingKeys = true)
-endFunction
+; function SetCurrentlyPlayingActionIndex(int stepIndex) global
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingActionIndex(), stepIndex, createMissingKeys = true)
+; endFunction
 
-int function GetCurrentlyPlayingActionIndex() global
-    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingActionIndex())
-endFunction
+; int function GetCurrentlyPlayingActionIndex() global
+;     return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingActionIndex())
+; endFunction
 
-string function GetCurrentPlayingRecordingModName() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingModName())
-endFunction
+; string function GetCurrentPlayingRecordingModName() global
+;     return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingModName())
+; endFunction
 
-function SetCurrentPlayingRecordingModName(string modName) global
-    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModName(), modName , createMissingKeys = true)
-endFunction
+; function SetCurrentPlayingRecordingModName(string modName) global
+;     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModName(), modName , createMissingKeys = true)
+; endFunction
 
-string function GetCurrentPlayingRecordingModPageName() global
-    return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingModPageName())
-endFunction
+; string function GetCurrentPlayingRecordingModPageName() global
+;     return JDB.solveStr(McmRecorder_JDB.JdbPath_PlayingRecordingModPageName())
+; endFunction
 
-function SetCurrentPlayingRecordingModPageName(string pageName) global
-    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModPageName(), pageName , createMissingKeys = true)
-endFunction
+; function SetCurrentPlayingRecordingModPageName(string pageName) global
+;     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModPageName(), pageName , createMissingKeys = true)
+; endFunction
 
 int function GetModsPlayed() global
     int modsPlayed = JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed())
@@ -338,52 +338,52 @@ function SetCurrentlySkippingModName(string modName) global
     JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentlySkippingModName(), modName, createMissingKeys = true)
 endFunction
 
-function CancelCurrentPlayback() global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled(), 1, createMissingKeys = true)
-endFunction
+; function CancelCurrentPlayback() global
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled(), 1, createMissingKeys = true)
+; endFunction
 
-function ResetCurrentPlaybackCancelation() global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled(), 0)
-endFunction
+; function ResetCurrentPlaybackCancelation() global
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled(), 0)
+; endFunction
 
-bool function IsCurrentRecordingCanceled() global
-    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled())
-endFunction
+; bool function IsCurrentRecordingCanceled() global
+;     return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingHasBeenCanceled())
+; endFunction
 
-function PauseCurrentPlayback() global
-    MarkRecordingAsNotPlaying()
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused(), 1, createMissingKeys = true)
-endFunction
+; function PauseCurrentPlayback() global
+;     MarkRecordingAsNotPlaying()
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused(), 1, createMissingKeys = true)
+; endFunction
 
-function ResetCurrentPlaybackPaused() global
-    JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused(), 0)
-endFunction
+; function ResetCurrentPlaybackPaused() global
+;     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused(), 0)
+; endFunction
 
-bool function IsCurrentRecordingPaused() global
-    return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused())
-endFunction
+; bool function IsCurrentRecordingPaused() global
+;     return JDB.solveInt(McmRecorder_JDB.JdbPath_PlayingRecordingIsPaused())
+; endFunction
 
-function MarkRecordingAsPlaying() global
-    McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1
-endFunction
+; function MarkRecordingAsPlaying() global
+;     McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 1
+; endFunction
 
-function MarkRecordingAsNotPlaying() global
-    McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
-endFunction
+; function MarkRecordingAsNotPlaying() global
+;     McmRecorder.GetMcmRecorderInstance().McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0
+; endFunction
 
-function McmMenuNotFound(int actionInfo, string modName) global
+function McmMenuNotFound(int playback, int actionInfo, string modName) global
     string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
     if result == "Try again"
-        McmRecorder_Action.Play(actionInfo)
+        McmRecorder_Action.Play(playback, actionInfo)
     elseIf result == "Skip this mod"
         SetCurrentlySkippingModName(modName)
     endIf
 endFunction
 
-function OptionNotFound(int actionInfo, string modName, string pageName, string optionDescription) global
+function OptionNotFound(int playback, int actionInfo, string modName, string pageName, string optionDescription) global
     string response = McmRecorder_UI.GetUserResponseForNotFoundSelector(modName, pageName, optionDescription)
     if response == "Try again"
-        McmRecorder_Action.Play(actionInfo)
+        McmRecorder_Action.Play(playback, actionInfo)
     elseIf response == "Skip this mod"
         SetCurrentlySkippingModName(modName)
     endIf

@@ -4,13 +4,13 @@ bool function IsActionType(int actionInfo) global
     return (JMap.hasKey(actionInfo, "choose") || JMap.hasKey(actionInfo, "chooseIndex")) && JMap.hasKey(actionInfo, "option")
 endFunction
 
-function Play(int actionInfo) global
-    if McmRecorder_Player.IsCurrentRecordingCanceled() || McmRecorder_Action_Option.ShouldSkipOption()
+function Play(int playback, int actionInfo) global
+    if McmRecorder_Playback.IsCanceled(playback) || McmRecorder_Action_Option.ShouldSkipOption(playback)
         return
     endIf
 
-    string modName = McmRecorder_Player.GetCurrentPlayingRecordingModName()
-    string pageName = McmRecorder_Player.GetCurrentPlayingRecordingModPageName()
+    string modName = McmRecorder_Playback.CurrentModName(playback)
+    string pageName = McmRecorder_Playback.CurrentModPageName(playback)
     string menuOptionName = JMap.getStr(actionInfo, "choose")
     int menuOptionIndex = JMap.getInt(actionInfo, "chooseIndex")
     string selector = JMap.getStr(actionInfo, "option")
@@ -24,13 +24,13 @@ function Play(int actionInfo) global
 
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu
-        McmRecorder_Player.McmMenuNotFound(actionInfo, modName)
+        McmRecorder_Player.McmMenuNotFound(playback, actionInfo, modName)
         return
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(mcmMenu, modName, pageName, "menu", selector, index = index)
+    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "menu", selector, index = index)
     if ! option
-        McmRecorder_Player.OptionNotFound(actionInfo, modName, pageName, "menu '" + selector + "'")
+        McmRecorder_Player.OptionNotFound(playback, actionInfo, modName, pageName, "menu '" + selector + "'")
         return
     endIf
 

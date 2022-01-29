@@ -4,11 +4,8 @@ bool function IsActionType(int actionInfo) global
     return JMap.hasKey(actionInfo, "play")
 endFunction
 
-function Play(int actionInfo) global
-
-    ; TODO !
-
-    ; int recordingName = JMap.getObj(actionInfo, "play")
-    ; int stepName = JMap.getObj(actionInfo, "step")
-    ; McmRecorder_Player.PlayRecording(recordingName, stepName)
+function Play(int playback, int actionInfo) global
+    string recordingName = JMap.getStr(actionInfo, "play")
+    string stepName = JMap.getStr(actionInfo, "step")
+    McmRecorder_Recording.PlayByName(recordingName, stepName)
 endFunction

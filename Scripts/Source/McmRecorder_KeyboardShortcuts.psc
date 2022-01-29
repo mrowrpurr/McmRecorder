@@ -79,7 +79,7 @@ function RunKeyboardShortcutIfAny(int pressedKey) global
                 bool messageboxes = McmRecorder_Config.ShowMessageBoxes()
                 McmRecorder_Config.SetShowNotifications(false)
                 McmRecorder_Config.SetShowMessageBoxes(false)
-                McmRecorder_Recording.Play(recording)
+                McmRecorder_Recording.PlayByName(recordingName)
                 McmRecorder_Config.SetShowNotifications(notifications)
                 McmRecorder_Config.SetShowMessageBoxes(messageboxes)
                 found = true

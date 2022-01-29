@@ -42,9 +42,14 @@ function WelcomeMessage(string recordingName) global
 endFunction
 
 function OpenSystemMenuDuringRecordingMessage(string recordingName) global
-    int stepCount = JMap.count(McmRecorder_Player.GetCurrentlyPlayingSteps())
-    int stepIndex = McmRecorder_Player.GetCurrentlyPlayingStepIndex()
-    string stepName = McmRecorder_Player.GetCurrentlyPlayingStepFilename()
+    int playback = McmRecorder_TopLevelPlayer.PlaybackId()
+    if ! playback
+        return
+    endIf
+
+    int stepCount = JMap.count(McmRecorder_Playback.StepsByFilename(playback))
+    int stepIndex = McmRecorder_Playback.CurrentStepIndex(playback)
+    string stepName = McmRecorder_Playback.CurrentStepFilename(playback)
     string text = recordingName + " currently in progress."
     text += "\n\nCurrently playing step " + stepName + " ("+ (stepIndex + 1) + "/" + stepCount + ")"
     text += "\n\nPlease exit the menu to allow this recording to continue."
@@ -66,9 +71,9 @@ function OpenSystemMenuDuringRecordingMessage(string recordingName) global
         ; Nothing, just continue!
     elseIf result == pause
         MessageBox("Pausing playback of recording " + recordingName + "\n\nThis may take a moment.\n\n(The current operation will be completed before the recording is paused)")
-        McmRecorder_Player.PauseCurrentPlayback()
+        McmRecorder_TopLevelPlayer.Pause()
     elseIf result == cancel
-        McmRecorder_Player.CancelCurrentPlayback()
+        McmRecorder_TopLevelPlayer.Cancel()
     endIf
 endFunction
 
