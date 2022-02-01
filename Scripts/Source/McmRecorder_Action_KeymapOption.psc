@@ -15,7 +15,7 @@ function Play(int playback, int actionInfo) global
     string selector = JMap.getStr(actionInfo, "option")
     int index = JMap.getInt(actionInfo, "index", 1)
 
-    McmRecorder_Logging.ConsoleOut("[Play Action] set keyboard shortcut '" + selector + "' to " + shortcut + " keycode") ; TODO make this HEX
+    McmRecorder_Logging.ConsoleOut("set keyboard shortcut '" + selector + "' to " + shortcut + " keycode") ; TODO make this HEX
 
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu

@@ -3,14 +3,13 @@ scriptName McmRecorder_TopLevelPlayer hidden
 function PlayByName(string recordingName) global
     int recording = McmRecorder_Recording.Get(recordingName)
     if recording
-        Debug.Notification("Recording: " + recording)
         Play(recording)
     endIf
 endFunction
 
 function Play(int recordingId, string startingStepName = "", int startingActionIndex = -1) global
     int this = McmRecorder_Playback.Create(recordingId, startingStepName, startingActionIndex)
-    Debug.Notification("Playback: " + this)
+    string recordingName = McmRecorder_Recording.GetName(recordingId)
 
     ; Tell system that recording is in progress
     McmRecorder recorder = McmRecorder.GetMcmRecorderInstance()
@@ -27,6 +26,10 @@ function Play(int recordingId, string startingStepName = "", int startingActionI
     ; Tell system that recording is no longer in progress
     recorder.StopListeningForSystemMenuOpen()
     recorder.McmRecorder_Var_IsRecordingCurrentlyPlaying.Value = 0 ; <--- used for UI messageboxes
+
+    if ! IsPaused()
+        McmRecorder_UI.FinishedMessage(recordingName)
+    endIf
 endFunction
 
 function Pause() global

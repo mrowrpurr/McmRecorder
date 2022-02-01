@@ -6,7 +6,7 @@ scriptName McmRecorder_McmManager hidden
 ;     SKI_ConfigBase mcmMenu = McmRecorder.GetMcmInstance(modName)
 
 ;     if (! mcmMenu) && mcmLoadWaitTime
-;         McmRecorder_Logging.ConsoleOut("[Play Action] MCM not loaded: " + modName + " (waiting...)")
+;         McmRecorder_Logging.ConsoleOut("MCM not loaded: " + modName + " (waiting...)")
 ;         float startTime = Utility.GetCurrentRealTime()
 ;         float lastNotification = startTime
 ;         while (! mcmMenu) && (Utility.GetCurrentRealTime() - startTime) < mcmLoadWaitTime
@@ -14,7 +14,7 @@ scriptName McmRecorder_McmManager hidden
 ;             if (now - lastNotification) >= 5.0 ; Make configurable, 5 secs waiting for MCM to load
 ;                 lastNotification = now
 ;                 McmRecorder_UI.Notification("Waiting for " + modName + " MCM to load")
-;                 McmRecorder_Logging.ConsoleOut("[Play Action] MCM not loaded: " + modName + " (waiting...)")
+;                 McmRecorder_Logging.ConsoleOut("MCM not loaded: " + modName + " (waiting...)")
 ;             endIf
 ;             Utility.WaitMenuMode(1.0) ; hard coded for now
 ;             mcmMenu = McmRecorder.GetMcmInstance(modName)

@@ -15,7 +15,7 @@ function Play(int playback, int actionInfo) global
     string selector = JMap.getStr(actionInfo, "option")
     int index = JMap.getInt(actionInfo, "index", 1)
 
-    McmRecorder_Logging.ConsoleOut("[Play Action] set '" + selector + "' to '" + text + "'")
+    McmRecorder_Logging.ConsoleOut("set '" + selector + "' to '" + text + "'")
     
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu

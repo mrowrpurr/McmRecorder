@@ -17,9 +17,9 @@ function Play(int playback, int actionInfo) global
     int index = JMap.getInt(actionInfo, "index", 1)
 
     if JMap.hasKey(actionInfo, "choose")
-        McmRecorder_Logging.ConsoleOut("[Play Action] choose '" + menuOptionName + "' from '" + selector + "'")
+        McmRecorder_Logging.ConsoleOut("choose '" + menuOptionName + "' from '" + selector + "'")
     elseIf JMap.hasKey(actionInfo, "chooseIndex")
-        McmRecorder_Logging.ConsoleOut("[Play Action] choose option number " + (menuOptionIndex + 1) + " from '" + selector + "'")
+        McmRecorder_Logging.ConsoleOut("choose option number " + (menuOptionIndex + 1) + " from '" + selector + "'")
     endIf
 
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)

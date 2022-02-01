@@ -28,9 +28,6 @@ endFunction
     ; int stepsByFilename = StepsByFilename(this)
 
 function Play(int this) global
-    McmRecorder_Logging.DumpAll() ; TODO REMOVE ME
-    McmRecorder_Logging.ConsoleOut("PLAY " + this)
-
     JDB.solveIntSetter(McmRecorder_JDB.JdbPath_Playback_IsPlaying(this), 1, createMissingKeys = true)   
 
     int recording = Recording(this)
@@ -74,9 +71,6 @@ function _Play_InlineScript(int this) global
 
     int recording = Recording(this)
     string recordingName = McmRecorder_Recording.GetName(recording)
-
-    McmRecorder_Logging.ConsoleOut("Play inline script for " + recordingName)
-    McmRecorder_Logging.ConsoleOut("Here the recording is " + recording + " " + McmRecorder_Logging.ToJson(recording))
 
     int inlineScript = InlineScript(this)
     if inlineScript

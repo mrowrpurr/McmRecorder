@@ -17,21 +17,6 @@ Message property McmRecorder_Message_ModNotFound auto
 ; Message shown when user opens the System/Journal while a recording is playing
 Message property McmRecorder_Message_PauseOrCancelEtc auto
 
-; Generic message for adding prompts and confirmations etc to recordings
-Message property McmRecorder_Message_Generic auto
-
-; Global Variables for Generic message buttons
-GlobalVariable property McmRecorder_Var_GenericMessage_Back auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Continue auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Yes auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Pause auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Resume auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Ok auto
-GlobalVariable property McmRecorder_Var_GenericMessage_No auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Next auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Cancel auto
-GlobalVariable property McmRecorder_Var_GenericMessage_Exit auto
-
 ; Used to conditionally show buttons on the message we show when you open the System menu during a recording (or while one is paused)
 GlobalVariable property McmRecorder_Var_IsRecordingCurrentlyPlaying auto
 

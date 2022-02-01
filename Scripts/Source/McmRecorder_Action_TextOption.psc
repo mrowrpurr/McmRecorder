@@ -15,7 +15,7 @@ function Play(int playback, int actionInfo) global
     string side = JMap.getStr(actionInfo, "side", "left")
     int index = JMap.getInt(actionInfo, "index", 1)
 
-    McmRecorder_Logging.ConsoleOut("[Play Action] click on '" + selector + "'")
+    McmRecorder_Logging.ConsoleOut("click on '" + selector + "'")
     
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu

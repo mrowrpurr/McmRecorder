@@ -101,7 +101,7 @@ int function AttemptFindOption(SKI_ConfigBase mcmMenu, string modName, string pa
 
         Refresh(mcmMenu, modName, pageName, force = true) ; Wasn't on the page! Let's refresh the page.
 
-        string debugPrefix = "[Play Action] " + modName
+        string debugPrefix = "" + modName
         if pageName
             debugPrefix += ": " + pageName
         endIf
