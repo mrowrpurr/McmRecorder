@@ -16,6 +16,7 @@
 - [ ] `"chooser": ["Option1", "Option2"]`
 - [ ] Translation support for all of the above
 - [ ] `"var": "coolvar", "value": 12.34`
+- [ ] `"var": "mcm", "value": { "name": "Mod Name", "page": "Page Name" }` and reference "mcm.name" and "mcm.page" elsewhere
 - [ ] `"msgbox": "Some dialog message", "if": "somevar"`
 - [ ] `"msgbox": "Some dialog message", "if": "somevar = some value"`
 - [ ] Inventory Selector

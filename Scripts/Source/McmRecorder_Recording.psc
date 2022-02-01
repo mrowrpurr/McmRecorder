@@ -7,14 +7,12 @@ endFunction
 function PlayByName(string recordingName, string startingStepName = "") global
     int recording = Get(recordingName)
     if recording
-        Debug.Notification("Recording: " + recording)
         Play(recording, startingStepName)
     endIf
 endFunction
 
 function Play(int this, string startingStepName = "", int startingActionIndex = -1) global
     int playback = McmRecorder_Playback.Create(this, startingStepName, startingActionIndex)
-    Debug.Notification("Playback: " + playback)
     McmRecorder_Playback.Play(playback)
     McmRecorder_Playback.Dispose(playback)
 endFunction
