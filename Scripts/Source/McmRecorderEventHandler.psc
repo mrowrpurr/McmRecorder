@@ -1,1 +1,0 @@
-Scriptname McmRecorderEventHandler extends Quest  
