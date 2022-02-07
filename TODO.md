@@ -1,6 +1,7 @@
 # Priority!
 
 - [ ] Support mods with ':' in the page name
+- [ ] Consistency between using name in .json and the .json filename!!!! e.g. with the confirmation box
 
 # Cool stuff!
 

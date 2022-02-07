@@ -1,6 +1,8 @@
 scriptName McmRecorder_Playback hidden
 
-int function Create(int recording, string startingStepName = "", int startingActionIndex = -1) global
+int function Create(int recording, string startingStepName = "", int startingActionIndex = -1, int parentScript = -1) global
+    MiscUtil.PrintConsole("PLAYBACK CREATE " + recording + " parentScript:" + parentScript)
+
     int this = JMap.object()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlaybackById(this), this, createMissingKeys = true)
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_Recording(this), recording, createMissingKeys = true)
@@ -20,6 +22,9 @@ int function Create(int recording, string startingStepName = "", int startingAct
     int scriptInstance = SkyScript.Initialize()
     SkyScript.SetVariableObject(scriptInstance, "playback", this)
     JMap.setObj(this, "script", scriptInstance)
+    if parentScript != -1
+        SkyScript.SetScriptParent(scriptInstance, parentScript)
+    endIf
     return this
 endFunction
 

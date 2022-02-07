@@ -4,6 +4,10 @@ int function Get(string recordingName) global
     return McmRecorder_Files.ReadRecordingFile(recordingName)
 endFunction
 
+bool function Exists(string recordingName) global
+    return Get(recordingName)
+endFunction
+
 function PlayByName(string recordingName, string startingStepName = "") global
     int recording = Get(recordingName)
     if recording
