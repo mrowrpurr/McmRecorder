@@ -121,3 +121,21 @@ endFunction
 function SetMessageBoxText(string text) global
     McmRecorder.GetMcmRecorderInstance().McmRecorder_MessageText.SetName(text)
 endFunction
+
+function McmMenuNotFound(int playback, int actionInfo, string modName) global
+    string result = McmRecorder_UI.GetUserResponseForNotFoundMod(modName)
+    if result == "Try again"
+        McmRecorder_Action.Play(playback, actionInfo)
+    elseIf result == "Skip this mod"
+        McmRecorder.SetCurrentlySkippingModName(modName)
+    endIf
+endFunction
+
+function OptionNotFound(int playback, int actionInfo, string modName, string pageName, string optionDescription) global
+    string response = McmRecorder_UI.GetUserResponseForNotFoundSelector(modName, pageName, optionDescription)
+    if response == "Try again"
+        McmRecorder_Action.Play(playback, actionInfo)
+    elseIf response == "Skip this mod"
+        McmRecorder.SetCurrentlySkippingModName(modName)
+    endIf
+endFunction

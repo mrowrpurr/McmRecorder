@@ -17,7 +17,9 @@ int function Create(int recording, string startingStepName = "", int startingAct
     if stepsByFilename
         JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_StepsByFilename(this), stepsByFilename, createMissingKeys = true)
     endIf
-    McmRecorder_Logging.ConsoleOut("FINISHED CREATING")
+    int scriptInstance = SkyScript.Initialize()
+    SkyScript.SetVariableObject(scriptInstance, "playback", this)
+    JMap.setObj(this, "script", scriptInstance)
     return this
 endFunction
 
@@ -62,6 +64,10 @@ endFunction
 bool function ShouldPrintNotifications(int this) global
     int currentTopLevelPlayback = McmRecorder_TopLevelPlayer.PlaybackId()
     return currentTopLevelPlayback && currentTopLevelPlayback == this
+endFunction
+
+int function GetScript(int this) global
+    return JMap.getObj(this, "script")
 endFunction
 
 function _Play_InlineScript(int this) global

@@ -107,13 +107,30 @@ function AutorunRecordings()
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
         int recordingInfo = McmRecorder_Recording.Get(recordingName)
-        if McmRecorder_Recording.IsAutorun(recordingInfo) && (! McmRecorder_Player.HasBeenAutorun(recordingName))
-            McmRecorder_Player.MarkHasBeenAutorun(recordingName)
+        if McmRecorder_Recording.IsAutorun(recordingInfo) && (! HasBeenAutorun(recordingName))
+            MarkHasBeenAutorun(recordingName)
             McmRecorder_Logging.Log("Autorun Recording " + recordingName)
             McmRecorder_Recording.PlayByName(recordingName)
         endIf
         i += 1
     endWhile
+endFunction
+
+int function GetAutorunHistory() global
+    int history = JDB.solveObj(McmRecorder_JDB.JdbPath_AutorunHistory())
+    if ! history
+        history = JMap.object()
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_AutorunHistory(), history, createMissingKeys = true)
+    endIf
+    return history
+endFunction
+
+bool function HasBeenAutorun(string recordingName) global
+    return JMap.getInt(GetAutorunHistory(), recordingName)
+endFunction
+
+function MarkHasBeenAutorun(string recordingName) global
+    JMap.setInt(GetAutorunHistory(), recordingName, 1)
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -167,3 +184,40 @@ endFunction
 event OnRecordingModEvent(string eventName, string recordingName, float fltArg, Form sender)
     McmRecorder_Recording.PlayByName(recordingName)
 endEvent
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Mod Playing History (for force refreshing)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+int function GetModsPlayed() global
+    int modsPlayed = JDB.solveObj(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed())
+    if ! modsPlayed
+        modsPlayed = JMap.object()
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed(), modsPlayed, createMissingKeys = true)
+    endIf
+    return modsPlayed
+endFunction
+
+function AddModPlayed(string modName) global
+    JMap.setInt(GetModsPlayed(), modName, 1)
+endFunction
+
+bool function HasModBeenPlayed(string modName) global
+    return JMap.getInt(GetModsPlayed(), modName)
+endFunction
+
+bool function ClearModsPlayed() global
+    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlayingRecordingModsPlayed(), 0)
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Mod Currently Being Skipped
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+string function GetCurrentlySkippingModName() global
+    return JDB.solveStr(McmRecorder_JDB.JdbPath_CurrentlySkippingModName())
+endFunction
+
+function SetCurrentlySkippingModName(string modName) global
+    JDB.solveStrSetter(McmRecorder_JDB.JdbPath_CurrentlySkippingModName(), modName, createMissingKeys = true)
+endFunction

@@ -1,0 +1,14 @@
+{
+  "name": "",
+  "mcmRecorder": 1.1,
+  "logs": "Data/McmRecorder/Logs/${recording.name}$.log",
+  "errorHandling": {
+    "mcmNotLoaded": {
+      "unless": { "equal": ["${playback.trigger}$", "mcm"] },
+      "then": { "run": "" }
+    },
+    "mcmMenuNotFound": {},
+    "mcmOptionNotFound": {}
+  },
+  "waitTimes": {}
+}

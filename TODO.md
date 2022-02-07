@@ -1,3 +1,38 @@
+# Priority!
+
+- [ ] Support mods with ':' in the page name
+
+# Cool stuff!
+
+- [ ] Play Script by Filename
+- [ ] MCM actions
+- [ ] Play Recording
+- [ ] Configure the messages that recordings play
+- [ ] Configure if recording fails silently or with UI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------
+
 - [ ] Fix playing individual Step!
 - [ ] Confirm Pause and Resume and Cancel all still work!
 - [ ] Represent color as string "#ffaabb" (with or without #, detect if string vs int)
@@ -7,7 +42,7 @@
 - [ ] Provide more guidance for SSE JContainers when not found when using 1.5 vs 1.6 vs VR
 
 - [x] Inline macro in definition file `"script": []` (treated as its own step, the first step, for statistics etc)
-- [ ] `"done": true`
+- [ ] `"done": true` or end or exit
 - [x] `"msgbox": "Some dialog message"`
 - [ ] `"print": "Some console message"`
 - [ ] `"notify": "Some notification message"`

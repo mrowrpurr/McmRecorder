@@ -5,10 +5,10 @@ int function GetOption(int playback, SKI_ConfigBase mcmMenu, string modName, str
     ; If this isn't the same MCM that was previously played, refresh it!
     if modName != McmRecorder_Playback.CurrentModName(playback) || pageName != McmRecorder_Playback.CurrentModPageName(playback)
         bool forceRefresh = false
-        if McmRecorder_Player.HasModBeenPlayed(modName)
+        if McmRecorder.HasModBeenPlayed(modName)
             forceRefresh = true
         else
-            McmRecorder_Player.AddModPlayed(modName)
+            McmRecorder.AddModPlayed(modName)
         endIf
         McmRecorder_ModConfigurationMenu.Refresh(mcmMenu, modName, pageName, forceRefresh)
     endIf
@@ -21,7 +21,7 @@ int function GetOption(int playback, SKI_ConfigBase mcmMenu, string modName, str
 endFunction
 
 bool function ShouldSkipOption(int playback) global
-    string skippingMod = McmRecorder_Player.GetCurrentlySkippingModName()
+    string skippingMod = McmRecorder.GetCurrentlySkippingModName()
     return skippingMod && skippingMod == McmRecorder_Playback.CurrentModName(playback)
 endFunction
 

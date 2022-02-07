@@ -24,13 +24,13 @@ function Play(int playback, int actionInfo) global
 
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu
-        McmRecorder_Player.McmMenuNotFound(playback, actionInfo, modName)
+        McmRecorder_UI.McmMenuNotFound(playback, actionInfo, modName)
         return
     endIf
 
     int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "menu", selector, index = index)
     if ! option
-        McmRecorder_Player.OptionNotFound(playback, actionInfo, modName, pageName, "menu '" + selector + "'")
+        McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "menu '" + selector + "'")
         return
     endIf
 

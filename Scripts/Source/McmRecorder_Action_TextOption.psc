@@ -1,9 +1,5 @@
 scriptName McmRecorder_Action_TextOption hidden
 
-bool function IsActionType(int actionInfo) global
-    return JMap.hasKey(actionInfo, "click")
-endFunction
-
 function Play(int playback, int actionInfo) global
     if McmRecorder_Playback.IsCanceled(playback) || McmRecorder_Action_Option.ShouldSkipOption(playback)
         return
@@ -19,13 +15,15 @@ function Play(int playback, int actionInfo) global
     
     SKI_ConfigBase mcmMenu = McmRecorder_ModConfigurationMenu.GetMenu(modName)
     if ! mcmMenu
-        McmRecorder_Player.McmMenuNotFound(playback, actionInfo, modName)
+        ; MAKE THIS A SMALL SkyScript
+        McmRecorder_UI.McmMenuNotFound(playback, actionInfo, modName)
         return
     endIf
 
     int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "text", selector, side, index)
     if ! option
-        McmRecorder_Player.OptionNotFound(playback, actionInfo, modName, pageName, "text '" + selector + "'")
+        ; MAKE THIS A SMALL SkyScript
+        McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "text '" + selector + "'")
         return
     endIf
 

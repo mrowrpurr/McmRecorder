@@ -9,6 +9,8 @@ endFunction
 
 function Play(int recordingId, string startingStepName = "", int startingActionIndex = -1) global
     int this = McmRecorder_Playback.Create(recordingId, startingStepName, startingActionIndex)
+    int scriptInstance = McmRecorder_Playback.GetScript(this)
+    SkyScript.SetVariableBool(scriptInstance, "topLevelRecording", true)
     string recordingName = McmRecorder_Recording.GetName(recordingId)
 
     ; Tell system that recording is in progress
