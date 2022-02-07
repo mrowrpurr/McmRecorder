@@ -1,46 +1,17 @@
 scriptName McmRecorder_Action hidden
 
-function PlayMultiple(int playback, int actionList) global
-    int actionCount = JArray.count(actionList)
-    if actionCount
-        int i = 0
-        while i < actionCount
-            int actionInfo = JArray.getObj(actionList, i)
-                Play(playback, actionInfo)
-            i += 1
-        endWhile
-    endIf
+; Delegates all actions to SkyScript
+
+function Play(int playback, int actionList) global
+    int scriptInstance = McmRecorder_Playback.GetScript(playback)
+    int subscript = SkyScript.Initialize()
+    SkyScript.SetScriptParent(subscript, scriptInstance)
+    SkyScript.SetScriptActions(subscript, actionList)
+    SkyScript.Run(subscript)
 endFunction
 
-function Play(int playback, int actionInfo) global
-    TrackMostRecentMcmMenuAndPage(playback, actionInfo) ; Track "mod" and "page"
-
-    Debug.MessageBox("PLAY AN ACTION! Need to move this to SkyScript")
-
-    ; if McmRecorder_Action_MessageBox.IsActionType(actionInfo)
-    ;     McmRecorder_Action_MessageBox.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_ToggleOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_ToggleOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_InputOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_InputOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_TextOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_TextOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_ColorOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_ColorOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_KeymapOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_KeymapOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_MenuOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_MenuOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_SliderOption.IsActionType(actionInfo)
-    ;     McmRecorder_Action_SliderOption.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_Chooser.IsActionType(actionInfo)
-    ;     McmRecorder_Action_Chooser.Play(playback, actionInfo)
-    ; elseIf McmRecorder_Action_Play.IsActionType(actionInfo)
-    ;     McmRecorder_Action_Play.Play(playback, actionInfo)
-    ; else
-    ;     ; Nothing right now...
-    ; endIf
-endFunction
+; TODO account for this!
+; TrackMostRecentMcmMenuAndPage(playback, actionInfo) ; Track "mod" and "page"
 
 function TrackMostRecentMcmMenuAndPage(int playback, int actionInfo) global
     if JMap.hasKey(actionInfo, "mod")

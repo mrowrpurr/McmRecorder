@@ -34,8 +34,6 @@ function Play(int this) global
 
     int recording = Recording(this)
 
-    McmRecorder_Logging.ConsoleOut("RECORDING: " + recording + McmRecorder_Logging.ToJson(recording))
-
     string recordingName = McmRecorder_Recording.GetName(recording)
     string startingStep = CurrentStepFilename(this)
     int startingActionIndex = CurrentActionIndex(this)
@@ -52,6 +50,8 @@ function Play(int this) global
     if ShouldPrintNotifications(this)
         McmRecorder_UI.Notification("Play " + recordingName)
     endIf
+
+    SkyScript.SetVariableString(GetScript(this), "recordingName", recordingName)
 
     _Play_InlineScript(this)
     _Play_Steps(this)
@@ -81,7 +81,7 @@ function _Play_InlineScript(int this) global
     int inlineScript = InlineScript(this)
     if inlineScript
         McmRecorder_Logging.ConsoleOut("Playing recording '" + recordingName + "' inline script (" + JArray.count(inlineScript) + " actions)")
-        McmRecorder_Action.PlayMultiple(this, inlineScript)
+        McmRecorder_Action.Play(this, inlineScript)
     endIf
 endFunction
 

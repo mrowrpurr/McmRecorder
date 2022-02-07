@@ -5,6 +5,9 @@ bool function IsActionType(int actionInfo) global
 endFunction
 
 function Play(int playback, int actionInfo) global
+
+    Debug.MessageBox("OH JEEZ - Playing the OLD toggle option")
+
     if McmRecorder_Playback.IsCanceled(playback) || McmRecorder_Action_Option.ShouldSkipOption(playback)
         return
     endIf
