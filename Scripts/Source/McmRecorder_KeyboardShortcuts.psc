@@ -13,7 +13,7 @@ function AddRecording(string recordingName) global
 endFunction
 
 int function GetShortcutsInfos() global
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     int shortcutInfos = JArray.object()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_MCM_KeyboardShortcuts_ShortcutInfos(), shortcutInfos, createMissingKeys = true)
     int i = 0
@@ -34,7 +34,7 @@ endFunction
 
 int[] function GetAllKeyboardShortcutKeys() global
     int[] keycodes
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     int shortcutInfos = JArray.object()
     int i = 0
     while i < recordingNames.Length
@@ -58,7 +58,7 @@ function RunKeyboardShortcutIfAny(int pressedKey) global
     bool altPressed  = Input.IsKeyPressed(56)  || Input.IsKeyPressed(184)
     bool shiftPressed = Input.IsKeyPressed(42) || Input.IsKeyPressed(54)
     bool found
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     int shortcutInfos = JArray.object()
     int i = 0
     while i < recordingNames.Length && (!found)

@@ -38,6 +38,7 @@ event OnInit()
     ListenForRaceMenuClose()
     McmRecorder_VR.RegisterVrikGesturesForRecordings()
     ListenForRecordingSkseModEvents()
+    McmRecorder_RecordingsFolder.Reload()
 endEvent
 
 event SaveGameLoaded()
@@ -45,6 +46,7 @@ event SaveGameLoaded()
     StartListenForKeyboardShortcuts()
     McmRecorder_VR.ListenForVriKGesturesForRecordings()
     ListenForRecordingSkseModEvents()
+    McmRecorder_RecordingsFolder.Reload()
 endEvent
 
 function StartListenForKeyboardShortcuts()
@@ -102,7 +104,7 @@ event OnMenuClose(string menuName)
 endEvent
 
 function AutorunRecordings()
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]

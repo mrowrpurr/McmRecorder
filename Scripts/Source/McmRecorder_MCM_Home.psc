@@ -1,8 +1,10 @@
-scriptName McmRecorder_MCM_RecordingList hidden
+scriptName McmRecorder_MCM_Home hidden
 
 function Render(McmRecorderMCM mcmMenu) global
+    McmRecorder_RecordingsFolder.Reload()
+
     if McmRecorder_Recorder.IsRecording()
-        mcmMenu.oid_RecordingList_Stop = mcmMenu.AddTextOption("Currently Recording!", "STOP RECORDING", mcmMenu.OPTION_FLAG_NONE)
+        mcmMenu.oid_Home_Stop = mcmMenu.AddTextOption("Currently Recording!", "STOP RECORDING", mcmMenu.OPTION_FLAG_NONE)
         mcmMenu.AddEmptyOption()
         mcmMenu.AddEmptyOption()
         mcmMenu.AddEmptyOption()
@@ -12,14 +14,14 @@ function Render(McmRecorderMCM mcmMenu) global
         mcmMenu.AddEmptyOption()
     else
         if McmRecorder_VR.IsSkyrimVR()
-            mcmMenu.oid_RecordingList_Record = mcmMenu.AddTextOption("Click to begin recording:", "BEGIN RECORDING", mcmMenu.OPTION_FLAG_NONE)
+            mcmMenu.oid_Home_Record = mcmMenu.AddTextOption("Click to begin recording:", "BEGIN RECORDING", mcmMenu.OPTION_FLAG_NONE)
         else
-            mcmMenu.oid_RecordingList_Record = mcmMenu.AddInputOption("Click to begin recording:", "BEGIN RECORDING", mcmMenu.OPTION_FLAG_NONE)
+            mcmMenu.oid_Home_Record = mcmMenu.AddInputOption("Click to begin recording:", "BEGIN RECORDING", mcmMenu.OPTION_FLAG_NONE)
         endIf
         mcmMenu.AddEmptyOption()
     endIf
 
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     
     if recordingNames.Length && ((! McmRecorder_Recorder.IsRecording()) || recordingNames.Length > 1)
         mcmMenu.AddEmptyOption()
@@ -71,10 +73,10 @@ function Render(McmRecorderMCM mcmMenu) global
 endFunction
 
 function OnOptionSelect(McmRecorderMCM mcmMenu, int optionId) global
-    if McmRecorder_Recorder.IsRecording() && optionId == mcmMenu.oid_RecordingList_Stop
+    if McmRecorder_Recorder.IsRecording() && optionId == mcmMenu.oid_Home_Stop
         McmRecorder_Recorder.StopRecording()
         mcmMenu.ForcePageReset()
-    elseIf McmRecorder_VR.IsSkyrimVR() && (! McmRecorder_Recorder.IsRecording()) && optionId == mcmMenu.oid_RecordingList_Record
+    elseIf McmRecorder_VR.IsSkyrimVR() && (! McmRecorder_Recorder.IsRecording()) && optionId == mcmMenu.oid_Home_Record
         McmRecorder_Recorder.BeginRecording(McmRecorder_Recording.GetRandomRecordingName())
         mcmMenu.ForcePageReset()
     else
@@ -91,7 +93,7 @@ function OnOptionInputAccept(McmRecorderMCM mcmMenu, int optionId, string text) 
 endFunction
 
 function OnOptionInputOpen(McmRecorderMCM mcmMenu, int optionId) global
-    if optionId == mcmMenu.oid_RecordingList_Record
+    if optionId == mcmMenu.oid_Home_Record
         mcmMenu.SetInputDialogStartText(McmRecorder_Recording.GetRandomRecordingName())
     endIf
 endFunction

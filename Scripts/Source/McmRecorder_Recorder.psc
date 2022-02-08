@@ -10,7 +10,7 @@ bool function AnyRecordings() global
 endFunction
 
 int function RecordingsCount() global
-    return McmRecorder_Files.GetRecordingNames().Length
+    return McmRecorder_RecordingsFolder.GetRecordingNames().Length
 endFunction
 
 function RecordAction(SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, int optionId, string stateName = "", bool recordFloatValue = false, bool recordStringValue = false, bool recordOptionType = false, float fltValue = -1.0, string strValue = "", string[] menuOptions = None) global

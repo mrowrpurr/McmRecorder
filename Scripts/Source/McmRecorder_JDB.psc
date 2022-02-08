@@ -17,6 +17,18 @@ string function JdbPathPart(string part) global
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Recordings Folder
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+string function JdbPath_RecordingFilePaths() global
+    return ".mcmRecorder.recordingFilePaths"
+endFunction
+
+string function JdbPath_RecordingFilePaths_Loading() global
+    return ".mcmRecorder.recordingFilePaths_Loading"
+endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Current Recording
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

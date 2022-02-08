@@ -5,6 +5,10 @@ string function GetMcmRecordingsDataPath() global
     return "Data/McmRecorder"
 endFunction
 
+string function GetMcmRecorderConfigurationFilePath() global
+    return GetMcmRecordingsDataPath() + "/" + "McmRecorder.json"
+endFunction
+
 int function ReadStepFilesToMap(string recordingName) global
     if MiscUtil.FileExists(PathToRecordingFolder(recordingName))
         return JValue.readFromDirectory(PathToRecordingFolder(recordingName))
@@ -25,28 +29,6 @@ endFunction
 
 function SaveRecordingInfoFile(string recordingName, int metaInfo) global
     JValue.writeToFile(metaInfo, PathToRecordingFolder(recordingName) + ".json")
-endFunction
-
-string[] function GetRecordingNames() global
-    if ! MiscUtil.FileExists(GetMcmRecordingsDataPath())
-        string[] ret
-        return ret
-    endIf
-
-    string[] fileNames
-    
-    if McmRecorder_Config.IsSkyrimVR()
-        fileNames = JMap.allKeysPArray(JValue.readFromDirectory(GetMcmRecordingsDataPath()))
-    else
-        fileNames = MiscUtil.FilesInFolder(GetMcmRecordingsDataPath())
-    endIf
-    
-    int i = 0
-    while i < fileNames.Length
-        fileNames[i] = StringUtil.Substring(fileNames[i], 0, StringUtil.Find(fileNames[i], ".json"))
-        i += 1
-    endWhile
-    return fileNames
 endFunction
 
 string function FilenameWithoutExtension(string filename, string extension) global

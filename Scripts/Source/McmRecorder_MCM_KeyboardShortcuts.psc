@@ -133,7 +133,7 @@ endFunction
 function OnOptionMenuOpen(McmRecorderMCM mcmMenu, int optionId) global
     if optionId == mcmMenu.oid_KeyboardShortcuts_SelectRecordingMenu
         mcmMenu.KeyboardShortcuts_RecordingNamesMenu = new string[1]
-        string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+        string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
         int recordingsWithoutShortcutsCount = 0
         int i = 0
         while i < recordingNames.Length

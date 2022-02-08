@@ -17,7 +17,7 @@ bool function IsVrikInstalled() global
 endFunction
 
 function RegisterVrikGesturesForRecordings() global
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]
@@ -41,7 +41,7 @@ function UnregisterVrikGestureForRecording(string recordingName) global
 endFunction
 
 function ListenForVriKGesturesForRecordings() global
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames()
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
         string recordingName = recordingNames[i]

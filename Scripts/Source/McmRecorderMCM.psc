@@ -2,32 +2,33 @@ scriptName McmRecorderMCM extends SKI_ConfigBase
 
 McmRecorder Recorder
 
-int property oid_RecordingList_Record auto
-int property oid_RecordingList_Stop auto
+;
+; Main Page - Recording List and Recording / Stop Buttons
+;
+int property oid_Home_Record auto
+int property oid_Home_Stop auto
 int[] property RecordingList_RecordingTextOptions auto
 string[] property RecordingList_RecordingNames auto
-
-int property oid_PausedRecording_Resume auto
+; ... Main Page - But when the recording is currently paused...
+int property oid_PausedRecording_Resume auto ; <--- rename and clean these up
 int property oid_PausedRecording_Cancel auto
 
+;
+; Recording Details
+;
+string property RecordingDetails_CurrentRecordingName auto
+
+;
+; Keyboard Shortcuts
+;
 int property oid_KeyboardShortcuts_SelectRecordingMenu auto
 string[] property KeyboardShortcuts_RecordingNamesMenu auto
 
+;
+; VR Gestures
+;
 int[] property oid_VrGestures_RecordingToggles auto
 string[] property VrGestures_RecordingNames auto
-
-; Private fields from previous versions: TODO comment out!
-; int oid_Record
-; int oid_Stop
-; int[] oids_Recordings
-; int oid_KeyboardShortcuts_RecordingSelectionMenu
-; int oid_ResumePausedRecording
-; int oid_CancelPausedRecording
-; string[] menuOptions
-; string[] recordings
-; bool isPlayingRecording
-; string currentlyPlayingRecordingName
-; bool openRunOrPreviewStepsPrompt
 
 event OnConfigInit()
     ModName = "MCM Recorder"
@@ -36,14 +37,16 @@ endEvent
 
 event OnConfigOpen()
     if McmRecorder_VR.IsSkyrimVR() && McmRecorder_VR.IsVrikInstalled()
+        Pages = new string[4]
+        Pages[0] = "MCM Recordings"
+        Pages[1] = McmRecorder_MCM_RecordingDetails.PageName()
+        Pages[2] = "Keyboard Shortcuts"
+        Pages[3] = "VR Gestures"
+    else
         Pages = new string[3]
         Pages[0] = "MCM Recordings"
-        Pages[1] = "Keyboard Shortcuts"
-        Pages[2] = "VR Gestures"
-    else
-        Pages = new string[2]
-        Pages[0] = "MCM Recordings"
-        Pages[1] = "Keyboard Shortcuts"
+        Pages[1] = McmRecorder_MCM_RecordingDetails.PageName()
+        Pages[2] = "Keyboard Shortcuts"
     endIf
 endEvent
 
@@ -53,7 +56,9 @@ event OnPageReset(string page)
         return
     endIf
 
-    if page == McmRecorder_MCM_KeyboardShortcuts.PageName()
+    if page == McmRecorder_MCM_RecordingDetails.PageName()
+        McmRecorder_MCM_RecordingDetails.Render(self)
+    elseIf page == McmRecorder_MCM_KeyboardShortcuts.PageName()
         McmRecorder_MCM_KeyboardShortcuts.Render(self)
     elseIf page == McmRecorder_MCM_VrGestures.PageName()
         McmRecorder_MCM_VrGestures.Render(self)
@@ -61,7 +66,7 @@ event OnPageReset(string page)
         if McmRecorder_TopLevelPlayer.IsPaused()
             McmRecorder_MCM_RecordingPaused.Render(self)
         else
-            McmRecorder_MCM_RecordingList.Render(self)
+            McmRecorder_MCM_Home.Render(self)
         endIf
     endIf
 endEvent
@@ -86,7 +91,7 @@ event OnOptionSelect(int optionId)
         if McmRecorder_TopLevelPlayer.IsPaused()
             McmRecorder_MCM_RecordingPaused.OnOptionSelect(self, optionId)
         else
-            McmRecorder_MCM_RecordingList.OnOptionSelect(self, optionId)
+            McmRecorder_MCM_Home.OnOptionSelect(self, optionId)
         endIf
     endIf
 endEvent
@@ -96,11 +101,11 @@ event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, st
 endEvent
 
 event OnOptionInputAccept(int optionId, string text)
-    McmRecorder_MCM_RecordingList.OnOptionInputAccept(self, optionId, text)
+    McmRecorder_MCM_Home.OnOptionInputAccept(self, optionId, text)
 endEvent
 
 event OnOptionInputOpen(int optionId)
-    McmRecorder_MCM_RecordingList.OnOptionInputOpen(self, optionId)
+    McmRecorder_MCM_Home.OnOptionInputOpen(self, optionId)
 endEvent
 
 event OnOptionMenuOpen(int optionId)
@@ -110,3 +115,17 @@ endEvent
 event OnOptionMenuAccept(int optionId, int index)
     McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuAccept(self, optionId, index)
 endEvent
+
+; Private fields from previous versions:
+;
+;   int oid_Record
+;   int oid_Stop
+;   int[] oids_Recordings
+;   int oid_KeyboardShortcuts_RecordingSelectionMenu
+;   int oid_ResumePausedRecording
+;   int oid_CancelPausedRecording
+;   string[] menuOptions
+;   string[] recordings
+;   bool isPlayingRecording
+;   string currentlyPlayingRecordingName
+;   bool openRunOrPreviewStepsPrompt

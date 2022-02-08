@@ -5,7 +5,7 @@ string function PageName() global
 endFunction
 
 function Render(McmRecorderMCM mcmMenu) global
-    string[] recordingNames = McmRecorder_Files.GetRecordingNames() ; --> recordingNames
+    string[] recordingNames = McmRecorder_RecordingsFolder.GetRecordingNames() ; --> recordingNames
     if recordingNames.Length && ((! McmRecorder_Recorder.IsRecording()) || recordingNames.Length > 1)
         mcmMenu.SetCursorFillMode(mcmMenu.TOP_TO_BOTTOM)
         mcmMenu.AddTextOption("Choose MCM Recordings", "", mcmMenu.OPTION_FLAG_DISABLED)
