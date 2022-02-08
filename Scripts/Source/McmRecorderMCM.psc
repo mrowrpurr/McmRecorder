@@ -9,6 +9,7 @@ string property CurrentlyViewingRecordingName auto
 int property oid_Home_Record auto
 int property oid_Home_Stop auto
 int[] property RecordingList_RecordingTextOptions auto
+int[] property RecordingList_RecordingDetailsOptions auto
 string[] property RecordingList_RecordingNames auto
 ; ... Main Page - But when the recording is currently paused...
 int property oid_PausedRecording_Resume auto ; <--- rename and clean these up

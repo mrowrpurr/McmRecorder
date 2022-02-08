@@ -36,6 +36,7 @@ function Render(McmRecorderMCM mcmMenu) global
         mcmMenu.AddEmptyOption()
 
         mcmMenu.RecordingList_RecordingTextOptions = Utility.CreateIntArray(recordingNames.Length)
+        mcmMenu.RecordingList_RecordingDetailsOptions = Utility.CreateIntArray(recordingNames.Length)
         mcmMenu.RecordingList_RecordingNames = Utility.CreateStringArray(recordingNames.Length)
 
         int i = 0
@@ -46,25 +47,9 @@ function Render(McmRecorderMCM mcmMenu) global
                 string[] stepNames = McmRecorder_Recording.GetStepNames(recording)
                 int recordingInfo = McmRecorder_Recording.Get(recordingName)
                 if ! McmRecorder_Recording.IsHidden(recordingInfo)
-                    mcmMenu.RecordingList_RecordingTextOptions[i] = mcmMenu.AddTextOption("", recordingName, flagOption)
                     mcmMenu.RecordingList_RecordingNames[i] = recordingName
-
-                    string stepCountText
-                    if stepNames.Length == 1
-                        stepCountText = stepNames.Length + " mod"
-                    else
-                        stepCountText = stepNames.Length + " mods"
-                    endIf
-
-                    int totalActionCount = McmRecorder_Recording.GetTotalActionCount(recordingInfo)
-                    string actionCountText
-                    if totalActionCount == 1
-                        actionCountText = totalActionCount + " configured option"
-                    else
-                        actionCountText = totalActionCount + " configured options"
-                    endIf
-                    
-                    mcmMenu.AddTextOption(actionCountText, stepCountText, mcmMenu.OPTION_FLAG_DISABLED)
+                    mcmMenu.RecordingList_RecordingTextOptions[i] = mcmMenu.AddTextOption("", recordingName, flagOption)
+                    mcmMenu.RecordingList_RecordingDetailsOptions[i] = mcmMenu.AddTextOption(stepNames.Length + " steps", "VIEW DETAILS", mcmMenu.OPTION_FLAG_NONE)
                 endIf
             endIf
             i += 1
@@ -81,13 +66,20 @@ function OnOptionSelect(McmRecorderMCM mcmMenu, int optionId) global
     elseIf McmRecorder_VR.IsSkyrimVR() && (! McmRecorder_Recorder.IsRecording()) && optionId == mcmMenu.oid_Home_Record
         McmRecorder_Recorder.BeginRecording(McmRecorder_Recording.GetRandomRecordingName())
         mcmMenu.ForcePageReset()
-    ; [Click on Recording]
+    ; [Click on Recording] or [View Details]
     else
-        int recordingIndex = mcmMenu.RecordingList_RecordingTextOptions.Find(optionId)
-        string recordingName = mcmMenu.RecordingList_RecordingNames[recordingIndex]
-        mcmMenu.CurrentlyViewingRecordingName = recordingName
-        mcmMenu.ForcePageReset()
-        ; PromptToRunRecordingOrPreviewSteps(mcmMenu, recordingName)
+        int playRecordingIndex = mcmMenu.RecordingList_RecordingTextOptions.Find(optionId)
+        if playRecordingIndex > -1
+            string recordingName = mcmMenu.RecordingList_RecordingNames[playRecordingIndex]
+            PromptToRunRecordingOrPreviewSteps(mcmMenu, recordingName)
+        else
+            int viewRecordingDetailsIndex = mcmMenu.RecordingList_RecordingDetailsOptions.Find(optionId)
+            if viewRecordingDetailsIndex > -1
+                string recordingName = mcmMenu.RecordingList_RecordingNames[viewRecordingDetailsIndex]
+                mcmMenu.CurrentlyViewingRecordingName = recordingName
+                mcmMenu.ForcePageReset()
+            endIf
+        endIf
     endIf
 endFunction
 
