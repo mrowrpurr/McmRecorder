@@ -1,16 +1,25 @@
-# Priority!
+# 1.1
 
+- [x] Remove all of the old Action files (lots)
+- [ ] MCM Helper - reach out for support assistance
 - [ ] Support mods with ':' in the page name
 - [ ] Consistency between using name in .json and the .json filename!!!! e.g. with the confirmation box
+- [ ] New MCM where you can look at an MCM Recording's steps and DELETE a step or DELETE a WHOLE recording
+- [ ] Change "script" to "before" "after" and "script" where "script" replaces everything.
+- [ ] Keep "welcome" and "complete" and make sure both work!
+- [ ] Add a "showNotifications" variable to control top left
+- [ ] Default "showNotifications" to true if TopLevel unless .json has "notifications": false <--
+- [ ] Configure colors using '#aabbcc' (both recorder and playback)
+- [ ] Update recorder to no longer store "mod" and "page" - separate page change actions
 
-# Cool stuff!
+Make sure this shit still works, yo:
+- [ ] Pause and Resume
 
-- [ ] Play Script by Filename
-- [ ] MCM actions
-- [ ] Play Recording
-- [ ] Configure the messages that recordings play
-- [ ] Configure if recording fails silently or with UI
+# Future
 
+- [ ] 128+ MCMs
+- [ ] Show/Hide MCMs
+- [ ] Translations
 
 
 

@@ -22,7 +22,7 @@ int function Execute(int scriptInstance, int actionInfo)
     endIf
 
     int playback = GetPlayback(scriptInstance)
-    if McmRecorder_Playback.IsCanceled(playback) || McmRecorder_Action_Option.ShouldSkipOption(playback)
+    if McmRecorder_Playback.IsCanceled(playback) || ShouldSkipOption(playback)
         return 0
     endIf
 
@@ -91,7 +91,7 @@ int function Click(SKI_ConfigBase mcmMenu, string modName, string pageName, int 
 
     McmRecorder_Logging.ConsoleOut("click on '" + selector + "'")
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "text", selector, side, index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "text", selector, side, index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "text '" + selector + "'")
@@ -116,7 +116,7 @@ int function Toggle(SKI_ConfigBase mcmMenu, string modName, string pageName, int
 
     McmRecorder_Logging.ConsoleOut("toggle '" + toggleOption + "' to " + toggleAction)
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "toggle", selector = toggleOption, index = index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "toggle", selector = toggleOption, index = index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "toggle '" + toggleOption + "'")
@@ -155,7 +155,7 @@ int function Input(SKI_ConfigBase mcmMenu, string modName, string pageName, int 
 
     McmRecorder_Logging.ConsoleOut("set '" + selector + "' to '" + text + "'")
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "input", selector, index = index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "input", selector, index = index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "text input '" + selector + "'")
@@ -181,7 +181,7 @@ int function Color(SKI_ConfigBase mcmMenu, string modName, string pageName, int 
 
     McmRecorder_Logging.ConsoleOut("set color '" + selector + "' to " + color) ; TODO make this HEX
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "color", selector, index = index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "color", selector, index = index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "color '" + selector + "'")
@@ -206,7 +206,7 @@ int function Shortcut(SKI_ConfigBase mcmMenu, string modName, string pageName, i
 
     McmRecorder_Logging.ConsoleOut("set keyboard shortcut '" + selector + "' to " + shortcut + " keycode") ; TODO make this HEX
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "keymap", selector, index = index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "keymap", selector, index = index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "keyboard shortcut '" + selector + "'")
@@ -236,7 +236,7 @@ int function Menu(SKI_ConfigBase mcmMenu, string modName, string pageName, int i
         McmRecorder_Logging.ConsoleOut("choose option number " + (menuOptionIndex + 1) + " from '" + selector + "'")
     endIf
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "menu", selector, index = index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "menu", selector, index = index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "menu '" + selector + "'")
@@ -289,7 +289,7 @@ int function Slider(SKI_ConfigBase mcmMenu, string modName, string pageName, int
 
     McmRecorder_Logging.ConsoleOut("set slider '" + selector + "' to " + sliderValue)
 
-    int option = McmRecorder_Action_Option.GetOption(playback, mcmMenu, modName, pageName, "slider", selector, index = index)
+    int option = GetOption(playback, mcmMenu, modName, pageName, "slider", selector, index = index)
 
     if (! option) && showErrorMessages
         McmRecorder_UI.OptionNotFound(playback, actionInfo, modName, pageName, "slider '" + selector + "'")
@@ -381,4 +381,29 @@ int function PlayRecording(int scriptInstance, int actionInfo, bool showErrorMes
     elseIf showErrorMessages
         McmRecorder_UI.MessageBox("Could not find specified recording to play: " + SkyScript.ToJson(actionInfo))
     endIf
+endFunction
+
+; Find an option. Assumed running in the context of a running recording.
+int function GetOption(int playback, SKI_ConfigBase mcmMenu, string modName, string pageName, string optionType, string selector, string side = "left", int index = -1) global
+    ; If this isn't the same MCM that was previously played, refresh it!
+    if modName != McmRecorder_Playback.CurrentModName(playback) || pageName != McmRecorder_Playback.CurrentModPageName(playback)
+        bool forceRefresh = false
+        if McmRecorder.HasModBeenPlayed(modName)
+            forceRefresh = true
+        else
+            McmRecorder.AddModPlayed(modName)
+        endIf
+        McmRecorder_ModConfigurationMenu.Refresh(mcmMenu, modName, pageName, forceRefresh)
+    endIf
+
+    string wildcard = McmRecorder_McmFields.GetWildcardMatcher(selector)
+
+    int option = McmRecorder_ModConfigurationMenu.FindOption(mcmMenu, modName, pageName, optionType, selector, wildcard, index, side)
+
+    return option
+endFunction
+
+bool function ShouldSkipOption(int playback) global
+    string skippingMod = McmRecorder.GetCurrentlySkippingModName()
+    return skippingMod && skippingMod == McmRecorder_Playback.CurrentModName(playback)
 endFunction
