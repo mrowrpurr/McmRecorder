@@ -85,8 +85,8 @@ function OnOptionSelect(McmRecorderMCM mcmMenu, int optionId) global
     else
         int recordingIndex = mcmMenu.RecordingList_RecordingTextOptions.Find(optionId)
         string recordingName = mcmMenu.RecordingList_RecordingNames[recordingIndex]
-        mcmMenu.RecordingDetails_CurrentRecordingName = recordingName
-        mcmMenu.SetPage("Recording Details", 2) ; <--- change this, just testing
+        mcmMenu.CurrentlyViewingRecordingName = recordingName
+        mcmMenu.ForcePageReset()
         ; PromptToRunRecordingOrPreviewSteps(mcmMenu, recordingName)
     endIf
 endFunction

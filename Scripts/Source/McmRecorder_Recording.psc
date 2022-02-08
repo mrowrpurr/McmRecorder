@@ -1,5 +1,7 @@
 scriptName McmRecorder_Recording hidden
 
+; TODO - back this with JDB! with cleanup!
+
 int function Get(string recordingName) global
     return McmRecorder_Files.ReadRecordingFile(recordingName)
 endFunction

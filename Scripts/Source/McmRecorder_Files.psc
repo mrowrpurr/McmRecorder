@@ -18,7 +18,8 @@ int function ReadStepFilesToMap(string recordingName) global
 endFunction
 
 int function ReadRecordingFile(string recordingName) global
-    return JValue.ReadFromFile(PathToRecordingFolder(recordingName) + ".json")
+    string recordingFilePath = McmRecorder_RecordingsFolder.GetRecordingFilePath(recordingName)
+    return JValue.readFromFile(recordingFilePath)
 endFunction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -5,6 +5,7 @@ McmRecorder Recorder
 ;
 ; Main Page - Recording List and Recording / Stop Buttons
 ;
+string property CurrentlyViewingRecordingName auto
 int property oid_Home_Record auto
 int property oid_Home_Stop auto
 int[] property RecordingList_RecordingTextOptions auto
@@ -13,10 +14,6 @@ string[] property RecordingList_RecordingNames auto
 int property oid_PausedRecording_Resume auto ; <--- rename and clean these up
 int property oid_PausedRecording_Cancel auto
 
-;
-; Recording Details
-;
-string property RecordingDetails_CurrentRecordingName auto
 
 ;
 ; Keyboard Shortcuts
@@ -37,14 +34,14 @@ endEvent
 
 event OnConfigOpen()
     if McmRecorder_VR.IsSkyrimVR() && McmRecorder_VR.IsVrikInstalled()
-        Pages = new string[4]
-        Pages[0] = "MCM Recordings"
-        Pages[2] = "Keyboard Shortcuts"
-        Pages[3] = "VR Gestures"
-    else
         Pages = new string[3]
         Pages[0] = "MCM Recordings"
-        Pages[2] = "Keyboard Shortcuts"
+        Pages[1] = "Keyboard Shortcuts"
+        Pages[2] = "VR Gestures"
+    else
+        Pages = new string[2]
+        Pages[0] = "MCM Recordings"
+        Pages[1] = "Keyboard Shortcuts"
     endIf
 endEvent
 
@@ -59,7 +56,7 @@ event OnPageReset(string page)
     elseIf page == McmRecorder_MCM_VrGestures.PageName()
         McmRecorder_MCM_VrGestures.Render(self)
     else
-        McmRecorder_MCM_Home_RecordingList.Render(self)
+        McmRecorder_MCM_Home.Render(self)
     endIf
 endEvent
 
