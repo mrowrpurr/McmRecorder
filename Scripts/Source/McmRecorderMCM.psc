@@ -39,13 +39,11 @@ event OnConfigOpen()
     if McmRecorder_VR.IsSkyrimVR() && McmRecorder_VR.IsVrikInstalled()
         Pages = new string[4]
         Pages[0] = "MCM Recordings"
-        Pages[1] = McmRecorder_MCM_RecordingDetails.PageName()
         Pages[2] = "Keyboard Shortcuts"
         Pages[3] = "VR Gestures"
     else
         Pages = new string[3]
         Pages[0] = "MCM Recordings"
-        Pages[1] = McmRecorder_MCM_RecordingDetails.PageName()
         Pages[2] = "Keyboard Shortcuts"
     endIf
 endEvent
@@ -56,18 +54,12 @@ event OnPageReset(string page)
         return
     endIf
 
-    if page == McmRecorder_MCM_RecordingDetails.PageName()
-        McmRecorder_MCM_RecordingDetails.Render(self)
-    elseIf page == McmRecorder_MCM_KeyboardShortcuts.PageName()
+    if page == McmRecorder_MCM_KeyboardShortcuts.PageName()
         McmRecorder_MCM_KeyboardShortcuts.Render(self)
     elseIf page == McmRecorder_MCM_VrGestures.PageName()
         McmRecorder_MCM_VrGestures.Render(self)
     else
-        if McmRecorder_TopLevelPlayer.IsPaused()
-            McmRecorder_MCM_RecordingPaused.Render(self)
-        else
-            McmRecorder_MCM_Home.Render(self)
-        endIf
+        McmRecorder_MCM_Home_RecordingList.Render(self)
     endIf
 endEvent
 
@@ -89,9 +81,9 @@ event OnOptionSelect(int optionId)
         McmRecorder_MCM_VrGestures.OnOptionSelect(self, optionId)
     else
         if McmRecorder_TopLevelPlayer.IsPaused()
-            McmRecorder_MCM_RecordingPaused.OnOptionSelect(self, optionId)
+            McmRecorder_MCM_Home_RecordingPaused.OnOptionSelect(self, optionId)
         else
-            McmRecorder_MCM_Home.OnOptionSelect(self, optionId)
+            McmRecorder_MCM_Home_RecordingList.OnOptionSelect(self, optionId)
         endIf
     endIf
 endEvent
@@ -101,11 +93,11 @@ event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, st
 endEvent
 
 event OnOptionInputAccept(int optionId, string text)
-    McmRecorder_MCM_Home.OnOptionInputAccept(self, optionId, text)
+    McmRecorder_MCM_Home_RecordingList.OnOptionInputAccept(self, optionId, text)
 endEvent
 
 event OnOptionInputOpen(int optionId)
-    McmRecorder_MCM_Home.OnOptionInputOpen(self, optionId)
+    McmRecorder_MCM_Home_RecordingList.OnOptionInputOpen(self, optionId)
 endEvent
 
 event OnOptionMenuOpen(int optionId)

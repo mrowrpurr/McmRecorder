@@ -1,4 +1,4 @@
-scriptName McmRecorder_MCM_RecordingPaused hidden
+scriptName McmRecorder_MCM_Home_RecordingPaused hidden
 
 function Render(McmRecorderMCM mcmMenu) global
     mcmMenu.SetCursorFillMode(mcmMenu.TOP_TO_BOTTOM)
