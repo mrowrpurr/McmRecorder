@@ -33,7 +33,7 @@ function Render(McmRecorderMCM mcmMenu) global
         else
             mcmMenu.AddTextOption("Choose a recording to play:", "", mcmMenu.OPTION_FLAG_DISABLED)
         endIf
-        mcmMenu.AddEmptyOption()
+        mcmMenu.AddTextOption("Click to view recording details:", "", mcmMenu.OPTION_FLAG_DISABLED)
 
         mcmMenu.RecordingList_RecordingTextOptions = Utility.CreateIntArray(recordingNames.Length)
         mcmMenu.RecordingList_RecordingDetailsOptions = Utility.CreateIntArray(recordingNames.Length)
@@ -44,12 +44,11 @@ function Render(McmRecorderMCM mcmMenu) global
             string recordingName = recordingNames[i]
             if recordingName != McmRecorder_Recorder.GetCurrentRecordingName()
                 int recording = McmRecorder_Recording.Get(recordingName)
-                string[] stepNames = McmRecorder_Recording.GetStepNames(recording)
                 int recordingInfo = McmRecorder_Recording.Get(recordingName)
                 if ! McmRecorder_Recording.IsHidden(recordingInfo)
                     mcmMenu.RecordingList_RecordingNames[i] = recordingName
                     mcmMenu.RecordingList_RecordingTextOptions[i] = mcmMenu.AddTextOption("", recordingName, flagOption)
-                    mcmMenu.RecordingList_RecordingDetailsOptions[i] = mcmMenu.AddTextOption(stepNames.Length + " steps", "VIEW DETAILS", mcmMenu.OPTION_FLAG_NONE)
+                    mcmMenu.RecordingList_RecordingDetailsOptions[i] = mcmMenu.AddTextOption("", "VIEW DETAILS", mcmMenu.OPTION_FLAG_NONE)
                 endIf
             endIf
             i += 1

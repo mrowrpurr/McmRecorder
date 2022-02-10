@@ -17,7 +17,13 @@ string[] property RecordingList_RecordingNames auto
 ; ... Main Page - But when the recording is currently paused...
 int property oid_PausedRecording_Resume auto ; <--- rename and clean these up
 int property oid_PausedRecording_Cancel auto
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;
+; Recording Details Page
+;
+int[] property RecordingDetails_StepActions_Options auto
+string[] property RecordingDetails_StepActions_StepNames auto
 
 ;
 ; Keyboard Shortcuts
@@ -102,7 +108,12 @@ event OnOptionInputOpen(int optionId)
 endEvent
 
 event OnOptionMenuOpen(int optionId)
-    McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuOpen(self, optionId)
+    if CurrentPage == McmRecorder_MCM_KeyboardShortcuts.PageName()
+        McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuOpen(self, optionId)
+    elseIf CurrentPage == "" ; Home Page
+        ; Only the details page currently has a menu
+        McmRecorder_MCM_Home_RecordingDetails.OnOptionMenuOpen(self, optionId)
+    endIf
 endEvent
 
 event OnOptionMenuAccept(int optionId, int index)

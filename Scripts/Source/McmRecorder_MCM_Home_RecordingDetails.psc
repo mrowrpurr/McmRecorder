@@ -18,12 +18,29 @@ function Render(McmRecorderMCM mcmMenu) global
         mcmMenu.AddHeaderOption("Recording Steps", mcmMenu.OPTION_FLAG_NONE)
         mcmMenu.AddEmptyOption()
 
+        mcmMenu.RecordingDetails_StepActions_Options = Utility.CreateIntArray(stepNames.Length)
+        mcmMenu.RecordingDetails_StepActions_StepNames = Utility.CreateStringArray(stepNames.Length)
+
         int i = 0
         while i < stepNames.Length
             string stepName = stepNames[i]
+            mcmMenu.RecordingDetails_StepActions_StepNames[i] = stepName
             mcmMenu.AddTextOption("", stepName, mcmMenu.OPTION_FLAG_NONE)
-            mcmMenu.AddMenuOption("", "Step Actions", mcmMenu.OPTION_FLAG_NONE)
+            mcmMenu.RecordingDetails_StepActions_Options[i] = mcmMenu.AddMenuOption("", "Step Actions", mcmMenu.OPTION_FLAG_NONE)
             i += 1
         endWhile
     endIf
+endFunction
+
+function OnOptionMenuOpen(McmRecorderMCM mcmMenu, int optionId) global
+    int stepIndex = mcmMenu.RecordingDetails_StepActions_Options.Find(optionId)
+    string stepName = mcmMenu.RecordingDetails_StepActions_StepNames[stepIndex]
+    string[] dialogOptions = new string[6]
+    dialogOptions[0] = "[" + stepName + "]"
+    dialogOptions[1] = "Run"
+    dialogOptions[2] = "Delete"
+    dialogOptions[3] = "Rename"
+    dialogOptions[4] = "Add to"
+    dialogOptions[5] = "Re-record"
+    mcmMenu.SetMenuDialogOptions(dialogOptions)
 endFunction
