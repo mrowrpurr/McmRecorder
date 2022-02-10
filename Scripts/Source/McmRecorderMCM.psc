@@ -2,6 +2,9 @@ scriptName McmRecorderMCM extends SKI_ConfigBase
 
 McmRecorder Recorder
 
+; TODO TODO TODO TODO TODO ; Move ALL PROPERTIES into JDB so there are NO FIELDS and NO PROPERTIES so fewer worries for future compatibility
+; ^--- maybe.
+
 ;
 ; Main Page - Recording List and Recording / Stop Buttons
 ;

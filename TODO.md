@@ -1,6 +1,8 @@
 # 1.1
 
-- [ ] Consistency between using name in .json and the .json filename!!!! e.g. with the confirmation box
+- [ ] Add a SkyScript "console": "[console command]" <-- needs to be available for MCM Recorder 1.1
+
+- [x] Consistency between using name in .json and the .json filename!!!! e.g. with the confirmation box
 
 - [ ] New MCM where you can look at an MCM Recording's steps and DELETE a step or DELETE a WHOLE recording
 

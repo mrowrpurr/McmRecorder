@@ -1,0 +1,42 @@
+[
+  {
+    "ignore": [
+      {
+        "//": "Check either playback.showMessages or playback.playedFromMCM or ?",
+        "if": "playback.showMessages",
+        "then": [
+          {
+            "notify": "${recording.notificationPrefix}${T.Started} ${recording.name}"
+          },
+          {
+            "if": "recording.welcome",
+            "then": { "msg": "${recording.welcome}" }
+          }
+        ]
+      },
+      "recording.before",
+      {
+        "for": "stepFile",
+        "in": "playback.stepFiles",
+        "do": [
+          "recording.beforeStep",
+          { "play": "${stepFile}" },
+          "recording.afterStep"
+        ]
+      },
+      "recording.after",
+      {
+        "if": "playback.showMessages",
+        "then": [
+          {
+            "notify": "${recording.notificationPrefix}${T.Finished} ${recording.name}"
+          },
+          {
+            "if": "recording.complete",
+            "then": { "msg": "${recording.complete}" }
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,6 +1,7 @@
 {
   "name": "",
   "mcmRecorder": 1.1,
+  "notificationPrefix": "[${T.McmRecorder}] ",
   "logs": "Data/McmRecorder/Logs/${recording.name}$.log",
   "errorHandling": {
     "mcmNotLoaded": {

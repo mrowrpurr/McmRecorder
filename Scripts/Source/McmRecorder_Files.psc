@@ -83,6 +83,17 @@ string function FileSystemPathPart(string part) global
         endIf
         i += 1
     endWhile
+    parts = StringUtil.Split(sanitized, ":")
+    sanitized = ""
+    i = 0
+    while i < parts.Length
+        if i == 0
+            sanitized += parts[i]
+        else
+            sanitized += "_" + parts[i]
+        endIf
+        i += 1
+    endWhile
     return sanitized
 endFunction
 
