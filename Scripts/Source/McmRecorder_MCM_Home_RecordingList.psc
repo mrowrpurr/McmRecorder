@@ -31,9 +31,9 @@ function Render(McmRecorderMCM mcmMenu) global
             mcmMenu.AddTextOption("All recordings:", "", mcmMenu.OPTION_FLAG_DISABLED)
             flagOption = mcmMenu.OPTION_FLAG_DISABLED
         else
-            mcmMenu.AddTextOption("Choose a recording to play:", "", mcmMenu.OPTION_FLAG_DISABLED)
+            mcmMenu.AddTextOption("Choose a recording:", "", mcmMenu.OPTION_FLAG_DISABLED)
         endIf
-        mcmMenu.AddTextOption("Click to view recording details:", "", mcmMenu.OPTION_FLAG_DISABLED)
+        mcmMenu.AddEmptyOption()
 
         mcmMenu.RecordingList_RecordingTextOptions = Utility.CreateIntArray(recordingNames.Length)
         mcmMenu.RecordingList_RecordingDetailsOptions = Utility.CreateIntArray(recordingNames.Length)
@@ -47,8 +47,11 @@ function Render(McmRecorderMCM mcmMenu) global
                 int recordingInfo = McmRecorder_Recording.Get(recordingName)
                 if ! McmRecorder_Recording.IsHidden(recordingInfo)
                     mcmMenu.RecordingList_RecordingNames[i] = recordingName
-                    mcmMenu.RecordingList_RecordingTextOptions[i] = mcmMenu.AddTextOption("", recordingName, flagOption)
-                    mcmMenu.RecordingList_RecordingDetailsOptions[i] = mcmMenu.AddTextOption("", "VIEW DETAILS", mcmMenu.OPTION_FLAG_NONE)
+                    if flagOption == mcmMenu.OPTION_FLAG_DISABLED
+                        mcmMenu.AddTextOption("", recordingName, flagOption)
+                    else
+                        mcmMenu.RecordingList_RecordingDetailsOptions[i] = mcmMenu.AddTextOption("", recordingName, flagOption)
+                    endIf
                 endIf
             endIf
             i += 1
@@ -75,8 +78,12 @@ function OnOptionSelect(McmRecorderMCM mcmMenu, int optionId) global
             int viewRecordingDetailsIndex = mcmMenu.RecordingList_RecordingDetailsOptions.Find(optionId)
             if viewRecordingDetailsIndex > -1
                 string recordingName = mcmMenu.RecordingList_RecordingNames[viewRecordingDetailsIndex]
-                mcmMenu.CurrentlyViewingRecordingName = recordingName
-                mcmMenu.ForcePageReset()
+                PromptToRunRecordingOrPreviewSteps(mcmMenu, recordingName)
+
+                ; New Mcm Layout - Enable:
+                ; mcmMenu.RecordingDetails_CurrentlyViewingRecordingName = recordingName
+                ; mcmMenu.ShouldRenderRecordingDetails = true ; <--- tell the page to show the recording details
+                ; mcmMenu.ForcePageReset()
             endIf
         endIf
     endIf

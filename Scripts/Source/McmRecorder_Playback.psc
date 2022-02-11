@@ -1,24 +1,26 @@
 scriptName McmRecorder_Playback hidden
 
-int function Create(int recording, string startingStepName = "", int startingActionIndex = -1, int parentScript = -1) global
-    MiscUtil.PrintConsole("PLAYBACK CREATE " + recording + " parentScript:" + parentScript)
-
+int function Create(int recording = 0, string startingStepName = "", int startingActionIndex = -1, int parentScript = -1) global
     int this = JMap.object()
     JDB.solveObjSetter(McmRecorder_JDB.JdbPath_PlaybackById(this), this, createMissingKeys = true)
-    JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_Recording(this), recording, createMissingKeys = true)
-    if startingStepName
-        SetCurrentStepFilename(this, startingStepName)
+
+    if recording
+        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_Recording(this), recording, createMissingKeys = true)
+        if startingStepName
+            SetCurrentStepFilename(this, startingStepName)
+        endIf
+        if startingActionIndex != -1
+            SetCurrentActionIndex(this, startingActionIndex)
+        endIf
+        if McmRecorder_Recording.HasInlineScript(recording)
+            JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_InlineScript(this), McmRecorder_Recording.GetInlineScript(recording), createMissingKeys = true)
+        endIf
+        int stepsByFilename = McmRecorder_Recording.StepsByFilename(recording)
+        if stepsByFilename
+            JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_StepsByFilename(this), stepsByFilename, createMissingKeys = true)
+        endIf
     endIf
-    if startingActionIndex != -1
-        SetCurrentActionIndex(this, startingActionIndex)
-    endIf
-    if McmRecorder_Recording.HasInlineScript(recording)
-        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_InlineScript(this), McmRecorder_Recording.GetInlineScript(recording), createMissingKeys = true)
-    endIf
-    int stepsByFilename = McmRecorder_Recording.StepsByFilename(recording)
-    if stepsByFilename
-        JDB.solveObjSetter(McmRecorder_JDB.JdbPath_Playback_StepsByFilename(this), stepsByFilename, createMissingKeys = true)
-    endIf
+
     int scriptInstance = SkyScript.Initialize()
     SkyScript.SetVariableObject(scriptInstance, "playback", this)
     JMap.setObj(this, "script", scriptInstance)

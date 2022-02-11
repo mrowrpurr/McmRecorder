@@ -8,10 +8,10 @@ McmRecorder Recorder
 ;
 ; Main Page - Recording List and Recording / Stop Buttons
 ;
-string property CurrentlyViewingRecordingName auto
 int property oid_Home_Record auto
 int property oid_Home_Stop auto
 int[] property RecordingList_RecordingTextOptions auto
+int[] property RecordingList_RecordingMenuOptions auto
 int[] property RecordingList_RecordingDetailsOptions auto
 string[] property RecordingList_RecordingNames auto
 ; ... Main Page - But when the recording is currently paused...
@@ -22,6 +22,10 @@ int property oid_PausedRecording_Cancel auto
 ;
 ; Recording Details Page
 ;
+bool property ShouldRenderRecordingDetails auto
+string property RecordingDetails_CurrentlyViewingRecordingName auto
+int property RecordingDetails_Recording_Play auto
+int property RecordingDetails_RecordingOptions_Menu auto
 int[] property RecordingDetails_StepActions_Options auto
 string[] property RecordingDetails_StepActions_StepNames auto
 
@@ -111,13 +115,17 @@ event OnOptionMenuOpen(int optionId)
     if CurrentPage == McmRecorder_MCM_KeyboardShortcuts.PageName()
         McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuOpen(self, optionId)
     elseIf CurrentPage == "" ; Home Page
-        ; Only the details page currently has a menu
         McmRecorder_MCM_Home_RecordingDetails.OnOptionMenuOpen(self, optionId)
     endIf
 endEvent
 
 event OnOptionMenuAccept(int optionId, int index)
-    McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuAccept(self, optionId, index)
+    if CurrentPage == McmRecorder_MCM_KeyboardShortcuts.PageName()
+        McmRecorder_MCM_KeyboardShortcuts.OnOptionMenuAccept(self, optionId, index)
+    elseIf CurrentPage == "" ; Home Page
+        ; Only the details page currently has a menu
+        McmRecorder_MCM_Home_RecordingDetails.OnOptionMenuAccept(self, optionId, index)
+    endIf
 endEvent
 
 ; Private fields from previous versions:

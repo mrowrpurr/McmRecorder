@@ -16,12 +16,19 @@ event RegisterSyntax()
 endEvent
 
 int function Execute(int scriptInstance, int actionInfo)
+    bool showErrorMessages = SkyScript.GetVariableBool(scriptInstance, "topLevelRecording", false)
+    
     if JMap.hasKey(actionInfo, "play")
         PlayRecording(scriptInstance, actionInfo, showErrorMessages)
         return 0
     endIf
 
     int playback = GetPlayback(scriptInstance)
+
+    if ! playback
+        playback = McmRecorder_Playback.Create()
+    endIf
+
     if McmRecorder_Playback.IsCanceled(playback) || ShouldSkipOption(playback)
         return 0
     endIf
@@ -43,8 +50,6 @@ int function Execute(int scriptInstance, int actionInfo)
     ; For now, let's just do this...
     McmRecorder_Playback.SetCurrentModName(playback, modName)
     McmRecorder_Playback.SetCurrentModPageName(playback, pageName)
-
-    bool showErrorMessages = SkyScript.GetVariableBool(scriptInstance, "topLevelRecording", false)
 
     SKI_ConfigBase mcmMenu = GetMcmMenu(playback, actionInfo, modName, showNotFoundMessage = showErrorMessages)
 
