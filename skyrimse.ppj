@@ -12,17 +12,17 @@
     <Variables>
         <Variable Name="ModName" Value="McmRecorder" />
         <Variable Name="ModVersion" Value="1.0.7" />
-        <Variable Name="ModsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Mods" />
-        <Variable Name="ImportsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Imports" />
+        <Variable Name="ModsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Mod Authoring\Mods" />
+        <Variable Name="ImportsFolder" Value="C:\Users\mrowr\Dropbox\Skyrim\Papyrus Imports" />
     </Variables>
     <Imports>
-        <Import>@ModsFolder\SKSE64\Scripts\Source</Import>
-        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\VR is Virtual Reality\mods\SkyUI\scripts\Source</Import>
-        <Import>@ImportsFolder\PapyrusUtil\Scripts\Source</Import>
-        <Import>@ImportsFolder\JContainers\Scripts\Source</Import>
-        <Import>@ImportsFolder\UIExtensions\scripts\source</Import>
-        <Import>C:\Users\mrowr\AppData\Local\ModOrganizer\Vanilla VR\mods\VRIK Player Avatar\Scripts</Import>
-        <Import>C:\Steam\steamapps\common\Skyrim Special Edition - Modding\Data\Scripts\Source</Import>
+        <Import>@ImportsFolder\SKSE</Import>
+        <Import>@ImportsFolder\SkyUI_SDK</Import>
+        <Import>@ImportsFolder\PapyrusUtil</Import>
+        <Import>@ImportsFolder\JContainers</Import>
+        <Import>@ImportsFolder\UIExtensions</Import>
+        <Import>@ImportsFolder\VRIK</Import>
+        <Import>C:\Program Files (x86)\Steam\steamapps\common\Skyrim Special Edition\Data\Scripts\Source</Import>
     </Imports>
     <Folders>
         <Folder>./Scripts/Source</Folder>
