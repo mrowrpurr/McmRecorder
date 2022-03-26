@@ -1,0 +1,10 @@
+{
+    "notifications": {
+        "console": "true",
+        "upper-left": "true",
+        "popup": "true"
+    },
+    "defaults": {
+        "mcmLoad": 5.0
+    }
+}
