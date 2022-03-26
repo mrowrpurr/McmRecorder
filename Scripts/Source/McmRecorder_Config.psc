@@ -11,6 +11,10 @@ bool function IsSkyrimVR() global
     return Game.GetModByName("SkyrimVR.esm") != 255
 endFunction
 
+bool function IsSkyrimLE() global
+    return MiscUtil.FileExists("TESV.exe")
+endFunction
+
 bool function ShowNotifications() global
     return JDB.solveStr(McmRecorder_JDB.JdbPath_Config_ShowNotifications()) != "false"
 endFunction
