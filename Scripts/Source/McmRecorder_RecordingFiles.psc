@@ -21,7 +21,7 @@ string[] function GetRecordingNames() global
 
     string[] fileNames
     
-    if McmRecorder_Config.IsSkyrimVR()
+    if McmRecorder_Config.IsSkyrimVR() || McmRecorder_Config.IsSkyrimLE()
         fileNames = JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordings()))
     else
         fileNames = MiscUtil.FilesInFolder(PathToRecordings())
@@ -36,7 +36,7 @@ string[] function GetRecordingNames() global
 endFunction
 
 string[] function GetRecordingStepFilenames(string recordingName) global
-    if McmRecorder_Config.IsSkyrimVR()
+    if McmRecorder_Config.IsSkyrimVR() || McmRecorder_Config.IsSkyrimLE()
         return JMap.allKeysPArray(JValue.readFromDirectory(PathToRecordingFolder(recordingName)))
     else
         return MiscUtil.FilesInFolder(PathToRecordingFolder(recordingName))
@@ -112,7 +112,7 @@ endFunction
 string function GetFileNameForRecordingAction(string recordingName, string modName) global
     string recordingFolder = PathToRecordingFolder(recordingName)
     int recordingStepNumber
-    if McmRecorder_Config.IsSkyrimVR()
+    if McmRecorder_Config.IsSkyrimVR() || McmRecorder_Config.IsSkyrimLE()
         recordingStepNumber = JMap.allKeysPArray(JValue.readFromDirectory(recordingFolder)).Length
     else
         recordingStepNumber = MiscUtil.FilesInFolder(recordingFolder).Length
