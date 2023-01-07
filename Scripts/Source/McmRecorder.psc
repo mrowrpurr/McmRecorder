@@ -44,6 +44,7 @@ event OnInit()
     ListenForRaceMenuClose()
     McmRecorder_VRIK.RegisterVrikGesturesForRecordings()
     ListenForRecordingSkseModEvents()
+    RegisterForSingleUpdate(5)
 endEvent
 
 event SaveGameLoaded()
@@ -51,6 +52,13 @@ event SaveGameLoaded()
     StartListenForKeyboardShortcuts()
     McmRecorder_VRIK.ListenForVriKGesturesForRecordings()
     ListenForRecordingSkseModEvents()
+endEvent
+
+Event OnUpdate()
+    if !haveRecordingsRun && !McmRecorder_Player.IsPlayingRecording() && !UI.IsMenuOpen("RaceSex Menu")
+        UnregisterForMenu("RaceSex Menu")
+        AutorunRecordings()
+    endIf
 endEvent
 
 function StartListenForKeyboardShortcuts()
@@ -109,7 +117,13 @@ event OnMenuClose(string menuName)
     endIf
 endEvent
 
+bool haveRecordingsRun = false
 function AutorunRecordings()
+    if haveRecordingsRun
+        return
+    endIf
+    haveRecordingsRun = true
+
     string[] recordingNames = McmRecorder_RecordingFiles.GetRecordingNames()
     int i = 0
     while i < recordingNames.Length
